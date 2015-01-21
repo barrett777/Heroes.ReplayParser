@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace Heroes.ReplayParser
 {
-    using Heroes.ReplayParser.Streams;
     using System;
     using System.IO;
     using System.Text;
