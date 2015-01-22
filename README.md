@@ -3,7 +3,10 @@ A C# library for parsing Heroes of the Storm replay files (.StormReplay).
 
 Currently developed and used by HOTSLogs.com.
 
-**Requirements:** An external tool to extract files from .StormReplay container, such as MpqLib.dll
+**Requirements:** An external tool to extract files from the .StormReplay container, such as MpqLib.dll
+
+Explanation
+================
 
 This project is not near complete.  In fact, I've decided to open it to the public in hopes of others helping to complete this.  Many areas of this code skip over unknown bytes of unknown structure, or skip over unknown information in a known structure.  It would be great to know what everything is for, and store useful information in the appropriate Replay or Player objects.
 
@@ -53,7 +56,51 @@ Structure is mostly unknown, minimal information is known
 
 Currently I'm only using this to get player's BattleTags, using some horrible, horrible code.  There may be other interesting information, I'm not sure.  This wasn't mentioned much in Starcraft 2 projects.
 
-**Special Thanks**
+Example Code
+================
+
+Here's some pseudo code:
+
+```csharp
+
+var replay = new Replay();
+
+MpqHeader.ParseHeader(replay, bytes);
+
+ReplayInitData.Parse(replay, bytes);
+
+ReplayTrackerEvents.Parse(replay, bytes);
+
+ReplayDetails.Parse(replay, bytes);
+
+ReplayAttributeEvents.Parse(replay, bytes);
+
+ReplayGameEvents.Parse(replay, bytes);
+
+ReplayServerBattlelobby.Parse(replay, bytes);
+
+// Now your replay object has parsed information:
+
+replay.Map;
+
+replay.GameMode;
+
+replay.Players[0].Name;
+
+replay.Players[0].Character;
+
+replay.Players[1].CharacterLevel;
+
+replay.Players[1].IsWinner;
+
+replay.Players[2].IsAutoSelect;
+
+replay.Players[3].Talents[0];
+
+```
+
+Special Thanks
+================
 
 Most of my progress is a direct result of other people's efforts with the Starcraft 2 replay file format.  Of particular importance is this C# parser which was basically the foundation of this project: https://github.com/ascendedguard/sc2replay-csharp
 
