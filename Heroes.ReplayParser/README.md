@@ -59,7 +59,45 @@ Currently I'm only using this to get player's BattleTags, using some horrible, h
 Example Code
 ================
 
-I've added a console application that demonstrates how to use Heroes.ReplayParser and MpqLib to parse replays and access the available data.
+Here's some pseudo code:
+
+```csharp
+
+var replay = new Replay();
+
+MpqHeader.ParseHeader(replay, bytes);
+
+ReplayInitData.Parse(replay, bytes);
+
+ReplayTrackerEvents.Parse(replay, bytes);
+
+ReplayDetails.Parse(replay, bytes);
+
+ReplayAttributeEvents.Parse(replay, bytes);
+
+ReplayGameEvents.Parse(replay, bytes);
+
+ReplayServerBattlelobby.Parse(replay, bytes);
+
+// Now your replay object has parsed information:
+
+replay.Map;
+
+replay.GameMode;
+
+replay.Players[0].Name;
+
+replay.Players[0].Character;
+
+replay.Players[1].CharacterLevel;
+
+replay.Players[1].IsWinner;
+
+replay.Players[2].IsAutoSelect;
+
+replay.Players[3].Talents[0];
+
+```
 
 Special Thanks
 ================
