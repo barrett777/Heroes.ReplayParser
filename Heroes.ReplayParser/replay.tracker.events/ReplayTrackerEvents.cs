@@ -19,6 +19,7 @@ namespace Heroes.ReplayParser
         {
             replay.TrackerEvents = new List<TrackerEvent>();
 
+            var currentFrameCount = 0;
             using (var stream = new MemoryStream(buffer))
                 using (var reader = new BinaryReader(stream))
                     while (stream.Position < stream.Length)
@@ -27,8 +28,9 @@ namespace Heroes.ReplayParser
                         if (intro[0] != 3 || /* intro[1] != 0 || */ intro[2] != 9)
                             throw new Exception("Unexpected data in tracker event");
 
-                        var trackerEvent = new TrackerEvent();
-                        trackerEvent.FramesSinceLastEvent = (int)TrackerEventStructure.read_vint(reader);
+                        currentFrameCount += (int)TrackerEventStructure.read_vint(reader);
+
+                        var trackerEvent = new TrackerEvent { TimeSpan = new TimeSpan(0, 0, (int)(currentFrameCount / 16.0)) };
 
                         intro = reader.ReadBytes(1); // Always 09
                         if (intro[0] != 9)
@@ -39,8 +41,18 @@ namespace Heroes.ReplayParser
                         replay.TrackerEvents.Add(trackerEvent);
                     }
 
-            replay.Frames = replay.TrackerEvents.Sum(i => i.FramesSinceLastEvent);
-            replay.ReplayLength = new TimeSpan(0, 0, (int)(replay.Frames / 16.0));
+            replay.Frames = currentFrameCount;
+            replay.ReplayLength = replay.TrackerEvents.Last().TimeSpan;
+
+            // Need to verify the player ID in the below code - particularly Custom Games where observers can take up spots in the client list
+            replay.TimelineEvents.AddRange(replay.TrackerEvents.Where(i =>
+                i.TrackerEventType == TrackerEventType.CreepColor &&
+                i.Data.dictionary[1].blobText == "VehicleDragonUpgrade")
+                .Select(i => new TimelineEvent {
+                    TimeSpan = i.TimeSpan,
+                    TimelineEventType = TimelineEventType.MapMechanicDragonShireDragon,
+                    PlayerID = (int)i.Data.dictionary[0].vInt.Value,
+                    Value = 1 }));
 
             /* var trackerEventGroupBy = replay.TrackerEvents.GroupBy(i => i.TrackerEventType).OrderBy(i => i.Key);
             Console.WriteLine(trackerEventGroupBy.Count()); */
@@ -69,8 +81,8 @@ namespace Heroes.ReplayParser
         /// <summary> Gets or sets the tracker event type. </summary>
         public ReplayTrackerEvents.TrackerEventType TrackerEventType { get; set; }
 
-        /// <summary> Gets or sets the frames since the last tracker event. </summary>
-        public int FramesSinceLastEvent { get; set; }
+        /// <summary> Gets or sets the timespan of when the event occurred. </summary>
+        public TimeSpan TimeSpan { get; set; }
 
         /// <summary> Gets or sets the data of the event. </summary>
         public TrackerEventStructure Data { get; set; }

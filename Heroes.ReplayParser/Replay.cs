@@ -45,6 +45,9 @@
         /// <summary> Gets the tracker events. </summary>
         public List<TrackerEvent> TrackerEvents { get; set; }
 
+        /// <summary> Gets a list of important events that can be plotted on a timeline, pulled from various parts of the replay file. </summary>
+        public List<TimelineEvent> TimelineEvents { get; set; }
+
         /// <summary> Gets the number of frames in this replay. </summary>
         public int Frames { get; set; }
 
@@ -60,6 +63,7 @@
         public Replay()
         {
             ClientList = new Player[0x10];
+            TimelineEvents = new List<TimelineEvent>();
         }
     }
 }

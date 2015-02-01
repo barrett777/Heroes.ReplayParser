@@ -69,6 +69,7 @@
     <Compile Include="Difficulty.cs" />
     <Compile Include="GameSpeed.cs" />
     <Compile Include="GameMode.cs" />
+    <Compile Include="TimelineEvent.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="mpq.header\MpqHeader.cs" />
     <Compile Include="Player.cs" />

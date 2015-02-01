@@ -1,6 +1,7 @@
 ﻿namespace Heroes.ReplayParser
 {
     using System.IO;
+    using System.Text;
     using Heroes.ReplayParser.Streams;
     using System;
 
@@ -21,42 +22,55 @@
                 var playerList = new string[i];
                 for (int j = 0; j < i; j++)
                 {
-                    var nameLength = reader.ReadByte();
-                    var str = reader.ReadString(nameLength);
-
-                    playerList[j] = str;
+                    playerList[j] = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(8));
 
                     if (reader.ReadBoolean())
                     {
-                        var strLength = reader.ReadByte();
-                        reader.AlignToByte();
-
-                        // Clan Tag
-                        reader.ReadString(strLength);                                
+                        var clanTag = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(8));
+                        // Console.WriteLine(clanTag);
                     }
 
                     if (reader.ReadBoolean())
-                        reader.ReadByte().ToString(); // Highest league
+                        // Clan Logo
+                        reader.ReadBlobPrecededWithLength(40);
 
                     if (reader.ReadBoolean())
-                        reader.ReadInt32().ToString(); // Swarm level
+                    {
+                        var highestLeague = reader.Read(8);
+                        // Console.WriteLine(highestLeague);
+                    }
+
+                    if (reader.ReadBoolean())
+                    {
+                        var combinedRaceLevels = reader.ReadInt32();
+                        // Console.WriteLine(combinedRaceLevels);
+                    }
 
                     reader.ReadInt32(); // Random seed (So far, always 0 in Heroes)
 
                     if (reader.ReadBoolean())
-                        reader.ReadByte().ToString(); // Race Preference
+                        reader.Read(8); // Race Preference
 
                     if (reader.ReadBoolean())
-                        reader.ReadByte().ToString(); // Team Preference
+                        reader.Read(8); // Team Preference
 
                     reader.ReadBoolean(); //test map
                     reader.ReadBoolean(); //test auto
                     reader.ReadBoolean(); //examine
                     reader.ReadBoolean(); //custom interface
+
+                    var unknown1 = reader.ReadInt32();
+
                     reader.Read(2);       //observer
 
-                    reader.AlignToByte();
-                    reader.ReadBytes(11); // Bunch of garbage \0
+                    var unknown2 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+                    var unknown3 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+                    var unknown4 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+                    var unknown5 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+                    var unknown6 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+                    var unknown7 = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7));
+
+                    // Console.WriteLine(unknown1 + unknown2 + unknown3 + unknown4 + unknown5 + unknown6 + unknown7);
                 }
 
                 // Marked as 'Random Value', so I will use as seed
