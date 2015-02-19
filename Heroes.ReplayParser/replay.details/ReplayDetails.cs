@@ -52,6 +52,14 @@ namespace Heroes.ReplayParser
                     // [5] - Utc Timestamp
                     replay.Timestamp = DateTime.FromFileTimeUtc(replayDetailsStructure.dictionary[5].vInt.Value);
 
+                    // There was a bug during the below builds where timestamps were buggy for the Mac build of Heroes of the Storm
+                    // The replay, as well as viewing these replays in the game client, showed years such as 1970, 1999, etc
+                    // I couldn't find a way to get the correct timestamp, so I am just estimating based on when these builds were live
+                    if (replay.ReplayBuild == 34053 && replay.Timestamp < new DateTime(2015, 2, 8))
+                        replay.Timestamp = new DateTime(2015, 2, 13);
+                    else if (replay.ReplayBuild == 34190 && replay.Timestamp < new DateTime(2015, 2, 15))
+                        replay.Timestamp = new DateTime(2015, 2, 20);
+
                     // [6] - Windows replays, this is Utc offset.  Mac replays, this is actually the entire Local Timestamp
                     // var potentialUtcOffset = new TimeSpan(replayDetailsStructure.dictionary[6].vInt.Value);
                     // Console.WriteLine(potentialUtcOffset.ToString());

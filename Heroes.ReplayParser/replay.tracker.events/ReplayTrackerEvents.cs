@@ -171,6 +171,8 @@ namespace Heroes.ReplayParser
             switch (DataType)
             {
                 case 0x00: // array
+                    if (array == null)
+                        return null;
                     var returnStringArray = "Array: ";
                     for (var i = 0; i < array.Length; i++)
                         returnStringArray += i + " (" + array[i] + "), ";

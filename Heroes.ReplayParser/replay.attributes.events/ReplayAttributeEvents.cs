@@ -26,8 +26,8 @@ namespace Heroes.ReplayParser
             var rae = new ReplayAttributeEvents { Attributes = attributes };
             rae.ApplyAttributes(replay);
 
-            // var stringList = attributes.OrderBy(i => i.AttributeType);
-            // Console.WriteLine(stringList.Count());
+            /* var stringList = attributes.OrderBy(i => i.AttributeType);
+            Console.WriteLine(stringList.Count()); */
         }
 
         /// <summary>
@@ -206,6 +206,17 @@ namespace Heroes.ReplayParser
                                         break;
                                 }
                         }
+                        break;
+
+                    case (ReplayAttributeEventType)4011: // What is this? Draft order?
+                        break;
+                    case (ReplayAttributeEventType)4016: // What is this? Always '1' in Hero League
+                        // if (replay.GameMode == GameMode.HeroLeague && int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray())) != 1)
+                            // Console.WriteLine("WAAT!?");
+                        break;
+                    case (ReplayAttributeEventType)4017: // What is this? Always '5' in Hero League
+                        // if (replay.GameMode == GameMode.HeroLeague && int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray())) != 5)
+                            // Console.WriteLine("WAAT!?");
                         break;
                 }
 

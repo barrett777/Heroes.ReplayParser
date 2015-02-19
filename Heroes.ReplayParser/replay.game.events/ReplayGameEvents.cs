@@ -27,6 +27,8 @@ namespace Heroes.ReplayParser
                     gameEvent.eventType = (GameEventType)bitReader.Read(7);
                     switch (gameEvent.eventType)
                     {
+                        case GameEventType.CStartGameEvent:
+                            break;
                         case GameEventType.CUserFinishedLoadingSyncEvent:
                             break;
                         case GameEventType.CUserOptionsEvent:
@@ -44,22 +46,22 @@ namespace Heroes.ReplayParser
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // Base Build Number
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) },
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) },
-                                new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(7) } } };
+                                new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) } } };
                             break;
                         case GameEventType.CBankFileEvent:
-                            gameEvent.data = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(7) };
+                            gameEvent.data = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) };
                             break;
                         case GameEventType.CBankSectionEvent:
-                            gameEvent.data = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(6) };
+                            gameEvent.data = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(6) };
                             break;
                         case GameEventType.CBankKeyEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
-                                new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(6) },
+                                new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(6) },
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) },
-                                new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(7) } } };
+                                new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) } } };
                             break;
                         case GameEventType.CBankSignatureEvent:
-                            gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(5)] };
+                            gameEvent.data = new TrackerEventStructure { DataType = 2, array = new TrackerEventStructure[bitReader.Read(5)] };
                             for (var i = 0; i < gameEvent.data.array.Length; i++)
                                 gameEvent.data.array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(8) };
                             gameEvent.data.blob = bitReader.ReadBlobPrecededWithLength(7);
@@ -156,6 +158,26 @@ namespace Heroes.ReplayParser
                             for (var i = 0; i < gameEvent.data.array[1].array[3].array.Length; i++)
                                 gameEvent.data.array[1].array[3].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(32) };
                             break;
+                        case GameEventType.CControlGroupUpdateEvent:
+                            bitReader.Read(4);
+                            bitReader.Read(2);
+                            switch(bitReader.Read(2))
+                            {
+                                case 0: // None
+                                    break;
+                                case 1: // Mask
+                                    bitReader.Read(9);
+                                    break;
+                                case 2: // One Indices
+                                    for (var i = 0; i < bitReader.Read(9); i++)
+                                        bitReader.Read(9);
+                                    break;
+                                case 3: // Zero Indices
+                                    for (var i = 0; i < bitReader.Read(9); i++)
+                                        bitReader.Read(9);
+                                    break;
+                            }
+                            break;
                         case GameEventType.CResourceTradeEvent:
                             bitReader.Read(4);
                             bitReader.Read(32);
@@ -163,7 +185,7 @@ namespace Heroes.ReplayParser
                             bitReader.Read(32);
                             break;
                         case GameEventType.CTriggerChatMessageEvent:
-                            gameEvent.data = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(10) };
+                            gameEvent.data = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(10) };
                             break;
                         case GameEventType.CTriggerPingEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
@@ -226,6 +248,7 @@ namespace Heroes.ReplayParser
                                     gameEvent.data.array[2].vInt = bitReader.Read(32); /* Actually signed - not handled correctly */
                                     break;
                                 case 4: // TextChanged
+                                    gameEvent.data.array[2].DataType = 2;
                                     gameEvent.data.array[2].blob = bitReader.ReadBlobPrecededWithLength(11);
                                     break;
                                 case 5: // MouseButton
@@ -274,7 +297,7 @@ namespace Heroes.ReplayParser
                             gameEvent.data = new TrackerEventStructure { array = new[] { new TrackerEventStructure { vInt = bitReader.Read(8) - 128 }, new TrackerEventStructure { vInt = bitReader.Read(8) - 128 } } };
                             break;
                         case GameEventType.CTriggerCutsceneBookmarkFiredEvent:
-                            gameEvent.data = new TrackerEventStructure { array = new[] { new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 }, new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(7) } } };
+                            gameEvent.data = new TrackerEventStructure { array = new[] { new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 }, new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) } } };
                             break;
                         case GameEventType.CTriggerCutsceneEndSceneFiredEvent:
                             gameEvent.data = new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 };
@@ -284,13 +307,13 @@ namespace Heroes.ReplayParser
                         case GameEventType.CGameUserJoinEvent:
                             gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[5] };
                             gameEvent.data.array[0] = new TrackerEventStructure { unsignedInt = bitReader.Read(2) };
-                            gameEvent.data.array[1] = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(8) };
+                            gameEvent.data.array[1] = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(8) };
                             if (bitReader.ReadBoolean())
-                                gameEvent.data.array[2] = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(7) };
+                                gameEvent.data.array[2] = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) };
                             if (bitReader.ReadBoolean())
-                                gameEvent.data.array[3] = new TrackerEventStructure { blob = bitReader.ReadBlobPrecededWithLength(8) };
+                                gameEvent.data.array[3] = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(8) };
                             if (bitReader.ReadBoolean())
-                                gameEvent.data.array[4] = new TrackerEventStructure { blob = bitReader.ReadBytes(40) };
+                                gameEvent.data.array[4] = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBytes(40) };
                             break;
                         case GameEventType.CCommandManagerStateEvent:
                             gameEvent.data = new TrackerEventStructure { unsignedInt = bitReader.Read(2) };
@@ -334,6 +357,17 @@ namespace Heroes.ReplayParser
             for (var i = 0; i < replay.ClientList.Length; i++)
                 if (replay.ClientList[i] != null)
                     replay.ClientList[i].Talents = talentGameEvents.Where(j => j.playerIndex == i).Select(j => (int)j.data.unsignedInt.Value).OrderBy(j => j).ToArray();
+
+            /* var eventGroups = replay.GameEvents.GroupBy(i => i.eventType);
+            string eventGroupData = "";
+            foreach (var eventGroup in eventGroups)
+            {
+                foreach (var eventData in eventGroup)
+                    eventGroupData += eventData.ToString() + "\r\n";
+                File.WriteAllText(@"C:\HOTSLogs\" + eventGroup.Key + @".txt", eventGroupData);
+                eventGroupData = "";
+            }
+            Console.WriteLine(eventGroups.Count()); */
         }
     }
 
@@ -343,11 +377,17 @@ namespace Heroes.ReplayParser
         public int playerIndex;
         public bool isGlobal = false;
         public int ticksElapsed;
-        public TrackerEventStructure data;
+        public TrackerEventStructure data = null;
+
+        public override string ToString()
+        {
+            return data != null ? data.ToString() : null;
+        }
     }
 
     public enum GameEventType
     {
+        CStartGameEvent = 2,
         CUserFinishedLoadingSyncEvent = 5,
         CUserOptionsEvent = 7,
         CBankFileEvent = 9,
@@ -358,6 +398,7 @@ namespace Heroes.ReplayParser
         CCommandManagerResetEvent = 25,
         CCmdEvent = 27,
         CSelectionDeltaEvent = 28,
+        CControlGroupUpdateEvent = 29,
         CResourceTradeEvent = 31,
         CTriggerChatMessageEvent = 32,
         CTriggerPingEvent = 36,
