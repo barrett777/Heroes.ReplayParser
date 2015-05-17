@@ -21,6 +21,9 @@
         /// <summary> Gets the map the game was played on. </summary>
         public string Map { get; set; }
 
+        /// <summary> Gets the size of the map the game was played on. </summary>
+        public Point MapSize { get; set; }
+
         /// <summary> Gets the details of all players in the replay. </summary>
         public Player[] Players { get; set; }
 
@@ -45,8 +48,8 @@
         /// <summary> Gets the tracker events. </summary>
         public List<TrackerEvent> TrackerEvents { get; set; }
 
-        /// <summary> Gets a list of important events that can be plotted on a timeline, pulled from various parts of the replay file. </summary>
-        public List<TimelineEvent> TimelineEvents { get; set; }
+        /// <summary> Gets a list of units. </summary>
+        public List<Unit> Units { get; set; }
 
         /// <summary> Gets the number of frames in this replay. </summary>
         public int Frames { get; set; }
@@ -60,10 +63,13 @@
         /// <summary> Gets a hash of the replay; components used are players in game, and a random value (potentially a seed). </summary>
         public Guid ReplayHash { get; set; }
 
+        /// <summary> Team Level Milestones (From talent choices: 1 / 4 / 7 / 10 / 13 / 16 / 20) </summary>
+        public TimeSpan[][] TeamLevelMilestones { get; set; }
+
         public Replay()
         {
             ClientList = new Player[0x10];
-            TimelineEvents = new List<TimelineEvent>();
+            TeamLevelMilestones = new TimeSpan[2][];
         }
     }
 }

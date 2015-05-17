@@ -25,12 +25,13 @@ namespace ConsoleApplication1
                 using (var archive = new CArchive(tmpPath))
                 {
                     ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.initData"));
-                    ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.tracker.events"));
                     ReplayDetails.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.details"));
+                    ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.tracker.events"));
                     ReplayAttributeEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.attributes.events"));
                     if (replay.ReplayBuild >= 32455)
                         ReplayGameEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.game.events"));
                     ReplayServerBattlelobby.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.server.battlelobby"));
+                    Unit.ParseUnitData(replay);
                 }
 
                 // Our Replay object now has all currently available information

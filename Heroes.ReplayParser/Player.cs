@@ -1,4 +1,6 @@
-﻿namespace Heroes.ReplayParser
+﻿using System;
+
+namespace Heroes.ReplayParser
 {
     public class Player
     {
@@ -74,9 +76,27 @@
         public int CharacterLevel { get; set; }
 
         /// <summary>
-        /// Gets or sets the player's in game selected Hero talents.
+        /// Gets or sets the player's in game selected Hero talents, and the TimeSpan when they were selected in game.
         /// </summary>
-        public int[] Talents { get; set; }
+        public Tuple<int, TimeSpan>[] Talents { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's in game Hero units.
+        /// </summary>
+        public Unit[] HeroUnits { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's in game deaths.  This probably shouldn't be stored separately like this; the array of 'HeroUnits' should probably each have their own death.  Currently 'HeroUnits' is only one unit that 'lives' the entire match
+        /// </summary>
+        public TimeSpan[] Deaths { get; set; }
+
+        public Player()
+        {
+            Color = new int[0];
+            Talents = new Tuple<int, TimeSpan>[0];
+            HeroUnits = new Unit[0];
+            Deaths = new TimeSpan[0];
+        }
 
         public override string ToString()
         {

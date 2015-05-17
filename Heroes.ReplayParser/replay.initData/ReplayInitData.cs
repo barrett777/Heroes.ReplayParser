@@ -99,9 +99,22 @@
                 // Not sure what this 'Game Type' is
                 reader.Read(3);
 
-                var maxPlayers = reader.Read(5);
-                if (maxPlayers != 10) // Max Players
+                var maxUsers = reader.Read(5);
+                if (maxUsers != 10) // Max Players
                     replay.GameMode = GameMode.TryMe;
+
+                reader.Read(5); // Max Observers
+                reader.Read(5); // Max Players
+                reader.Read(4); // + 1 = Max Teams
+                reader.Read(6); // Max Colors
+                reader.Read(8); // + 1 = Max Races
+                reader.Read(8); // Max Controls
+
+                replay.MapSize = new Point { X = (int)reader.Read(8), Y = (int)reader.Read(8) };
+                if (replay.MapSize.Y == 1)
+                    replay.MapSize.Y = replay.MapSize.X;
+                else if (replay.MapSize.X == 0)
+                    replay.MapSize.X = replay.MapSize.Y;
 
                 // About 1000 bytes from here is a list of characters, character skins, character mounts, artifact selections, and other data
             }

@@ -26,17 +26,17 @@ I believe this contains hero skins, mounts, and color tints, which would be neat
 
 Lots of game options as well, though most of this is based on Starcraft 2 and probably quite different now
 
-**ReplayTrackerEvents.Parse**
-
-Structure is known, most information is known
-
-This currently has a lot of placeholders, but I expect Blizzard will fill this in, once development is further along.
-
 **ReplayDetails.Parse**
 
 Structure is known, most information is known
 
 This is where most of the player details are found, as well as the map and timestamp the match occurred.
+
+**ReplayTrackerEvents.Parse**
+
+Structure is known, most information is known
+
+This currently has a lot of placeholders, but I expect Blizzard will fill this in, once development is further along.
 
 **ReplayAttributeEvents.Parse**
 

@@ -15,6 +15,7 @@ namespace Heroes.ReplayParser
         /// <summary> Parses the replay.tracker.events file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.tracker.events file. </param>
+        /// <param name="parseUnitData"> Determines whether or not to parse unit data </param>
         public static void Parse(Replay replay, byte[] buffer)
         {
             replay.TrackerEvents = new List<TrackerEvent>();
@@ -44,32 +45,45 @@ namespace Heroes.ReplayParser
             replay.Frames = currentFrameCount;
             replay.ReplayLength = replay.TrackerEvents.Last().TimeSpan;
 
-            // Need to verify the player ID in the below code - particularly Custom Games where observers can take up spots in the client list
-            replay.TimelineEvents.AddRange(replay.TrackerEvents.Where(i =>
-                i.TrackerEventType == TrackerEventType.CreepColor &&
-                i.Data.dictionary[1].blobText == "VehicleDragonUpgrade")
-                .Select(i => new TimelineEvent {
-                    TimeSpan = i.TimeSpan,
-                    TimelineEventType = TimelineEventType.MapMechanicDragonShireDragon,
-                    PlayerID = (int)i.Data.dictionary[0].vInt.Value,
-                    Value = 1 }));
-
-            /* var trackerEventGroupBy = replay.TrackerEvents.GroupBy(i => i.TrackerEventType).OrderBy(i => i.Key);
-            Console.WriteLine(trackerEventGroupBy.Count()); */
+            // Populate the client list using player indexes
+            var playerIndexes = replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.PlayerSetupEvent && i.Data.dictionary[2].optionalData != null).Select(i => i.Data.dictionary[2].optionalData.vInt.Value).Distinct().OrderBy(i => i).ToArray();
+            for (var i = 0; i < playerIndexes.Length; i++)
+                // The references between both of these classes are the same on purpose.
+                // We want updates to one to propogate to the other.
+                replay.ClientList[playerIndexes[i]] = replay.Players[i];
         }
 
         public enum TrackerEventType
         {
             PlayerStatsEvent = 0,
-            UnitBornEvent = 1,
-            UnitDiedEvent = 2,
-            UnitOwnerChangeEvent = 3,
-            UnitTypeChangeEvent = 4,
+            /* From sc2reader: Player Stats events are generated for all players that were in the game even if they've since
+                left every 10 seconds. An additional set of stats events are generated at the end of the game.
+                When a player leaves the game, a single PlayerStatsEvent is generated for that player and no
+                one else. That player continues to generate PlayerStatsEvents at 10 second intervals until the
+                end of the game.
+                In 1v1 games, the above behavior can cause the losing player to have 2 events generated at the
+                end of the game. One for leaving and one for the end of the game. */
 
-            CreepColor = 5, // Only one event for the entire match?  Note: Also seems to contain who gets Dragon on Dragon Shire
+            UnitBornEvent = 1,
+            /* UnitID Index, UnitID Recycle, Unit Type Name, PlayerID with Control, PlayerID with Upkeep, X, Y */
+
+            UnitDiedEvent = 2,
+            /* UnitID Index, UnitID Recycle, PlayerID that Killed This, X, Y, Killing UnitID Index, Killing UnitID Recycle */
+
+            UnitOwnerChangeEvent = 3,
+            /* UnitID Index, UnitID Recycle, New PlayerID with Control, New PlayerID with Upkeep */
+
+            UnitTypeChangeEvent = 4,
+            /* UnitID Index, UnitID Recycle, New Unit Type Name */
+
+            UnknownTrackerEvent1 = 5,
+            /* Only one event for the entire match, with a blob containing 'CreepColor'; Also seems to contain who gets Dragon on Dragon Shire */
 
             UnitPositionsEvent = 8,
+            /* First UnitID Index, Items Array (UnitID Index Offset, X, Y) */
+
             PlayerSetupEvent = 9
+            /* PlayerID, Player Type (1=Human, 2=CPU, 3=Neutral, 4=Hostile), UserID, SlotID */
         }
     }
 

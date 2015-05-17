@@ -23,8 +23,7 @@ namespace Heroes.ReplayParser
             for (int i = 0; i < numAttributes; i++)
                 attributes[i] = ReplayAttribute.Parse(buffer, initialOffset + (i*13));
 
-            var rae = new ReplayAttributeEvents { Attributes = attributes };
-            rae.ApplyAttributes(replay);
+            new ReplayAttributeEvents { Attributes = attributes.OrderBy(i => i.AttributeType).ToArray() }.ApplyAttributes(replay);
 
             /* var stringList = attributes.OrderBy(i => i.AttributeType);
             Console.WriteLine(stringList.Count()); */
@@ -160,9 +159,7 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.GameTypeAttribute:
                         {
-                            var gameTypeStr = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0');
-
-                            switch (gameTypeStr)
+                            switch (encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0'))
                             {
                                 case "priv":
                                     replay.GameMode = GameMode.Custom;
@@ -208,6 +205,11 @@ namespace Heroes.ReplayParser
                         }
                         break;
 
+                    case ReplayAttributeEventType.HeroDraftMode:
+                        if (replay.GameMode == GameMode.HeroLeague && encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0') == "fcfs")
+                            replay.GameMode = GameMode.TeamLeague;
+                        break;
+
                     case (ReplayAttributeEventType)4011: // What is this? Draft order?
                         break;
                     case (ReplayAttributeEventType)4016: // What is this? Always '1' in Hero League
@@ -237,8 +239,6 @@ namespace Heroes.ReplayParser
                 foreach (var att in currentList)
                     // Reverse the values then parse, you don't notice the effects of this until theres 10+ teams o.o
                     replay.Players[att.PlayerId - 1].Team = int.Parse(encoding.GetString(att.Value.Reverse().ToArray()).Trim('\0', 'T'));
-
-            // Skipping parsing the handicap and colors since this is parsed elsewhere.
         }
 
         public enum ReplayAttributeEventType
@@ -263,7 +263,8 @@ namespace Heroes.ReplayParser
             Character = 4002,
             CharacterLevel = 4008,
 
-            HeroSelectionMode = 4010
+            HeroSelectionMode = 4010,
+            HeroDraftMode = 4018
         }
 
         /*  4006 'rang', 'mele'

@@ -30,19 +30,13 @@ namespace Heroes.ReplayParser
                         Handicap = (int)i.dictionary[6].vInt.Value,
                         // [7] = VInt, Default 0
                         IsWinner = i.dictionary[8].vInt.Value == 1,
-                        // [9] = Player Number (0 - 9)
+                        // [9] = Sometimes player index in ClientList array; usually 0-9, but can be higher if there are observers. I don't fully understand this, as this was incorrect in at least one Custom game, where this said ClientList[8] was null
                         Character = i.dictionary[10].blobText
                     }).ToArray();
 
-                    if (replay.Players.Length != 10)
+                    if (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5)
                         // Try Me Mode, or something strange
                         return;
-
-                    var playerIndexes = replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.PlayerSetupEvent && i.Data.dictionary[2].optionalData != null).Select(i => i.Data.dictionary[2].optionalData.vInt.Value).OrderBy(i => i).ToArray();
-                    for (var i = 0; i < playerIndexes.Length; i++)
-                        // The references between both of these classes are the same on purpose.
-                        // We want updates to one to propogate to the other.
-                        replay.ClientList[playerIndexes[i]] = replay.Players[i];
 
                     replay.Map = replayDetailsStructure.dictionary[1].blobText;
                     // [2] - This is typically an empty string, no need to decode.
@@ -62,7 +56,6 @@ namespace Heroes.ReplayParser
 
                     // [6] - Windows replays, this is Utc offset.  Mac replays, this is actually the entire Local Timestamp
                     // var potentialUtcOffset = new TimeSpan(replayDetailsStructure.dictionary[6].vInt.Value);
-                    // Console.WriteLine(potentialUtcOffset.ToString());
 
                     // [7] - Blob, Empty String
                     // [8] - Blob, Empty String
