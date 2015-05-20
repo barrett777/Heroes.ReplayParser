@@ -165,22 +165,22 @@ namespace Heroes.ReplayParser
 
                             // m_addSubgroups
                             gameEvent.data.array[1].array[2] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
-
-                            // m_addUnitTags
                             for (var i = 0; i < gameEvent.data.array[1].array[2].array.Length; i++)
                                 gameEvent.data.array[1].array[2].array[i] = new TrackerEventStructure { array = new[] {
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(16) },
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(8) },
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(8) },
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(9) } } };
+
+                            // m_addUnitTags
                             gameEvent.data.array[1].array[3] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
                             for (var i = 0; i < gameEvent.data.array[1].array[3].array.Length; i++)
                                 gameEvent.data.array[1].array[3].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(32) };
                             break;
                         case GameEventType.CControlGroupUpdateEvent:
-                            bitReader.Read(4);
-                            bitReader.Read(2);
-                            switch(bitReader.Read(2))
+                            bitReader.Read(4); // m_controlGroupIndex
+                            bitReader.Read(2); // m_controlGroupUpdate
+                            switch (bitReader.Read(2)) // m_mask
                             {
                                 case 0: // None
                                     break;
@@ -437,6 +437,7 @@ namespace Heroes.ReplayParser
     public enum GameEventType
     {
         CStartGameEvent = 2,
+        CDropOurselvesEvent = 3,
         CUserFinishedLoadingSyncEvent = 5,
         CUserOptionsEvent = 7,
         CBankFileEvent = 9,
