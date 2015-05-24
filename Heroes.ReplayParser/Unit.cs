@@ -560,14 +560,14 @@ namespace Heroes.ReplayParser
 
             // Use 'CCmdUpdateTargetUnitEvent' to find an accurate location of units targeted
             // Excellent for finding frequent, accurate locations of heroes during team fights
-            var updateTargetUnitEvents = replay.GameEvents.Where(i => i.eventType == GameEventType.CCmdUpdateTargetUnitEvent);
-            foreach (var updateTargetUnitEvent in updateTargetUnitEvents)
+            foreach (var updateTargetUnitEvent in replay.GameEvents.Where(i => i.eventType == GameEventType.CCmdUpdateTargetUnitEvent))
                 if (replay.Units.Any(i => i.UnitID == (int)updateTargetUnitEvent.data.array[2].unsignedInt.Value))
                     replay.Units.Single(i => i.UnitID == (int)updateTargetUnitEvent.data.array[2].unsignedInt.Value).Positions.Add(new Position {
                         TimeSpan = updateTargetUnitEvent.TimeSpan,
                         Point = Point.FromEventFormat(
                             updateTargetUnitEvent.data.array[6].array[0].unsignedInt.Value,
                             updateTargetUnitEvent.data.array[6].array[1].unsignedInt.Value) });
+            
 
             // Add in 'accurate' positions for each player's death, which sends them to their spawn point
             // Special Exceptions:
