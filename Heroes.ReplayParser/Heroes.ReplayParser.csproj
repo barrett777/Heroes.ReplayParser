@@ -70,6 +70,7 @@
     <Compile Include="Difficulty.cs" />
     <Compile Include="GameSpeed.cs" />
     <Compile Include="GameMode.cs" />
+    <Compile Include="replay.resumable.events\ReplayResumableEvents.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="mpq.header\MpqHeader.cs" />
     <Compile Include="Player.cs" />

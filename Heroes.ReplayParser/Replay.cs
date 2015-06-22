@@ -71,6 +71,7 @@
             ClientList = new Player[0x10];
             TeamLevelMilestones = new TimeSpan[2][];
             GameEvents = new List<GameEvent>();
+            Units = new List<Unit>();
         }
     }
 }
