@@ -486,6 +486,13 @@ namespace Heroes.ReplayParser
                 unitThatDied.PlayerKilledBy = unitDiedEvent.PlayerIDKilledBy.HasValue && unitDiedEvent.PlayerIDKilledBy.Value > 0 && unitDiedEvent.PlayerIDKilledBy.Value <= 10 ? replay.Players[unitDiedEvent.PlayerIDKilledBy.Value - 1] : null;
                 unitThatDied.PointDied = unitDiedEvent.PointDied;
                 unitThatDied.UnitKilledBy = unitDiedEvent.UnitKilledBy;
+
+                // Sometimes 'PlayerIDKilledBy' will be outside of the range of players (1-10)
+                // Minions that are killed by other minions or towers will have the 'team' that killed them in this field (11 or 12)
+                // Some other units have interesting values I don't fully understand yet.  For example, 'ItemCannonball' (the coins on Blackheart's Bay) will have 0 or 15 in this field.  I'm guessing this is also which team acquires them, which may be useful
+                // Other map objectives may also have this.  I'll look into this more in the future.
+                /* if (unitDiedEvent.PlayerIDKilledBy.HasValue && unitThatDied.PlayerKilledBy == null)
+                    Console.WriteLine(""); */
             }
 
             // Add in information on unit ownership changes from 'UnitOwnerChangeEvent' (For example, players grabbing regen globes or a player grabbing a Garden Terror)

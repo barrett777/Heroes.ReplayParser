@@ -85,8 +85,10 @@ namespace Heroes.ReplayParser
                             // m_cmdFlags
                             if (replay.ReplayBuild < 33684)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[22] };
-                            else
+                            else if (replay.ReplayBuild < 37117)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[23] };
+                            else
+                                gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[24] };
 
                             for (var i = 0; i < gameEvent.data.array[0].array.Length; i++)
                                 gameEvent.data.array[0].array[i] = new TrackerEventStructure { DataType = 7, unsignedInt = bitReader.Read(1) };
@@ -407,13 +409,14 @@ namespace Heroes.ReplayParser
             foreach (var playerDeathEvents in replay.GameEvents.Where(i => i.eventType == GameEventType.CTriggerCutsceneBookmarkFiredEvent && i.data.array != null && i.data.array.Length == 2 && i.data.array[1].blobText == "Loop Start").GroupBy(i => i.player))
                 playerDeathEvents.Key.Deaths = playerDeathEvents.Select(i => i.TimeSpan.Add(deathAnimationOffset)).OrderBy(i => i).ToArray();
 
+            // Uncomment this to write out all replay.game.events to individual text files in the 'C:\HOTSLogs\' folder
             /* var eventGroups = replay.GameEvents.GroupBy(i => i.eventType).Select(i => new { EventType = i.Key, EventCount = i.Count(), Events = i.OrderBy(j => j.TimeSpan) });
             string eventGroupData = "";
             foreach (var eventGroup in eventGroups)
             {
                 foreach (var eventData in eventGroup.Events)
                     eventGroupData += eventData.TimeSpan + ": " + eventData.player + ": " + eventData + "\r\n";
-                File.WriteAllText(@"C:\HOTSLogs\" + eventGroup.EventType + @".txt", eventGroupData);
+                File.WriteAllText(@"C:\HOTSLogs\" + (int)eventGroup.EventType + " " + eventGroup.EventType + @".txt", eventGroupData);
                 eventGroupData = "";
             } */
         }
