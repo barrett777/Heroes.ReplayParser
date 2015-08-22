@@ -66,7 +66,7 @@ Special Thanks
 
 Most of my progress is a direct result of other people's efforts with the Starcraft 2 replay file format.  Of particular importance is this C# parser which was basically the foundation of this project: https://github.com/ascendedguard/sc2replay-csharp
 
-These projects have also been very helpful in referecing different areas of the replay file format:
+These projects have also been very helpful in referencing different areas of the replay file format:
 
 https://github.com/Blizzard/s2protocol
 
