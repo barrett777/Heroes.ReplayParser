@@ -70,28 +70,25 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.DifficultyLevelAttribute:
                         {
-                            var diffLevel = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower();
+                            var diffLevel = encoding.GetString(attribute.Value.Reverse().ToArray());
                             var player = replay.Players[attribute.PlayerId - 1];
 
                             switch (diffLevel)
                             {
-                                case "vyey":
-                                    player.Difficulty = Difficulty.VeryEasy;
+                                case "VyEy":
+                                    player.Difficulty = Difficulty.Beginner;
                                     break;
-                                case "easy":
-                                    player.Difficulty = Difficulty.Easy;
+                                case "Easy":
+                                    player.Difficulty = Difficulty.Recruit;
                                     break;
-                                case "medi":
-                                    player.Difficulty = Difficulty.Medium;
+                                case "Medi":
+                                    player.Difficulty = Difficulty.Adept;
                                     break;
-                                case "hard":
-                                    player.Difficulty = Difficulty.Hard;
+                                case "HdVH":
+                                    player.Difficulty = Difficulty.Veteran;
                                     break;
-                                case "vyhd":
-                                    player.Difficulty = Difficulty.VeryHard;
-                                    break;
-                                case "insa":
-                                    player.Difficulty = Difficulty.Insane;
+                                case "VyHd":
+                                    player.Difficulty = Difficulty.Elite;
                                     break;
                             }
 

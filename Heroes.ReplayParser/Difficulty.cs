@@ -3,11 +3,10 @@
     public enum Difficulty
     {
         Unknown,
-        VeryEasy,
-        Easy,
-        Medium,
-        Hard,
-        VeryHard,
-        Insane
+        Beginner,
+        Recruit,
+        Adept,
+        Veteran,
+        Elite
     }
 }
