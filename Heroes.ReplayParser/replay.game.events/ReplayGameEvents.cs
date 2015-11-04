@@ -36,7 +36,7 @@ namespace Heroes.ReplayParser
                         case GameEventType.CUserOptionsEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
                                 // Names for user options may or may not be accurate
-                                // Referenced from https://raw.githubusercontent.com/Blizzard/s2protocol/master/protocol34784.py (Void Beta)
+                                // Referenced from https://raw.githubusercontent.com/Blizzard/s2protocol/master/protocol38215.py (Void Beta)
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_gameFullyDownloaded
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_developmentCheatsEnabled
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_testCheatsEnabled
@@ -87,12 +87,15 @@ namespace Heroes.ReplayParser
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[22] };
                             else if (replay.ReplayBuild < 37117)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[23] };
-                            else
+                            else if (replay.ReplayBuild < 38236)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[24] };
+                            else
+                                gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[25] };
 
                             for (var i = 0; i < gameEvent.data.array[0].array.Length; i++)
                                 gameEvent.data.array[0].array[i] = new TrackerEventStructure { DataType = 7, unsignedInt = bitReader.Read(1) };
 
+                            // m_abil
                             if (bitReader.ReadBoolean())
                             {
                                 gameEvent.data.array[1] = new TrackerEventStructure {
@@ -101,10 +104,11 @@ namespace Heroes.ReplayParser
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(5) }, // m_abilCmdIndex
                                     new TrackerEventStructure() } };
                                 if (bitReader.ReadBoolean())
-                                    // m_abilCmdData, potentially 10 bits
+                                    // m_abilCmdData
                                     gameEvent.data.array[1].array[2].unsignedInt = bitReader.Read(8);
                             }
 
+                            // m_data
                             switch (bitReader.Read(2))
                             {
                                 case 0: // None
@@ -114,23 +118,28 @@ namespace Heroes.ReplayParser
                                     break;
                                 case 2: // TargetUnit
                                     gameEvent.data.array[2] = new TrackerEventStructure { array = new[] {
-                                        new TrackerEventStructure { unsignedInt = bitReader.Read(16) },
-                                        new TrackerEventStructure { unsignedInt = bitReader.Read(8) },
-                                        new TrackerEventStructure { unsignedInt = bitReader.Read(32) },
-                                        new TrackerEventStructure { unsignedInt = bitReader.Read(16) },
+                                        new TrackerEventStructure { unsignedInt = bitReader.Read(16) }, // m_targetUnitFlags
+                                        new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_timer
+                                        new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // m_tag
+                                        new TrackerEventStructure { unsignedInt = bitReader.Read(16) }, // m_snapshotUnitLink
                                         new TrackerEventStructure(),
                                         new TrackerEventStructure(),
                                         new TrackerEventStructure(), } };
                                     if (bitReader.ReadBoolean())
+                                        // m_snapshotControlPlayerId
                                         gameEvent.data.array[2].array[4].unsignedInt = bitReader.Read(4);
                                     if (bitReader.ReadBoolean())
+                                        // m_snapshotUpkeepPlayerId
                                         gameEvent.data.array[2].array[5].unsignedInt = bitReader.Read(4);
+
+                                    // m_snapshotPoint
                                     gameEvent.data.array[2].array[6].array = new[] { new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 } };
                                     break;
                                 case 3: // Data
                                     gameEvent.data.array[2] = new TrackerEventStructure { unsignedInt = bitReader.Read(32) };
                                     break;
                             }
+
                             if (replay.ReplayBuild >= 33684)
                                 bitReader.Read(32); // m_sequence
                             if (bitReader.ReadBoolean())
@@ -141,6 +150,8 @@ namespace Heroes.ReplayParser
                         case GameEventType.CSelectionDeltaEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(4) }, // m_controlGroupId
+
+                                // m_delta
                                 new TrackerEventStructure { array = new[] {
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(9) }, // m_subgroupIndex
                                     new TrackerEventStructure(),
@@ -169,10 +180,10 @@ namespace Heroes.ReplayParser
                             gameEvent.data.array[1].array[2] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
                             for (var i = 0; i < gameEvent.data.array[1].array[2].array.Length; i++)
                                 gameEvent.data.array[1].array[2].array[i] = new TrackerEventStructure { array = new[] {
-                                    new TrackerEventStructure { unsignedInt = bitReader.Read(16) },
-                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) },
-                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) },
-                                    new TrackerEventStructure { unsignedInt = bitReader.Read(9) } } };
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(16) }, // m_unitLink
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_subgroupPriority
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_intraSubgroupPriority
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(9) } } }; // m_count
 
                             // m_addUnitTags
                             gameEvent.data.array[1].array[3] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
@@ -181,21 +192,26 @@ namespace Heroes.ReplayParser
                             break;
                         case GameEventType.CControlGroupUpdateEvent:
                             bitReader.Read(4); // m_controlGroupIndex
-                            bitReader.Read(2); // m_controlGroupUpdate
-                            switch (bitReader.Read(2)) // m_mask
+
+                            // m_controlGroupUpdate
+                            if (replay.ReplayBuild < 36359) // Not sure exactly when this change happened - roughly around here.  This primarily affected 'The Lost Vikings' hero
+                                bitReader.Read(2);
+                            else
+                                bitReader.Read(3);
+
+                            // m_mask
+                            switch (bitReader.Read(2))
                             {
                                 case 0: // None
                                     break;
                                 case 1: // Mask
-                                    bitReader.Read(9);
+                                    bitReader.Read(bitReader.Read(9));
                                     break;
-                                case 2: // One Indices
-                                    for (var i = 0; i < bitReader.Read(9); i++)
-                                        bitReader.Read(9);
-                                    break;
-                                case 3: // Zero Indices
-                                    for (var i = 0; i < bitReader.Read(9); i++)
-                                        bitReader.Read(9);
+                                case 2: // OneIndices
+                                case 3: // ZeroIndices
+                                    gameEvent.data.array[1].array[1] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
+                                    for (var i = 0; i < gameEvent.data.array[1].array[1].array.Length; i++)
+                                        gameEvent.data.array[1].array[1].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(9) };
                                     break;
                             }
                             break;
@@ -403,11 +419,6 @@ namespace Heroes.ReplayParser
                 for (var i = 0; i < replay.TeamLevelMilestones[currentTeam].Length; i++)
                     replay.TeamLevelMilestones[currentTeam][i] = appropriatePlayers.Select(j => j.Talents[i].Item2).Min();
             }
-
-            // Gather death events
-            var deathAnimationOffset = TimeSpan.FromSeconds(-2);
-            foreach (var playerDeathEvents in replay.GameEvents.Where(i => i.eventType == GameEventType.CTriggerCutsceneBookmarkFiredEvent && i.data.array != null && i.data.array.Length == 2 && i.data.array[1].blobText == "Loop Start").GroupBy(i => i.player))
-                playerDeathEvents.Key.Deaths = playerDeathEvents.Select(i => i.TimeSpan.Add(deathAnimationOffset)).OrderBy(i => i).ToArray();
 
             // Uncomment this to write out all replay.game.events to individual text files in the 'C:\HOTSLogs\' folder
             /* var eventGroups = replay.GameEvents.GroupBy(i => i.eventType).Select(i => new { EventType = i.Key, EventCount = i.Count(), Events = i.OrderBy(j => j.TimeSpan) });
