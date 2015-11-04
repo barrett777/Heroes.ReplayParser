@@ -177,7 +177,23 @@ namespace Heroes.ReplayParser
                             replay.Players[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
                             break;
                         }
-                        
+
+                    case ReplayAttributeEventType.SkinAndSkinTint:
+                        {
+                            var skinAndSkinTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                            if (!string.IsNullOrWhiteSpace(skinAndSkinTint))
+                                replay.Players[attribute.PlayerId - 1].SkinAndSkinTint = skinAndSkinTint;
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.MountAndMountTint:
+                        {
+                            var mountAndMountTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                            if (!string.IsNullOrWhiteSpace(mountAndMountTint))
+                                replay.Players[attribute.PlayerId - 1].MountAndMountTint = mountAndMountTint;
+                        }
+                        break;
+
                     case ReplayAttributeEventType.CharacterLevel:
                         {
                             var characterLevel = int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray()));
@@ -258,15 +274,14 @@ namespace Heroes.ReplayParser
             GameTypeAttribute = 3009,
 
             Character = 4002,
+            SkinAndSkinTint = 4003,
+            MountAndMountTint = 4004,
             CharacterLevel = 4008,
-
             HeroSelectionMode = 4010,
             HeroDraftMode = 4018
         }
 
         /*  4006 'rang', 'mele'
-            4004 -> mount, potentially mount color
-            4003 -> potentially skin or skin color
             4007 -> 'spec', 'warr', 'assa'
             4100 -> 'Cool', 'APwr', 'ADmg', 'MaxH'
             4102 -> 'Move', 'MaxM' */

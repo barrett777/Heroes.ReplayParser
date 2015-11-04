@@ -71,6 +71,16 @@ namespace Heroes.ReplayParser
         public string Character { get; set; }
 
         /// <summary>
+        /// Gets or sets the player's skin / skin tint.
+        /// </summary>
+        public string SkinAndSkinTint { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's mount / mount tint.
+        /// </summary>
+        public string MountAndMountTint { get; set; }
+
+        /// <summary>
         /// Gets or sets the player's character level.
         /// </summary>
         public int CharacterLevel { get; set; }
@@ -86,16 +96,18 @@ namespace Heroes.ReplayParser
         public Unit[] HeroUnits { get; set; }
 
         /// <summary>
-        /// Gets or sets the player's in game deaths.  This probably shouldn't be stored separately like this; the array of 'HeroUnits' should probably each have their own death.  Currently 'HeroUnits' is only one unit that 'lives' the entire match
+        /// Gets or sets the begin time and end time of a player's in game deaths.  This probably shouldn't be stored separately like this; the array of 'HeroUnits' should probably each have their own death.  Currently 'HeroUnits' is only one unit that 'lives' the entire match.  If Blizzard fixes this, we can handle hero units and hero deaths better: https://github.com/Blizzard/s2protocol/issues/27
         /// </summary>
-        public TimeSpan[] Deaths { get; set; }
+        public Tuple<TimeSpan, TimeSpan?>[] Deaths { get; set; }
 
         public Player()
         {
             Color = new int[0];
+            SkinAndSkinTint = null;
+            MountAndMountTint = null;
             Talents = new Tuple<int, TimeSpan>[0];
             HeroUnits = new Unit[0];
-            Deaths = new TimeSpan[0];
+            Deaths = new Tuple<TimeSpan, TimeSpan?>[0];
         }
 
         public override string ToString()

@@ -415,16 +415,16 @@ namespace Heroes.ReplayParser
         };
 
         private static readonly int[] HeroDeathTimersByTeamLevelInSeconds = new[] {
-            9,  //  1
-            10, //  2
-            11, //  3
-            12, //  4
-            13, //  5
-            14, //  6
-            16, //  7
-            18, //  8
-            20, //  9
-            23, // 10
+            15, //  1
+            16, //  2
+            17, //  3
+            18, //  4
+            19, //  5
+            20, //  6
+            21, //  7
+            22, //  8
+            23, //  9
+            24, // 10
             26, // 11
             29, // 12
             32, // 13
@@ -448,10 +448,10 @@ namespace Heroes.ReplayParser
         };
 
         private static readonly int[] HeroDeathTimersByTeamLevelInSecondsForTalentLevels = new[] {
-            9,  //  1
-            12, //  4
-            16, //  7
-            23, // 10
+            15, //  1
+            18, //  4
+            21, //  7
+            24, // 10
             32, // 13
             44, // 16
             65  // 20
@@ -546,6 +546,14 @@ namespace Heroes.ReplayParser
                 if (heroUnitsDictionary.ContainsKey(player))
                     player.HeroUnits = new[] { heroUnitsDictionary[player] };
 
+            // Gather Hero deaths using 'death' units
+            if (replay.ReplayBuild >= 38236)
+            {
+                var heroDeathUnits = replay.Units.Where(i => i.Name == "DeadUnitCameraTarget").GroupBy(i => i.PlayerControlledBy).ToDictionary(i => i.Key, i => i.OrderBy(j => j.TimeSpanBorn).ToArray());
+                foreach (var player in replay.Players.Where(i => heroDeathUnits.ContainsKey(i)))
+                    player.Deaths = heroDeathUnits[player].Select(i => new Tuple<TimeSpan, TimeSpan?>(i.TimeSpanBorn, i.TimeSpanDied)).ToArray();
+            }
+
             // Add derived hero positions from associated unit born/acquired/died info
             // These are accurate positions: Picking up regen globes, spawning Locusts, etc
 
@@ -578,37 +586,40 @@ namespace Heroes.ReplayParser
 
             // Add in 'accurate' positions for each player's death, which sends them to their spawn point
             // Special Exceptions:
-            // Uther: Level 20 respawn talent: Doesn't display the death animation when respawning, so probably doesn't count as a death in this situation.  This is actually probably the best situation for us
-            // Diablo: Fast respawn if he has enough souls.  Not yet able to detect when this occurs
-            // Murky: Respawns to his egg if his egg is alive when he dies
-            // Lost Vikings: Individual Vikings spawn 25% faster per their trait, and 50% faster with a talent, but currently we aren't able to track their deaths individually
+            // Uther: Level 20 respawn talent: Probably doesn't count as a death in this situation
+            // Diablo: Fast respawn if he has enough souls
+            // Murky: Respawns to his egg if his egg is alive when he dies; unfortunately no way to track his deaths yet
+            // Lost Vikings: Individual Vikings spawn 25% faster per their trait, and 50% faster with a talent. Currently we aren't able to track their deaths anyway
+            // Leroic: Deaths aren't counted like other heroes; unfortunately no way to track his deaths yet
             foreach (var player in replay.Players.Where(i => i.HeroUnits.Length == 1 && i.Deaths.Length > 0))
             {
-                var fullTimerDeaths = new List<TimeSpan>();
+                var fullTimerDeaths = new List<Tuple<TimeSpan, TimeSpan?>>();
                 if (player.HeroUnits[0].Name == "HeroMurky")
                 {
                     // Gather a list of the eggs Murky has placed throughout the game
+                    var eggRespawnTimeCutoff = TimeSpan.FromSeconds(7.5);
                     var murkyEggs = replay.Units.Where(i => i.PlayerControlledBy == player && i.Name == "MurkyRespawnEgg").OrderBy(i => i.TimeSpanBorn).ToArray();
                     var currentEggIndex = 0;
-                    foreach (var murkyDeath in player.Deaths)
-                    {
-                        // If Murky respawns at the egg, it will be 5 seconds after his death
-                        var murkyRespawnFromEggTimeSpan = murkyDeath.Add(TimeSpan.FromSeconds(5));
-                        for (; currentEggIndex < murkyEggs.Length; currentEggIndex++)
-                        {
-                            if (murkyRespawnFromEggTimeSpan > murkyEggs[currentEggIndex].TimeSpanDied && currentEggIndex < murkyEggs.Length + 1)
-                                continue;
 
-                            // Check to see if there is an egg alive when Murky would respawn
-                            if (murkyRespawnFromEggTimeSpan >= murkyEggs[currentEggIndex].TimeSpanBorn && (!murkyEggs[currentEggIndex].TimeSpanDied.HasValue || murkyRespawnFromEggTimeSpan <= murkyEggs[currentEggIndex].TimeSpanDied.Value))
-                                for (; murkyRespawnFromEggTimeSpan >= murkyDeath; murkyRespawnFromEggTimeSpan = murkyRespawnFromEggTimeSpan.Add(TimeSpan.FromSeconds(-1)))
-                                    player.HeroUnits[0].Positions.Add(new Position { TimeSpan = murkyRespawnFromEggTimeSpan, Point = murkyEggs[currentEggIndex].PointBorn, IsEstimated = false });
-                            else
-                                // Murky did not respawn at egg - give him the normal death timer
-                                fullTimerDeaths.Add(murkyDeath);
-                            break;
+                    foreach (var murkyDeath in player.Deaths)
+                        // If Murky respawns at the egg, it will be ~5 seconds after his death
+                        if (!murkyDeath.Item2.HasValue || (murkyDeath.Item2.Value - murkyDeath.Item1) > eggRespawnTimeCutoff)
+                            fullTimerDeaths.Add(murkyDeath);
+                        else
+                        {
+                            var murkyRespawnFromEggTimeSpan = murkyDeath.Item2.Value;
+                            for (; currentEggIndex < murkyEggs.Length; currentEggIndex++)
+                            {
+                                if (murkyRespawnFromEggTimeSpan > murkyEggs[currentEggIndex].TimeSpanDied)
+                                    continue;
+                                else
+                                    // Add positions for each second Murky is waiting to spawn from his egg
+                                    for (; murkyRespawnFromEggTimeSpan >= murkyDeath.Item1; murkyRespawnFromEggTimeSpan = murkyRespawnFromEggTimeSpan.Add(TimeSpan.FromSeconds(-1)))
+                                        player.HeroUnits[0].Positions.Add(new Position { TimeSpan = murkyRespawnFromEggTimeSpan, Point = murkyEggs[currentEggIndex].PointBorn, IsEstimated = false });
+
+                                break;
+                            }
                         }
-                    }
                 }
                 else
                     fullTimerDeaths.AddRange(player.Deaths);
@@ -619,37 +630,19 @@ namespace Heroes.ReplayParser
                 if (fullTimerDeaths.Count != 0)
                 {
                     // Add a 'Position' at the player spawn when the death occurs
-                    player.HeroUnits[0].Positions.AddRange(fullTimerDeaths.Select(i => new Position { TimeSpan = i, Point = player.HeroUnits[0].PointBorn, IsEstimated = false }));
+                    player.HeroUnits[0].Positions.AddRange(fullTimerDeaths.Select(i => new Position { TimeSpan = i.Item1, Point = player.HeroUnits[0].PointBorn, IsEstimated = false }));
 
                     // Add a 'Position' at the player spawn when the hero respawns
-                    if (player.HeroUnits[0].Name == "HeroDiablo")
-                        // Currently not able to tell if Diablo has a fast respawn - because of this we just always assume he does respawn quickly
-                        player.HeroUnits[0].Positions.AddRange(fullTimerDeaths.Select(i => new Position { TimeSpan = i.Add(TimeSpan.FromSeconds(5)), Point = player.HeroUnits[0].PointBorn, IsEstimated = false }));
-                    else
-                    {
-                        var currentTeamLevelMilestoneIndex = 1;
-                        foreach (var playerDeath in fullTimerDeaths)
-                            for (; currentTeamLevelMilestoneIndex < replay.TeamLevelMilestones[player.Team].Length; currentTeamLevelMilestoneIndex++)
-                            {
-                                Position spawnPosition = null;
-                                if (playerDeath < replay.TeamLevelMilestones[player.Team][currentTeamLevelMilestoneIndex])
-                                    spawnPosition = new Position { TimeSpan = playerDeath.Add(TimeSpan.FromSeconds(HeroDeathTimersByTeamLevelInSecondsForTalentLevels[currentTeamLevelMilestoneIndex - 1])), Point = player.HeroUnits[0].PointBorn, IsEstimated = false };
-                                else if (currentTeamLevelMilestoneIndex == replay.TeamLevelMilestones[player.Team].Length - 1)
-                                    spawnPosition = new Position { TimeSpan = playerDeath.Add(TimeSpan.FromSeconds(HeroDeathTimersByTeamLevelInSecondsForTalentLevels[currentTeamLevelMilestoneIndex])), Point = player.HeroUnits[0].PointBorn, IsEstimated = false };
-
-                                if (spawnPosition != null)
-                                {
-                                    var deathTimeSpan = playerDeath;
-                                    while (deathTimeSpan < spawnPosition.TimeSpan)
-                                    {
-                                        // Add a 'Position' at the player spawn for every second the player is dead, to make sure we don't add 'estimated' positions during this time
-                                        player.HeroUnits[0].Positions.Add(new Position { TimeSpan = deathTimeSpan, Point = player.HeroUnits[0].PointBorn, IsEstimated = false });
-                                        deathTimeSpan = deathTimeSpan.Add(TimeSpan.FromSeconds(1));
-                                    }
-                                    player.HeroUnits[0].Positions.Add(spawnPosition);
-                                    break;
-                                }
-                            }
+                    foreach (var playerDeath in fullTimerDeaths.Where(i => i.Item2.HasValue))
+                    {                        
+                        var deathTimeSpan = playerDeath.Item1;
+                        while (deathTimeSpan < playerDeath.Item2.Value)
+                        {
+                            // Add a 'Position' at the player spawn for every second the player is dead, to make sure we don't add 'estimated' positions during this time
+                            player.HeroUnits[0].Positions.Add(new Position { TimeSpan = deathTimeSpan, Point = player.HeroUnits[0].PointBorn, IsEstimated = false });
+                            deathTimeSpan = deathTimeSpan.Add(TimeSpan.FromSeconds(1));
+                        }
+                        player.HeroUnits[0].Positions.Add(new Position { TimeSpan = playerDeath.Item2.Value, Point = player.HeroUnits[0].PointBorn, IsEstimated = false });
                     }
                 }                
 
