@@ -8,6 +8,8 @@ namespace Heroes.ReplayParser
 
     public static class ReplayResumableEvents
     {
+        public const string FileName = "replay.resumable.events";
+
         public static void Parse(Replay replay, byte[] buffer)
         {
             using (var memoryStream = new MemoryStream(buffer))

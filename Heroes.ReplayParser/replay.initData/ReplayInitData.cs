@@ -8,6 +8,8 @@
     /// <summary> Parses the replay.Initdata file in the replay file. </summary>
     public class ReplayInitData
     {
+        public const string FileName = "replay.initData";
+
         /// <summary> Parses the replay.initdata file in a replay file. </summary>
         /// <param name="replay"> The replay file to apply the parsed data to. </param>
         /// <param name="buffer"> The buffer containing the replay.initdata file. </param>

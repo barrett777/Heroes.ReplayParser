@@ -10,6 +10,8 @@
     /// <summary> Parses the replay.server.battlelobby file in the replay file. </summary>
     public class ReplayServerBattlelobby
     {
+        public const string FileName = "replay.server.battlelobby";
+
         /// <summary> Parses the replay.server.battlelobby file in a replay file. </summary>
         /// <param name="replay"> The replay file to apply the parsed data to. </param>
         /// <param name="buffer"> The buffer containing the replay.initdata file. </param>

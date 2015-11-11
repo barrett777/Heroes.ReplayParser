@@ -12,6 +12,8 @@ namespace Heroes.ReplayParser
     /// </summary>
     public static class ReplayTrackerEvents
     {
+        public const string FileName = "replay.tracker.events";
+
         /// <summary> Parses the replay.tracker.events file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.tracker.events file. </param>

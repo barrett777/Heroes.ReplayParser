@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using MpqLib.Mpq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Heroes.ReplayParser;
 
@@ -24,22 +25,32 @@ namespace ConsoleApplication1
                 MpqHeader.ParseHeader(replay, tmpPath);
                 using (var archive = new CArchive(tmpPath))
                 {
-                    ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.initData"));
-                    ReplayDetails.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.details"));
-                    ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.tracker.events"));
-                    ReplayAttributeEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.attributes.events"));
+                    ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayInitData.FileName));
+                    ReplayDetails.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayDetails.FileName));
+                    ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayTrackerEvents.FileName));
+                    ReplayAttributeEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayAttributeEvents.FileName));
                     if (replay.ReplayBuild >= 32455)
-                        ReplayGameEvents.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.game.events"));
-                    ReplayServerBattlelobby.Parse(replay, GetMpqArchiveFileBytes(archive, "replay.server.battlelobby"));
+                        ReplayGameEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayGameEvents.FileName));
+                    ReplayServerBattlelobby.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayServerBattlelobby.FileName));
+                    ReplayMessageEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayMessageEvents.FileName));
                     Unit.ParseUnitData(replay);
                 }
 
                 // Our Replay object now has all currently available information
+                var playerDictionary = new Dictionary<int, Player>();
                 Console.WriteLine("Replay Build: " + replay.ReplayBuild);
                 Console.WriteLine("Map: " + replay.Map);
                 foreach (var player in replay.Players.OrderByDescending(i => i.IsWinner))
+                {
+                    playerDictionary[player.PlayerId] = player;
                     Console.WriteLine("Player: " + player.Name + ", Win: " + player.IsWinner + ", Hero: " + player.Character + ", Lvl: " + player.CharacterLevel + (replay.ReplayBuild >= 32524 ? ", Talents: " + string.Join(",", player.Talents.OrderBy(i => i)) : ""));
+                }
 
+
+                foreach (var message in replay.ChatMessages)
+                     if (playerDictionary.ContainsKey(message.PlayerId))
+                        Console.WriteLine(playerDictionary[message.PlayerId].Name + ": " + message.Message);
+                    
                 Console.WriteLine("Press Any Key to Close");
                 Console.Read();
             }

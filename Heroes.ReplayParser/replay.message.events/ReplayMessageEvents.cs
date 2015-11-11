@@ -11,6 +11,8 @@
     /// </summary>
     public class ReplayMessageEvents
     {
+        public const string FileName = "replay.message.events";
+
         /// <summary> Parses the Replay.Messages.Events file. </summary>
         /// <param name="buffer"> Buffer containing the contents of the replay.messages.events file. </param>
         /// <returns> A list of chat messages parsed from the buffer. </returns>
@@ -28,6 +30,11 @@
                         var message = new ChatMessage();
 
                         var time = ParseTimestamp(reader);
+
+                        // sometimes we only have a header for the message
+                        if (reader.BaseStream.Position >= reader.BaseStream.Length) 
+                            break;
+
                         message.PlayerId = reader.ReadByte();
 
                         totalTime += time;

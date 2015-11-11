@@ -5,6 +5,11 @@ namespace Heroes.ReplayParser
     public class Player
     {
         /// <summary>
+        /// Gets or sets the PlayerId of a player, this is the same id used for player chats
+        /// </summary>
+        public int PlayerId { get; set; }
+
+        /// <summary>
         /// Gets or sets the Battle.NET region of a player.
         /// </summary>
         public int BattleNetRegionId { get; set; }
