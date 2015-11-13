@@ -8,6 +8,8 @@ namespace Heroes.ReplayParser
 
     public class ReplayGameEvents
     {
+        public const string FileName = "replay.game.events";
+
         public static void Parse(Replay replay, byte[] buffer)
         {
             var gameEvents = new List<GameEvent>();

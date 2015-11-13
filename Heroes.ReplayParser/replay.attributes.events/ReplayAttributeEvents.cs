@@ -8,6 +8,8 @@ namespace Heroes.ReplayParser
 
     public class ReplayAttributeEvents
     {
+        public const string FileName = "replay.attributes.events";
+
         public ReplayAttribute[] Attributes { get; set; }
 
         public static void Parse(Replay replay, byte[] buffer)

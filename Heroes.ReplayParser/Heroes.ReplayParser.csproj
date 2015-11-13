@@ -84,9 +84,9 @@
     <Compile Include="replay.details\ReplayDetails.cs" />
     <Compile Include="replay.game.events\ReplayGameEvents.cs" />
     <Compile Include="replay.initData\ReplayInitData.cs" />
-    <Compile Include="replay.messages.events\ChatMessage.cs" />
-    <Compile Include="replay.messages.events\ChatMessageTarget.cs" />
-    <Compile Include="replay.messages.events\ReplayMessageEvents.cs" />
+    <Compile Include="replay.message.events\ChatMessage.cs" />
+    <Compile Include="replay.message.events\ChatMessageTarget.cs" />
+    <Compile Include="replay.message.events\ReplayMessageEvents.cs" />
     <Compile Include="replay.server.battlelobby\ReplayServerBattlelobby.cs" />
     <Compile Include="replay.tracker.events\ReplayTrackerEvents.cs" />
     <Compile Include="Streams\BitReader.cs" />
