@@ -3,8 +3,6 @@ A C# library for parsing Heroes of the Storm replay files (.StormReplay).
 
 Currently developed and used by HOTSLogs.com.
 
-**Requirements:** An external tool to extract files from the .StormReplay container, such as MpqLib.dll
-
 Explanation
 ================
 
@@ -46,7 +44,7 @@ Most of the information in this file is likely also defined elsewhere, but the f
 
 **ReplayGameEvents.Parse**
 
-Structure is known, some information is known
+Structure is known, most information is known
 
 I was pretty hasty in my implementation of these game events.  Many of these events are pretty sloppy.  I hurried because all I really wanted was hero talent choices.
 
@@ -59,7 +57,7 @@ Currently I'm only using this to get player's BattleTags, using some horrible, h
 Example Code
 ================
 
-I've added a console application that demonstrates how to use Heroes.ReplayParser and MpqLib to parse replays and access the available data.
+I've added a console application that demonstrates how to parse replays and access the available data.
 
 Special Thanks
 ================
