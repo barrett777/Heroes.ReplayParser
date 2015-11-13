@@ -37,6 +37,9 @@
 
                         message.PlayerId = reader.ReadByte();
 
+                        // I believe this 'PlayerId' is an index for this client list, which can include observers
+                        // var player = replay.ClientList[message.PlayerId];
+
                         totalTime += time;
                         var opCode = reader.ReadByte();
 

@@ -32,10 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MpqLib, Version=1.0.4562.23951, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>MpqLib\MpqLib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,9 +51,10 @@
       <Project>{aaf78d53-a1da-424a-b1aa-09895eab3b2b}</Project>
       <Name>Heroes.ReplayParser</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="MpqLib\MpqLib.dll" />
+    <ProjectReference Include="..\..\MpqTool\MpqTool.csproj">
+      <Project>{fa50e172-836b-47bb-8745-60595e4fb12a}</Project>
+      <Name>MpqTool</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

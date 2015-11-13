@@ -18,10 +18,8 @@ namespace Heroes.ReplayParser
                 using (var reader = new BinaryReader(stream))
                 {
                     var replayDetailsStructure = new TrackerEventStructure(reader);
-                    var playerId = -1;
                     replay.Players = replayDetailsStructure.dictionary[0].optionalData.array.Select(i => new Player
-                    {   
-                        PlayerId = ++playerId,
+                    {
                         Name = i.dictionary[0].blobText,
                         BattleNetRegionId = (int)i.dictionary[1].dictionary[0].vInt.Value,
                         BattleNetSubId = (int)i.dictionary[1].dictionary[2].vInt.Value,
