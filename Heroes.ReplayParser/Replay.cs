@@ -55,7 +55,7 @@
         public int Frames { get; set; }
 
         /// <summary> Gets the length of this replay as a timespan. </summary>
-        public TimeSpan ReplayLength { get; set; }
+        public TimeSpan ReplayLength { get { return new TimeSpan(0, 0, (int)(Frames / 16.0)); } }
 
         /// <summary> Gets a single random value replay.init.data; currently using as part of replay hash for deduplication. </summary>
         public UInt32 RandomValue { get; set; }

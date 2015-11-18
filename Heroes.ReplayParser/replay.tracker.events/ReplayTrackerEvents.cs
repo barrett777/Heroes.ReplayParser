@@ -17,8 +17,8 @@ namespace Heroes.ReplayParser
         /// <summary> Parses the replay.tracker.events file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.tracker.events file. </param>
-        /// <param name="parseUnitData"> Determines whether or not to parse unit data </param>
-        public static void Parse(Replay replay, byte[] buffer)
+        /// <param name="onlyParsePlayerSetupEvents"> If true, speeds up parsing by skipping Unit data, which is most of this file </param>
+        public static void Parse(Replay replay, byte[] buffer, bool onlyParsePlayerSetupEvents = false)
         {
             replay.TrackerEvents = new List<TrackerEvent>();
 
@@ -27,28 +27,24 @@ namespace Heroes.ReplayParser
                 using (var reader = new BinaryReader(stream))
                     while (stream.Position < stream.Length)
                     {
-                        var intro = reader.ReadBytes(3); // Always 03 00 09 (Edit: Middle digit seems to have at least two possible values)
-                        if (intro[0] != 3 || /* intro[1] != 0 || */ intro[2] != 9)
-                            throw new Exception("Unexpected data in tracker event");
+                        var intro = reader.ReadBytes(3); // Always 03 ?? 09; Middle digit seems to have at least two possible values
 
                         currentFrameCount += (int)TrackerEventStructure.read_vint(reader);
 
                         var trackerEvent = new TrackerEvent { TimeSpan = new TimeSpan(0, 0, (int)(currentFrameCount / 16.0)) };
 
                         intro = reader.ReadBytes(1); // Always 09
-                        if (intro[0] != 9)
-                            throw new Exception("Unexpected data in tracker event");
 
                         trackerEvent.TrackerEventType = (TrackerEventType)TrackerEventStructure.read_vint(reader);
                         trackerEvent.Data = new TrackerEventStructure(reader);
                         replay.TrackerEvents.Add(trackerEvent);
+
+                        if (onlyParsePlayerSetupEvents && trackerEvent.TrackerEventType != TrackerEventType.PlayerSetupEvent)
+                            break;
                     }
 
-            replay.Frames = currentFrameCount;
-            replay.ReplayLength = replay.TrackerEvents.Last().TimeSpan;
-
             // Populate the client list using player indexes
-            var playerIndexes = replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.PlayerSetupEvent && i.Data.dictionary[2].optionalData != null).Select(i => i.Data.dictionary[2].optionalData.vInt.Value).Distinct().OrderBy(i => i).ToArray();
+            var playerIndexes = replay.TrackerEvents.Where(i => i.TrackerEventType == TrackerEventType.PlayerSetupEvent && i.Data.dictionary[2].optionalData != null).Select(i => i.Data.dictionary[2].optionalData.vInt.Value).Distinct().OrderBy(i => i).ToArray();
             for (var i = 0; i < playerIndexes.Length; i++)
                 // The references between both of these classes are the same on purpose.
                 // We want updates to one to propogate to the other.

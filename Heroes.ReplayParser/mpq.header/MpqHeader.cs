@@ -41,7 +41,9 @@
             replay.ReplayBuild = (int)headerStructure.dictionary[1].dictionary[4].vInt.Value;
 
             // [2] = VInt, Default 2
-            // [3] = VInt, Frame Count (Very similar, though slightly different, than frame count from tracker event frame delta sum)
+
+            replay.Frames = (int)headerStructure.dictionary[3].vInt.Value;
+
             // [4] = VInt, Default 0
             // [5] = Depending on replay build, either Blob with gibberish, or array of 16 bytes (basically a Blob), also with gibberish.  Of ~770 pre-wipe replays, there were only 11 distinct blobs, so this is likely a map version hash or something
             // [6] = Replay Build (Same as what is in [1])
