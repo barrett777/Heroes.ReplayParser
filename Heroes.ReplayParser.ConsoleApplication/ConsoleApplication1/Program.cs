@@ -26,10 +26,10 @@ namespace ConsoleApplication1
                 using (var archive = new MpqArchive(tmpPath))
                 {
                     archive.AddListfileFilenames();
-
-                    ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayInitData.FileName));
+                    
                     ReplayDetails.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayDetails.FileName));
                     ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayTrackerEvents.FileName));
+                    ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayInitData.FileName), partialParse: false);
                     ReplayAttributeEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayAttributeEvents.FileName));
                     if (replay.ReplayBuild >= 32455)
                         ReplayGameEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayGameEvents.FileName));

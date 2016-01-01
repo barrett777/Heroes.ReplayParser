@@ -12,11 +12,13 @@ namespace Heroes.ReplayParser
 
         public static void Parse(Replay replay, byte[] buffer)
         {
+            // Referenced from https://raw.githubusercontent.com/Blizzard/heroprotocol/master/protocol39445.py
+
             var gameEvents = new List<GameEvent>();
             var ticksElapsed = 0;
             using (var stream = new MemoryStream(buffer))
             {
-                var bitReader = new Heroes.ReplayParser.Streams.BitReader(stream);
+                var bitReader = new Streams.BitReader(stream);
                 while (!bitReader.EndOfStream)
                 {
                     var gameEvent = new GameEvent();
@@ -37,23 +39,20 @@ namespace Heroes.ReplayParser
                             break;
                         case GameEventType.CUserOptionsEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
-                                // Names for user options may or may not be accurate
-                                // Referenced from https://raw.githubusercontent.com/Blizzard/s2protocol/master/protocol38215.py (Void Beta)
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_gameFullyDownloaded
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_developmentCheatsEnabled
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_testCheatsEnabled
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_multiplayerCheatsEnabled
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_syncChecksummingEnabled
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_isMapToMapTransition
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_startingRally
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_debugPauseEnabled
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_useGalaxyAsserts
-                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) }, // m_platformMac
-                                                                                               // m_cameraFollow?
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_gameFullyDownloaded
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_developmentCheatsEnabled
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_testCheatsEnabled
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_multiplayerCheatsEnabled
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_syncChecksummingEnabled
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_isMapToMapTransition
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_debugPauseEnabled
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_useGalaxyAsserts
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_platformMac
+                                new TrackerEventStructure { unsignedInt = bitReader.Read(1) },  // m_cameraFollow
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // m_baseBuildNum
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // m_buildNum
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // m_versionFlags
-                                new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) } /* m_hotkeyProfile, Referenced as 9 bit length */ } };
+                                new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(9) } /* m_hotkeyProfile */ } };
                             break;
                         case GameEventType.CBankFileEvent:
                             gameEvent.data = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(7) };
@@ -406,11 +405,15 @@ namespace Heroes.ReplayParser
             replay.GameEvents = gameEvents;
 
             // Gather talent selections
-            var talentGameEvents = replay.GameEvents.Where(i => i.eventType == GameEventType.CHeroTalentSelectedEvent);
-            if (talentGameEvents.Any(i => i.player == null))
-                throw new Exception("Invalid Player for CHeroTalentSelected Game Event");
-            foreach (var player in replay.Players)
-                player.Talents = talentGameEvents.Where(i => i.player == player).Select(j => new Tuple<int, TimeSpan>((int)j.data.unsignedInt.Value, j.TimeSpan)).OrderBy(j => j.Item1).ToArray();
+            var talentGameEventsDictionary = replay.GameEvents
+                .Where(i => i.eventType == GameEventType.CHeroTalentSelectedEvent)
+                .GroupBy(i => i.player)
+                .ToDictionary(
+                    i => i.Key,
+                    i => i.Select(j =>new Tuple<int, TimeSpan>((int)j.data.unsignedInt.Value, j.TimeSpan)).OrderBy(j => j.Item2).ToArray());
+
+            foreach (var player in talentGameEventsDictionary.Keys)
+                player.Talents = talentGameEventsDictionary[player];
 
             // Gather Team Level Milestones (From talent choices: 1 / 4 / 7 / 10 / 13 / 16 / 20)
             for (var currentTeam = 0; currentTeam < replay.TeamLevelMilestones.Length; currentTeam++)

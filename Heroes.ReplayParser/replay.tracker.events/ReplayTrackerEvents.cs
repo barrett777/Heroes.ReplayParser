@@ -27,13 +27,13 @@ namespace Heroes.ReplayParser
                 using (var reader = new BinaryReader(stream))
                     while (stream.Position < stream.Length)
                     {
-                        var intro = reader.ReadBytes(3); // Always 03 ?? 09; Middle digit seems to have at least two possible values
+                        reader.ReadBytes(3); // Always 03 ?? 09; Middle digit seems to have at least two possible values
 
                         currentFrameCount += (int)TrackerEventStructure.read_vint(reader);
 
                         var trackerEvent = new TrackerEvent { TimeSpan = new TimeSpan(0, 0, (int)(currentFrameCount / 16.0)) };
 
-                        intro = reader.ReadBytes(1); // Always 09
+                        reader.ReadBytes(1); // Always 09
 
                         trackerEvent.TrackerEventType = (TrackerEventType)TrackerEventStructure.read_vint(reader);
                         trackerEvent.Data = new TrackerEventStructure(reader);

@@ -40,12 +40,11 @@ namespace Heroes.ReplayParser
                         return;
 
                     replay.Map = replayDetailsStructure.dictionary[1].blobText;
-                    // [2] - This is typically an empty string, no need to decode.
-                    // [3] - Blob: "Minimap.tga" or "CustomMiniMap.tga"
-                    // [4] - Uint, Default 1
-
-                    // [5] - Utc Timestamp
-                    replay.Timestamp = DateTime.FromFileTimeUtc(replayDetailsStructure.dictionary[5].vInt.Value);
+                    // [2] - m_difficulty
+                    // [3] - m_thumbnail - "Minimap.tga", "CustomMiniMap.tga", etc
+                    // [4] - m_isBlizzardMap
+                    
+                    replay.Timestamp = DateTime.FromFileTimeUtc(replayDetailsStructure.dictionary[5].vInt.Value); // m_timeUTC
 
                     // There was a bug during the below builds where timestamps were buggy for the Mac build of Heroes of the Storm
                     // The replay, as well as viewing these replays in the game client, showed years such as 1970, 1999, etc
@@ -55,19 +54,17 @@ namespace Heroes.ReplayParser
                     else if (replay.ReplayBuild == 34190 && replay.Timestamp < new DateTime(2015, 2, 15))
                         replay.Timestamp = new DateTime(2015, 2, 20);
 
-                    // [6] - Windows replays, this is Utc offset.  Mac replays, this is actually the entire Local Timestamp
-                    // var potentialUtcOffset = new TimeSpan(replayDetailsStructure.dictionary[6].vInt.Value);
-
-                    // [7] - Blob, Empty String
-                    // [8] - Blob, Empty String
-                    // [9] - Blob, Empty String
-                    // [10] - Optional, Array: 0 - Blob, "s2ma"
-                    // [11] - UInt, Default 0
-                    // [12] - VInt, Default 4
-                    // [13] - VInt, Default 1 or 7
-                    // [14] - Optional, Null
-                    // [15] - VInt, Default 0
-                    // [16] - Optional, UInt, Default 0
+                    // [6] - m_timeLocalOffset - For Windows replays, this is Utc offset.  For Mac replays, this is actually the entire Local Timestamp
+                    // [7] - m_description - Empty String
+                    // [8] - m_imageFilePath - Empty String
+                    // [9] - m_mapFileName - Empty String
+                    // [10] - m_cacheHandles - "s2ma"
+                    // [11] - m_miniSave - 0
+                    // [12] - m_gameSpeed - 4
+                    // [13] - m_defaultDifficulty - Usually 1 or 7
+                    // [14] - m_modPaths - Null
+                    // [15] - m_campaignIndex - 0
+                    // [16] - m_restartAsTransitionMap - 0
                 }
         }
     }

@@ -100,6 +100,15 @@
             return this.Read((int)numBits);
         }
 
+        public bool[] ReadBitArray(uint numBits)
+        {
+            var bitArray = new bool[numBits];
+            for (var i = 0; i < bitArray.Length; i++)
+                bitArray[i] = ReadBoolean();
+
+            return bitArray;
+        }
+
         /// <summary>
         /// Reads 1 byte from the current stream position.
         /// </summary>

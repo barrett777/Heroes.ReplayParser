@@ -180,22 +180,6 @@ namespace Heroes.ReplayParser
                             break;
                         }
 
-                    case ReplayAttributeEventType.SkinAndSkinTint:
-                        {
-                            var skinAndSkinTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
-                            if (!string.IsNullOrWhiteSpace(skinAndSkinTint))
-                                replay.Players[attribute.PlayerId - 1].SkinAndSkinTint = skinAndSkinTint;
-                        }
-                        break;
-
-                    case ReplayAttributeEventType.MountAndMountTint:
-                        {
-                            var mountAndMountTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
-                            if (!string.IsNullOrWhiteSpace(mountAndMountTint))
-                                replay.Players[attribute.PlayerId - 1].MountAndMountTint = mountAndMountTint;
-                        }
-                        break;
-
                     case ReplayAttributeEventType.CharacterLevel:
                         {
                             var characterLevel = int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray()));
