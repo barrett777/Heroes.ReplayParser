@@ -22,7 +22,7 @@ This is where most of the player details are found, as well as the map and times
 
 **ReplayTrackerEvents.Parse**
 
-This has a lot of good information on in game Units, and also has placeholders for in game statistics.  I expect Blizzard will in the statistics at some point, like they did with Starcraft 2 after 'Heart of the Swarm.'
+This has a lot of good information on in game Units, and also has placeholders for in game statistics.  I expect Blizzard will fill in the statistics at some point, like they did with Starcraft 2 after 'Heart of the Swarm.'
 
 **ReplayAttributeEvents.Parse**
 
