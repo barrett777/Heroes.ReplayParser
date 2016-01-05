@@ -49,16 +49,16 @@ namespace Heroes.ReplayParser
             foreach (var attribute in Attributes)
                 switch (attribute.AttributeType)
                 {
-                    case ReplayAttributeEventType.PlayerTypeAttribute: // 500
+                    case ReplayAttributeEventType.PlayerTypeAttribute:
                         {
-                            var type = encoding.GetString(attribute.Value.Reverse().ToArray());
+                            var type = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower();
 
-                            if (type.ToLower().Equals("comp"))
+                            if (type == "comp")
                                 replay.Players[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
-                            else if (type.ToLower().Equals("humn"))
+                            else if (type == "humn")
                                 replay.Players[attribute.PlayerId - 1].PlayerType = PlayerType.Human;
                             else
-                                throw new Exception("Unexpected value");
+                                throw new Exception("Unexpected value for PlayerType");
 
                             break;
                         }
@@ -174,7 +174,7 @@ namespace Heroes.ReplayParser
                             break;
                         }
 
-                    case ReplayAttributeEventType.Character:
+                    case ReplayAttributeEventType.Hero:
                         {
                             replay.Players[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
                             break;
@@ -189,7 +189,7 @@ namespace Heroes.ReplayParser
                             break;
                         }
 
-                    case ReplayAttributeEventType.HeroSelectionMode:
+                    case ReplayAttributeEventType.LobbyMode:
                         {
                             if (replay.GameMode != GameMode.Custom)
                                 switch (encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0'))
@@ -204,7 +204,7 @@ namespace Heroes.ReplayParser
                         }
                         break;
 
-                    case ReplayAttributeEventType.HeroDraftMode:
+                    case ReplayAttributeEventType.ReadyMode:
                         if (replay.GameMode == GameMode.HeroLeague && encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0') == "fcfs")
                             replay.GameMode = GameMode.TeamLeague;
                         break;
@@ -243,7 +243,10 @@ namespace Heroes.ReplayParser
         public enum ReplayAttributeEventType
         {
             PlayerTypeAttribute = 500,
+            Rules = 1000,
+            IsPremadeGame = 1001,
 
+            /* 2000 - 2024 are related to team sizes */
             TeamSizeAttribute = 2001,
             PlayerTeam1v1Attribute = 2002,
             PlayerTeam2v2Attribute = 2003,
@@ -253,23 +256,45 @@ namespace Heroes.ReplayParser
 
             GameSpeedAttribute = 3000,
             PlayerRaceAttribute = 3001,
-            PlayerColorIndexAttribute = 3002,
+            TeamColorIndexAttribute = 3002,
             PlayerHandicapAttribute = 3003,
             DifficultyLevelAttribute = 3004,
-
+            ComputerRace = 3005,
+            LobbyDelay = 3006,
+            ParticipantRole = 3007,
+            WatcherType = 3008,
             GameTypeAttribute = 3009,
+            LockedAlliances = 3010,
+            PlayerLogo = 3011,
+            TandemLeader = 3012,
+            Commander = 3013,
+            CommanderLevel = 3014,
+            GameDuration = 3015,
+            /* 3100 - 3300 are related to AI builds (for Starcraft 2) */
 
-            Character = 4002,
+            PrivacyOption = 4000,
+            UsingCustomObserverUI = 4001,
+            Hero = 4002,
             SkinAndSkinTint = 4003,
             MountAndMountTint = 4004,
+            Ready = 4005,
+            HeroRange = 4006,
+            HeroRole = 4007,
             CharacterLevel = 4008,
-            HeroSelectionMode = 4010,
-            HeroDraftMode = 4018
-        }
+            CanReady = 4009,
+            LobbyMode = 4010,
+            ReadyOrder = 4011,
+            ReadyingTeam = 4012,
+            HeroDuplicates = 4013,
+            HeroVisibility = 4014,
+            LobbyPhase = 4015,
+            ReadyingCount = 4016,
+            ReadyingRound = 4017,
+            ReadyMode = 4018,
+            ReadyRequirements = 4019,
+            FirstReadyingTeam = 4020
 
-        /*  4006 'rang', 'mele'
-            4007 -> 'spec', 'warr', 'assa'
-            4100 -> 'Cool', 'APwr', 'ADmg', 'MaxH'
-            4102 -> 'Move', 'MaxM' */
+            /* 4100 - 4200 are related to Artifacts, no longer in the game */
+        }
     }
 }
