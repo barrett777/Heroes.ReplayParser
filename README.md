@@ -6,42 +6,28 @@ Currently developed and used by HOTSLogs.com.
 Explanation
 ================
 
-There is a separate 'Parse' function for each file within the .StormReplay container.  Please follow the parsing order in the sample Console application, as some files rely on parsed information from others.  Here is a quick summary of each file we can parse:
+There is a 'Parse' function in 'DataParser.cs', which parses each file in the .StormReplay container.  Here's a quick summary of contained files we can parse:
 
-**MpqHeader.ParseHeader**
+**Mpq Header**: Replay Version and Heroes of the Storm Build are stored here
 
-Replay Version and Heroes of the Storm Build are stored here
+**Replay Init Data**: A lot of game and player options
 
-**ReplayInitData.Parse**
+**Replay Details**: Most of the player details are found here
 
-This contains a lot of game and player options
+**Replay Tracker Events**: This has tons of good information on units and statistics
 
-**ReplayDetails.Parse**
+**Replay Attribute Events**: Most of the information in this file is likely also defined elsewhere, but the format of this file is well defined, so it is most convenient to retrieve, and most resistant to new version format changes
 
-This is where most of the player details are found, as well as the map and timestamp the match occurred.
-
-**ReplayTrackerEvents.Parse**
-
-This has a lot of good information on in game Units, and also has placeholders for in game statistics.  I expect Blizzard will fill in the statistics at some point, like they did with Starcraft 2 after 'Heart of the Swarm.'
-
-**ReplayAttributeEvents.Parse**
-
-Most of the information in this file is likely also defined elsewhere, but the format of this file is well defined, so it is most convenient to retrieve, and most resistant to new version format changes.
-
-**ReplayGameEvents.Parse**
-
-This has every user action performed in game.  Unfortunately it would take a lot of work to get valuable information from this, and may be impossible.  For example, this may tell us that a Player tries to use an Ability, but it doesn't tell us if someone else interrupted the Ability, or perhaps the player is out of range.
+**Replay Game Events**: This has every user action performed in game.  Unfortunately it would take a lot of work to get valuable information from this, and may be impossible.  For example, this may tell us that a player tries to use an ability, but it doesn't tell us if someone else interrupted the ability, or if perhaps the player is out of range.
 
 Currently I use this to get Hero talent choices, and estimating some player movement based on some actions.
 
-**ReplayServerBattlelobby.Parse**
-
-I'm not able to properly parse this.  Currently I'm only using this to get player's BattleTags, using some horrible, horrible code.  There may be other interesting information, I'm not sure.  This wasn't mentioned much in Starcraft 2 projects though.
+**Replay Server Battlelobby**: I'm not able to properly parse this, and I'm not sure exactly what data it contains.  Currently I'm only using this to get player's BattleTags, using some horrible, horrible code.  This wasn't mentioned much in Starcraft 2 projects, so I assume it isn't too interesting.
 
 Example Code
 ================
 
-I've added a Console application that demonstrates how to parse replays and access the available data.
+I've included a simple Console application that shows how to parse replays and access the available data
 
 Special Thanks
 ================
