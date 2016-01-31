@@ -17,50 +17,41 @@ namespace Heroes.ReplayParser
         /// <summary> Parses the replay.tracker.events file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.tracker.events file. </param>
-        /// <param name="onlyParsePlayerSetupEvents"> If true, speeds up parsing by skipping Unit data, which is most of this file </param>
-        public static void Parse(Replay replay, byte[] buffer, bool onlyParsePlayerSetupEvents = false)
+        public static List<TrackerEvent> Parse(byte[] buffer)
         {
-            replay.TrackerEvents = new List<TrackerEvent>();
+            var trackerEvents = new List<TrackerEvent>();
 
             var currentFrameCount = 0;
             using (var stream = new MemoryStream(buffer))
-                using (var reader = new BinaryReader(stream))
-                    while (stream.Position < stream.Length)
-                    {
-                        reader.ReadBytes(3); // Always 03 ?? 09; Middle digit seems to have at least two possible values
+            using (var reader = new BinaryReader(stream))
+                while (stream.Position < stream.Length)
+                {
+                    reader.ReadBytes(3); // Always 03 ?? 09; Middle digit seems to have at least two possible values
 
-                        currentFrameCount += (int)TrackerEventStructure.read_vint(reader);
+                    currentFrameCount += (int)TrackerEventStructure.read_vint(reader);
 
-                        var trackerEvent = new TrackerEvent { TimeSpan = new TimeSpan(0, 0, (int)(currentFrameCount / 16.0)) };
+                    var trackerEvent = new TrackerEvent { TimeSpan = TimeSpan.FromSeconds((int)(currentFrameCount / 16.0)) };
 
-                        reader.ReadBytes(1); // Always 09
+                    reader.ReadBytes(1); // Always 09
 
-                        trackerEvent.TrackerEventType = (TrackerEventType)TrackerEventStructure.read_vint(reader);
-                        trackerEvent.Data = new TrackerEventStructure(reader);
-                        replay.TrackerEvents.Add(trackerEvent);
+                    trackerEvent.TrackerEventType = (TrackerEventType)TrackerEventStructure.read_vint(reader);
+                    trackerEvent.Data = new TrackerEventStructure(reader);
 
-                        if (onlyParsePlayerSetupEvents && trackerEvent.TrackerEventType != TrackerEventType.PlayerSetupEvent)
-                            break;
-                    }
+                    if (trackerEvent.TrackerEventType == TrackerEventType.StatGameEvent && trackerEvent.Data.dictionary[3].optionalData != null)
+                        // m_fixedData is stored in fixed point 20.12 format
+                        foreach (var trackerEventArrayItem in trackerEvent.Data.dictionary[3].optionalData.array)
+                            trackerEventArrayItem.dictionary[1].vInt = trackerEventArrayItem.dictionary[1].vInt.Value / 4096;
 
-            // Populate the client list using player indexes
-            var playerIndexes = replay.TrackerEvents.Where(i => i.TrackerEventType == TrackerEventType.PlayerSetupEvent && i.Data.dictionary[2].optionalData != null).Select(i => i.Data.dictionary[2].optionalData.vInt.Value).Distinct().OrderBy(i => i).ToArray();
-            for (var i = 0; i < playerIndexes.Length; i++)
-                // The references between both of these classes are the same on purpose.
-                // We want updates to one to propogate to the other.
-                replay.ClientList[playerIndexes[i]] = replay.Players[i];
+                    trackerEvents.Add(trackerEvent);
+                }
+
+            return trackerEvents;
         }
 
         public enum TrackerEventType
         {
             PlayerStatsEvent = 0,
-            /* From sc2reader: Player Stats events are generated for all players that were in the game even if they've since
-                left every 10 seconds. An additional set of stats events are generated at the end of the game.
-                When a player leaves the game, a single PlayerStatsEvent is generated for that player and no
-                one else. That player continues to generate PlayerStatsEvents at 10 second intervals until the
-                end of the game.
-                In 1v1 games, the above behavior can cause the losing player to have 2 events generated at the
-                end of the game. One for leaving and one for the end of the game. */
+            /* Not used - this Starcraft 2 event was replaced with 'StatGameEvent' and 'ScoreResultEvent' for Heroes of the Storm */
 
             UnitBornEvent = 1,
             /* UnitID Index, UnitID Recycle, Unit Type Name, PlayerID with Control, PlayerID with Upkeep, X, Y */
@@ -74,14 +65,29 @@ namespace Heroes.ReplayParser
             UnitTypeChangeEvent = 4,
             /* UnitID Index, UnitID Recycle, New Unit Type Name */
 
-            UnknownTrackerEvent1 = 5,
-            /* Only one event for the entire match, with a blob containing 'CreepColor'; Also seems to contain who gets Dragon on Dragon Shire */
+            UpgradeEvent = 5,
+            /* Not sure what this is for - only one event for the entire match, with a blob containing 'CreepColor'; Also seems to contain who gets Dragon on Dragon Shire, and maybe some other odd ones */
+
+            UnitInitEvent = 6,
+            /* UnitID, Unit Type Name, PlayerID with Control, PlayerID with Upkeep, X, Y */
+
+            UnitDoneEvent = 7,
+            /* UnitID */
 
             UnitPositionsEvent = 8,
             /* First UnitID Index, Items Array (UnitID Index Offset, X, Y) */
 
-            PlayerSetupEvent = 9
+            PlayerSetupEvent = 9,
             /* PlayerID, Player Type (1=Human, 2=CPU, 3=Neutral, 4=Hostile), UserID, SlotID */
+
+            StatGameEvent = 10,
+            /* EventName, StringData, InitData, FixedData */
+
+            ScoreResultEvent = 11,
+            /* InstanceList (20+ length array of Name/Value pairs) */
+
+            UnitRevivedEvent = 12
+            /* UnitID, X, Y */
         }
     }
 
@@ -183,31 +189,31 @@ namespace Heroes.ReplayParser
             switch (DataType)
             {
                 case 0x00: // array
-                    if (array == null)
-                        return null;
-                    var returnStringArray = "Array: ";
-                    for (var i = 0; i < array.Length; i++)
-                        returnStringArray += i + " (" + array[i] + "), ";
-                    return returnStringArray.Substring(0, returnStringArray.Length - 2);
-                case 0x01: // bitarray, weird alignment requirements
+                    return array != null
+                        ? '[' + string.Join(", ", array.Select(i => i.ToString())) + ']'
+                        : null;
+                case 0x01: // bitarray, weird alignment requirements, hasn't been used yet
                     throw new NotImplementedException();
                 case 0x02: // blob
-                    return "Blob: " + blobText;
+                    return '"' + blobText + '"';
                 case 0x03: // choice
                     return "Choice: Flag: " + choiceFlag + ", Data: " + choiceData;
                 case 0x04: // optional
-                    return "Optional: " + optionalData;
+                    return optionalData != null
+                        ? optionalData.ToString()
+                        : null;
                 case 0x05: // struct
-                    var returnStringDictionary = "Dictionary: ";
-                    foreach (var key in dictionary.Keys)
-                        returnStringDictionary += key + " (" + dictionary[key] + "), ";
-                    return returnStringDictionary.Substring(0, returnStringDictionary.Length - 2);
+                    return '{' + string.Join(", ", dictionary.Values.Select(i => i.ToString())) + '}';
                 case 0x06: // u8
                 case 0x07: // u32
                 case 0x08: // u64
-                    return "UInt: " + unsignedInt;
+                    return unsignedInt.HasValue
+                        ? unsignedInt.Value.ToString()
+                        : null;
                 case 0x09: // vint
-                    return "VInt: " + vInt;
+                    return vInt.HasValue
+                        ? vInt.Value.ToString()
+                        : null;
                 default:
                     throw new NotImplementedException();
             }

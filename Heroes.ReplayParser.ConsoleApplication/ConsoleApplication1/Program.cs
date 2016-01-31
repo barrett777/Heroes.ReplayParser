@@ -16,35 +16,29 @@ namespace ConsoleApplication1
 
             // Use temp directory for MpqLib directory permissions requirements
             var tmpPath = Path.GetTempFileName();
-            File.Copy(randomReplayFileName, tmpPath, true);
+            File.Copy(randomReplayFileName, tmpPath, overwrite: true);
 
             try
             {
-                // Create our Replay object: this object will be filled as you parse the different files in the .StormReplay archive
-                var replay = new Replay();
-                Heroes.ReplayParser.MpqHeader.ParseHeader(replay, tmpPath);
-                using (var archive = new MpqArchive(tmpPath))
-                {
-                    archive.AddListfileFilenames();
-                    
-                    ReplayDetails.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayDetails.FileName));
-                    ReplayTrackerEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayTrackerEvents.FileName));
-                    ReplayInitData.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayInitData.FileName), partialParse: false);
-                    ReplayAttributeEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayAttributeEvents.FileName));
-                    if (replay.ReplayBuild >= 32455)
-                        ReplayGameEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayGameEvents.FileName));
-                    ReplayServerBattlelobby.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayServerBattlelobby.FileName));
-                    ReplayMessageEvents.Parse(replay, GetMpqArchiveFileBytes(archive, ReplayMessageEvents.FileName));
-                    Unit.ParseUnitData(replay);
-                }
+                // Attempt to parse the replay
+                // Ignore errors can be set to true if you want to attempt to parse currently unsupported replays, such as 'VS AI' or 'PTR Region' replays
+                var replayParseResult = DataParser.ParseReplay(tmpPath, ignoreErrors: false, deleteFile: false);
 
-                // Our Replay object now has all currently available information
-                Console.WriteLine("Replay Build: " + replay.ReplayBuild);
-                Console.WriteLine("Map: " + replay.Map);
-                foreach (var player in replay.Players.OrderByDescending(i => i.IsWinner))
-                    Console.WriteLine("Player: " + player.Name + ", Win: " + player.IsWinner + ", Hero: " + player.Character + ", Lvl: " + player.CharacterLevel + (replay.ReplayBuild >= 32524 ? ", Talents: " + string.Join(",", player.Talents.OrderBy(i => i)) : ""));
-                    
-                Console.WriteLine("Press Any Key to Close");
+                // If successful, the Replay object now has all currently available information
+                if (replayParseResult.Item1 == DataParser.ReplayParseResult.Success)
+                {
+                    var replay = replayParseResult.Item2;
+
+                    Console.WriteLine("Replay Build: " + replay.ReplayBuild);
+                    Console.WriteLine("Map: " + replay.Map);
+                    foreach (var player in replay.Players.OrderByDescending(i => i.IsWinner))
+                        Console.WriteLine("Player: " + player.Name + ", Win: " + player.IsWinner + ", Hero: " + player.Character + ", Lvl: " + player.CharacterLevel + ", Talents: " + string.Join(",", player.Talents.OrderBy(i => i.Item1)));
+
+                    Console.WriteLine("Press Any Key to Close");
+                }
+                else
+                    Console.WriteLine("Failed to Parse Replay: " + replayParseResult.Item1);
+
                 Console.Read();
             }
             finally

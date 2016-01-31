@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Heroes.ReplayParser
 {
@@ -25,8 +26,7 @@ namespace Heroes.ReplayParser
         public int[] Color { get; set; } = new int[0];
 
         /// <summary>
-        /// Gets or sets the difficulty of a computer player. 
-        /// Human players will default to either Unknown or Medium.
+        /// Gets or sets the difficulty of a computer player.
         /// </summary>
         public Difficulty Difficulty { get; set; }
 
@@ -86,6 +86,11 @@ namespace Heroes.ReplayParser
         public int CharacterLevel { get; set; }
 
         /// <summary>
+        /// Gets or sets if the player has been given the silenced penalty
+        /// </summary>
+        public bool IsSilenced { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the player's in game selected Hero talents, and the TimeSpan when they were selected in game.
         /// </summary>
         public Tuple<int, TimeSpan>[] Talents { get; set; } = new Tuple<int, TimeSpan>[0];
@@ -93,11 +98,23 @@ namespace Heroes.ReplayParser
         /// <summary>
         /// Gets or sets the player's in game Hero units.
         /// </summary>
-        public Unit[] HeroUnits { get; set; } = new Unit[0];
+        public List<Unit> HeroUnits { get; set; } = new List<Unit>();
+    }
 
-        /// <summary>
-        /// Gets or sets the begin time and end time of a player's in game deaths.  This probably shouldn't be stored separately like this; the array of 'HeroUnits' should probably each have their own death.  Currently 'HeroUnits' is only one unit that 'lives' the entire match.  If Blizzard fixes this, we can handle hero units and hero deaths better: https://github.com/Blizzard/s2protocol/issues/27
-        /// </summary>
-        public Tuple<TimeSpan, TimeSpan?>[] Deaths { get; set; } = new Tuple<TimeSpan, TimeSpan?>[0];
+    public enum PlayerType
+    {
+        Human,
+        Computer,
+        Spectator
+    }
+
+    public enum Difficulty
+    {
+        Unknown,
+        Beginner,
+        Recruit,
+        Adept,
+        Veteran,
+        Elite
     }
 }

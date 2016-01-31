@@ -4,7 +4,7 @@
     using System.Text;
     using Heroes.ReplayParser.Streams;
     using System;
-
+    using System.Linq;
     /// <summary> Parses the replay.Initdata file in the replay file. </summary>
     public class ReplayInitData
     {
@@ -13,7 +13,7 @@
         /// <summary> Parses the replay.initdata file in a replay file. </summary>
         /// <param name="replay"> The replay file to apply the parsed data to. </param>
         /// <param name="buffer"> The buffer containing the replay.initdata file. </param>
-        public static void Parse(Replay replay, byte[] buffer, bool partialParse)
+        public static void Parse(Replay replay, byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
             {
@@ -24,8 +24,20 @@
                 {
                     var playerName = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(8)); // Player name
 
-                    if (replay.ClientList[i] == null && playerName != "")
-                        replay.ClientList[i] = new Player { Name = playerName };
+                    // Populate the client list
+                    if (playerName != "")
+                    {
+                        if (i < replay.Players.Length && replay.Players[i].Name == playerName)
+                            // 99.9% of matches have 10 players and 10 clients
+                            replay.ClientList[i] = replay.Players[i];
+                        else
+                            // Some Custom games with Observers may have the client list in a different order than player list
+                            // Hopefully in these rare cases, nobody will be sharing the same name :)
+                            replay.ClientList[i] = replay.Players.SingleOrDefault(j => j.Name == playerName);
+
+                        if (replay.ClientList[i] == null)
+                            replay.ClientList[i] = new Player { Name = playerName };
+                    }
 
                     if (reader.ReadBoolean())
                         reader.ReadBlobPrecededWithLength(8); // clanTag
@@ -106,7 +118,7 @@
                     replay.MapSize.X = replay.MapSize.Y;
 
                 // I haven't tested the following code on replays before build 39595 (End of 2015)
-                if (partialParse || replay.ReplayBuild < 39595)
+                if (replay.ReplayBuild < 39595)
                     return;
 
                 reader.Read(32); // m_mapFileSyncChecksum
@@ -211,7 +223,8 @@
 
                     reader.Read(32); // m_commanderLevel - So far, always 0
 
-                    reader.ReadBoolean(); // m_hasSilencePenalty
+                    if (reader.ReadBoolean() && clientListIndex.HasValue && replay.ClientList[clientListIndex.Value] != null) // m_hasSilencePenalty
+                        replay.ClientList[clientListIndex.Value].IsSilenced = true;
                 }
 
                 if (reader.Read(32) != replay.RandomValue) // m_randomSeed

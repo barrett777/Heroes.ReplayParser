@@ -100,9 +100,6 @@
 
                     player.BattleTag = int.Parse(string.Join("", battleTagDigits));
                 }
-
-                if (replay.Players.Any(i => i != null && i.BattleTag == 0))
-                    throw new Exception("Couldn't retrieve BattleTag");
             }
         }
     }
