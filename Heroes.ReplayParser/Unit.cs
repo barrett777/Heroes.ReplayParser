@@ -18,14 +18,8 @@ namespace Heroes.ReplayParser
         public Unit UnitKilledBy { get; set; }
         public Point PointBorn { get; set; }
         public Point PointDied { get; set; }
-        public List<Position> Positions { get; set; }
-        public List<OwnerChangeEvent> OwnerChangeEvents { get; set; }
-
-        public Unit()
-        {
-            Positions = new List<Position>();
-            OwnerChangeEvents = new List<OwnerChangeEvent>();
-        }
+        public List<Position> Positions { get; set; } = new List<Position>();
+        public List<OwnerChangeEvent> OwnerChangeEvents { get; set; } = new List<OwnerChangeEvent>();
 
         public override string ToString()
         {
@@ -459,55 +453,145 @@ namespace Heroes.ReplayParser
 
         public static void ParseUnitData(Replay replay)
         {
-            // Get array of units from 'UnitBornEvent'
-            replay.Units = replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitBornEvent).Select(i => new Unit {
-                UnitID = Unit.GetUnitID((int)i.Data.dictionary[0].vInt.Value, (int)i.Data.dictionary[1].vInt.Value),
-                Name = i.Data.dictionary[2].blobText,
-                Group = Unit.UnitGroupDictionary.ContainsKey(i.Data.dictionary[2].blobText) ? Unit.UnitGroupDictionary[i.Data.dictionary[2].blobText] : Unit.UnitGroup.Unknown,
-                TimeSpanBorn = i.TimeSpan,
-                Team = i.Data.dictionary[3].vInt.Value == 11 || i.Data.dictionary[3].vInt.Value == 12 ? (int)i.Data.dictionary[3].vInt.Value - 11
-                    : i.Data.dictionary[3].vInt.Value > 0 && i.Data.dictionary[3].vInt.Value <= 10 ? replay.Players[i.Data.dictionary[3].vInt.Value - 1].Team
-                    : (int?)null, 
-                PlayerControlledBy = i.Data.dictionary[3].vInt.Value > 0 && i.Data.dictionary[3].vInt.Value <= 10 ? replay.Players[i.Data.dictionary[3].vInt.Value - 1] : null,
-                PointBorn = new Point { X = (int)i.Data.dictionary[5].vInt.Value, Y = (int)i.Data.dictionary[6].vInt.Value } })
-                .ToList();
-
-            // Add in information on unit deaths from 'UnitDiedEvent'
-            var unitsDictionary = replay.Units.ToDictionary(i => i.UnitID, i => i);
-            foreach (var unitDiedEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitDiedEvent).Select(i => new {
-                UnitID = Unit.GetUnitID((int)i.Data.dictionary[0].vInt.Value, (int)i.Data.dictionary[1].vInt.Value),
-                TimeSpanDied = i.TimeSpan,
-                PlayerIDKilledBy = i.Data.dictionary[2].optionalData != null ? (int)i.Data.dictionary[2].optionalData.vInt.Value : (int?)null,
-                PointDied = new Point { X = (int)i.Data.dictionary[3].vInt.Value, Y = (int)i.Data.dictionary[4].vInt.Value },
-                UnitKilledBy = i.Data.dictionary[5].optionalData != null ? unitsDictionary[Unit.GetUnitID((int)i.Data.dictionary[5].optionalData.vInt.Value, (int)i.Data.dictionary[6].optionalData.vInt.Value)] : null }))
             {
-                var unitThatDied = unitsDictionary[unitDiedEvent.UnitID];
-                unitThatDied.TimeSpanDied = unitDiedEvent.TimeSpanDied;
-                unitThatDied.PlayerKilledBy = unitDiedEvent.PlayerIDKilledBy.HasValue && unitDiedEvent.PlayerIDKilledBy.Value > 0 && unitDiedEvent.PlayerIDKilledBy.Value <= 10 ? replay.Players[unitDiedEvent.PlayerIDKilledBy.Value - 1] : null;
-                unitThatDied.PointDied = unitDiedEvent.PointDied;
-                unitThatDied.UnitKilledBy = unitDiedEvent.UnitKilledBy;
+                // We go through these events in chronological order, and keep a list of currently 'active' units, because UnitIDs are recycled
+                var activeUnitsByIndex = new Dictionary<int, Unit>();
+                var activeUnitsByUnitID = new Dictionary<int, Unit>();
+                var activeHeroUnits = new Dictionary<Player, Unit>();
+                var isCheckingForAbathurLocusts = true;
+                
+                var updateTargetUnitEventArray = replay.GameEvents.Where(i => i.eventType == GameEventType.CCmdUpdateTargetUnitEvent).OrderBy(i => i.TimeSpan).ToArray();
+                var updateTargetUnitEventArrayIndex = 0;
 
-                // Sometimes 'PlayerIDKilledBy' will be outside of the range of players (1-10)
-                // Minions that are killed by other minions or towers will have the 'team' that killed them in this field (11 or 12)
-                // Some other units have interesting values I don't fully understand yet.  For example, 'ItemCannonball' (the coins on Blackheart's Bay) will have 0 or 15 in this field.  I'm guessing this is also which team acquires them, which may be useful
-                // Other map objectives may also have this.  I'll look into this more in the future.
-                /* if (unitDiedEvent.PlayerIDKilledBy.HasValue && unitThatDied.PlayerKilledBy == null)
-                    Console.WriteLine(""); */
+                foreach (var unitTrackerEvent in replay.TrackerEvents.Where(i =>
+                    i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitBornEvent ||
+                    i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitRevivedEvent ||
+                    i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitDiedEvent ||
+                    i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitOwnerChangeEvent ||
+                    i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitPositionsEvent))
+                {
+                    switch (unitTrackerEvent.TrackerEventType)
+                    {
+                        case ReplayTrackerEvents.TrackerEventType.UnitBornEvent:
+                        case ReplayTrackerEvents.TrackerEventType.UnitRevivedEvent:
+                            Unit newUnit;
+                            var newUnitIndex = (int)unitTrackerEvent.Data.dictionary[0].vInt.Value;
+
+                            if (unitTrackerEvent.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitBornEvent)
+                                newUnit = new Unit {
+                                    UnitID = GetUnitID(newUnitIndex, (int)unitTrackerEvent.Data.dictionary[1].vInt.Value),
+                                    Name = unitTrackerEvent.Data.dictionary[2].blobText,
+                                    Group = UnitGroupDictionary.ContainsKey(unitTrackerEvent.Data.dictionary[2].blobText) ? UnitGroupDictionary[unitTrackerEvent.Data.dictionary[2].blobText] : UnitGroup.Unknown,
+                                    TimeSpanBorn = unitTrackerEvent.TimeSpan,
+                                    Team = unitTrackerEvent.Data.dictionary[3].vInt.Value == 11 || unitTrackerEvent.Data.dictionary[3].vInt.Value == 12 ? (int)unitTrackerEvent.Data.dictionary[3].vInt.Value - 11
+                                    : unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.Players[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1].Team
+                                    : (int?)null,
+                                    PlayerControlledBy = unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.Players[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1] : null,
+                                    PointBorn = new Point { X = (int)unitTrackerEvent.Data.dictionary[5].vInt.Value, Y = (int)unitTrackerEvent.Data.dictionary[6].vInt.Value } };
+                            else
+                            {
+                                var deadUnit = activeUnitsByIndex[newUnitIndex];
+
+                                newUnit = new Unit {
+                                    UnitID = deadUnit.UnitID,
+                                    Name = deadUnit.Name,
+                                    Group = deadUnit.Group,
+                                    TimeSpanBorn = unitTrackerEvent.TimeSpan,
+                                    Team = deadUnit.Team,
+                                    PlayerControlledBy = deadUnit.PlayerControlledBy,
+                                    PointBorn = new Point { X = (int)unitTrackerEvent.Data.dictionary[2].vInt.Value, Y = (int)unitTrackerEvent.Data.dictionary[3].vInt.Value } };
+                            }
+
+                            replay.Units.Add(newUnit);
+                            activeUnitsByIndex[newUnitIndex] = newUnit;
+                            activeUnitsByUnitID[newUnit.UnitID] = newUnit;
+
+                            // Add Hero units to the controlling Player
+                            if (newUnit.PlayerControlledBy != null && newUnit.Name.StartsWith("Hero"))
+                            {
+                                newUnit.PlayerControlledBy.HeroUnits.Add(newUnit);
+                                activeHeroUnits[newUnit.PlayerControlledBy] = newUnit;
+                            }
+
+                            // Add derived hero positions from associated unit born/acquired/died info
+                            // These are accurate positions: Picking up regen globes, spawning Locusts, etc
+                            if (newUnit.PlayerControlledBy != null)
+                            {
+                                if (UnitBornProvidesLocationForOwner.ContainsKey(newUnit.Name) || newUnit.Group == UnitGroup.HeroTalentSelection)
+                                    activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
+                                else if (isCheckingForAbathurLocusts)
+                                {
+                                    // For Abathur locusts, we need to make sure they aren't spawning from a locust nest (Level 20 talent)
+                                    if (newUnit.Name == "AbathurLocustNest")
+                                        isCheckingForAbathurLocusts = false;
+                                    else if (newUnit.Name == "AbathurLocustNormal" || newUnit.Name == "AbathurLocustAssaultStrain" || newUnit.Name == "AbathurLocustBombardStrain")
+                                        activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
+                                }
+                            }
+                            break;
+
+                        case ReplayTrackerEvents.TrackerEventType.UnitDiedEvent:
+                            var unitThatDied = activeUnitsByIndex[(int)unitTrackerEvent.Data.dictionary[0].vInt.Value];
+                            var playerIDKilledBy = unitTrackerEvent.Data.dictionary[2].optionalData != null ? (int)unitTrackerEvent.Data.dictionary[2].optionalData.vInt.Value : (int?)null;
+
+                            unitThatDied.TimeSpanDied = unitTrackerEvent.TimeSpan;
+                            unitThatDied.PlayerKilledBy = playerIDKilledBy.HasValue && playerIDKilledBy.Value > 0 && playerIDKilledBy.Value <= 10 ? replay.Players[playerIDKilledBy.Value - 1] : null;
+                            unitThatDied.PointDied = new Point { X = (int)unitTrackerEvent.Data.dictionary[3].vInt.Value, Y = (int)unitTrackerEvent.Data.dictionary[4].vInt.Value };
+                            unitThatDied.UnitKilledBy = unitTrackerEvent.Data.dictionary[5].optionalData != null ? activeUnitsByIndex[(int)unitTrackerEvent.Data.dictionary[5].optionalData.vInt.Value] : null;
+
+                            // Sometimes 'PlayerIDKilledBy' will be outside of the range of players (1-10)
+                            // Minions that are killed by other minions or towers will have the 'team' that killed them in this field (11 or 12)
+                            // Some other units have interesting values I don't fully understand yet.  For example, 'ItemCannonball' (the coins on Blackheart's Bay) will have 0 or 15 in this field.  I'm guessing this is also which team acquires them, which may be useful
+                            // Other map objectives may also have this.  I'll look into this more in the future.
+                            /* if (unitDiedEvent.PlayerIDKilledBy.HasValue && unitThatDied.PlayerKilledBy == null)
+                                Console.WriteLine(""); */
+                            break;
+
+                        case ReplayTrackerEvents.TrackerEventType.UnitOwnerChangeEvent:
+                            var ownerChangeEvent = new OwnerChangeEvent {
+                                TimeSpanOwnerChanged = unitTrackerEvent.TimeSpan,
+                                Team = unitTrackerEvent.Data.dictionary[2].vInt.Value == 11 || unitTrackerEvent.Data.dictionary[2].vInt.Value == 12 ? (int)unitTrackerEvent.Data.dictionary[2].vInt.Value - 11 : (int?)null,
+                                PlayerNewOwner = unitTrackerEvent.Data.dictionary[2].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[2].vInt.Value <= 10 ? replay.Players[unitTrackerEvent.Data.dictionary[2].vInt.Value - 1] : null };
+
+                            if (!ownerChangeEvent.Team.HasValue && ownerChangeEvent.PlayerNewOwner != null)
+                                ownerChangeEvent.Team = ownerChangeEvent.PlayerNewOwner.Team;
+
+                            var unitOwnerChanged = activeUnitsByIndex[(int)unitTrackerEvent.Data.dictionary[0].vInt.Value];
+                            unitOwnerChanged.OwnerChangeEvents.Add(ownerChangeEvent);
+
+                            if (unitOwnerChanged.PlayerControlledBy != null && UnitOwnerChangeProvidesLocationForOwner.ContainsKey(unitOwnerChanged.Name))
+                                activeHeroUnits[unitOwnerChanged.PlayerControlledBy].Positions.Add(new Position { TimeSpan = ownerChangeEvent.TimeSpanOwnerChanged, Point = unitOwnerChanged.PointBorn });
+                            break;
+
+                        case ReplayTrackerEvents.TrackerEventType.UnitPositionsEvent:
+                            var currentUnitIndex = (int)unitTrackerEvent.Data.dictionary[0].vInt.Value;
+                            for (var i = 0; i < unitTrackerEvent.Data.dictionary[1].array.Length; i++)
+                            {
+                                currentUnitIndex += (int)unitTrackerEvent.Data.dictionary[1].array[i++].vInt.Value;
+
+                                activeUnitsByIndex[currentUnitIndex].Positions.Add(new Position {
+                                    TimeSpan = unitTrackerEvent.TimeSpan,
+                                    Point = new Point {
+                                        X = (int)unitTrackerEvent.Data.dictionary[1].array[i++].vInt.Value,
+                                        Y = (int)unitTrackerEvent.Data.dictionary[1].array[i].vInt.Value } });
+                            }
+                            break;
+                    }
+
+                    // Use 'CCmdUpdateTargetUnitEvent' to find an accurate location of units targeted
+                    // Excellent for finding frequent, accurate locations of heroes during team fights
+                    while (updateTargetUnitEventArrayIndex < updateTargetUnitEventArray.Length && unitTrackerEvent.TimeSpan > updateTargetUnitEventArray[updateTargetUnitEventArrayIndex].TimeSpan)
+                        if (activeUnitsByUnitID.ContainsKey((int)updateTargetUnitEventArray[updateTargetUnitEventArrayIndex++].data.array[2].unsignedInt.Value))
+                            activeUnitsByUnitID[(int)updateTargetUnitEventArray[updateTargetUnitEventArrayIndex - 1].data.array[2].unsignedInt.Value].Positions.Add(new Position {
+                                TimeSpan = updateTargetUnitEventArray[updateTargetUnitEventArrayIndex - 1].TimeSpan,
+                                Point = Point.FromEventFormat(
+                                    updateTargetUnitEventArray[updateTargetUnitEventArrayIndex - 1].data.array[6].array[0].unsignedInt.Value,
+                                    updateTargetUnitEventArray[updateTargetUnitEventArrayIndex - 1].data.array[6].array[1].unsignedInt.Value) });
+                }
             }
 
-            // Add in information on unit ownership changes from 'UnitOwnerChangeEvent' (For example, players grabbing regen globes or a player grabbing a Garden Terror)
-            foreach (var unitOwnerChangeEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitOwnerChangeEvent).Select(i => new {
-                UnitID = Unit.GetUnitID((int)i.Data.dictionary[0].vInt.Value, (int)i.Data.dictionary[1].vInt.Value),
-                TimeSpanOwnerChanged = i.TimeSpan,
-                Team = i.Data.dictionary[2].vInt.Value == 11 || i.Data.dictionary[2].vInt.Value == 12 ? (int)i.Data.dictionary[2].vInt.Value - 11 : (int?)null,
-                PlayerNewOwner = i.Data.dictionary[2].vInt.Value > 0 && i.Data.dictionary[2].vInt.Value <= 10 ? replay.Players[i.Data.dictionary[2].vInt.Value - 1] : null }))
-                    unitsDictionary[unitOwnerChangeEvent.UnitID].OwnerChangeEvents.Add(new OwnerChangeEvent {
-                        TimeSpanOwnerChanged = unitOwnerChangeEvent.TimeSpanOwnerChanged,
-                        Team = unitOwnerChangeEvent.Team ?? (unitOwnerChangeEvent.PlayerNewOwner != null ? unitOwnerChangeEvent.PlayerNewOwner.Team : (int?)null),
-                        PlayerNewOwner = unitOwnerChangeEvent.PlayerNewOwner });
-
             // For simplicity, I set extra fields on units that are not initially controlled by a player, and only have one owner change event
-            foreach (var unitWithOneOwnerChange in replay.Units.Where(i => i.OwnerChangeEvents.Count() == 1 && i.PlayerControlledBy == null))
+            foreach (var unitWithOneOwnerChange in replay.Units.Where(i => i.OwnerChangeEvents.Count == 1 && i.PlayerControlledBy == null))
             {
                 var singleOwnerChangeEvent = unitWithOneOwnerChange.OwnerChangeEvents.Single();
                 if (singleOwnerChangeEvent.PlayerNewOwner != null)
@@ -518,161 +602,53 @@ namespace Heroes.ReplayParser
                 }
             }
 
-            // Add in information from the 'UnitPositionEvent'
-            // We need to go through the replay file in order because unit IDs are recycled
-            var activeUnits = new Dictionary<int, Unit>();
-            foreach (var unitPositionEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitBornEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitPositionsEvent).OrderBy(i => i.TimeSpan))
-                if (unitPositionEvent.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UnitBornEvent)
-                    activeUnits[(int)unitPositionEvent.Data.dictionary[0].vInt.Value] = unitsDictionary[Unit.GetUnitID((int)unitPositionEvent.Data.dictionary[0].vInt.Value, (int)unitPositionEvent.Data.dictionary[1].vInt.Value)];
-                else
-                {
-                    var currentUnitIndex = (int)unitPositionEvent.Data.dictionary[0].vInt.Value;
-                    for (var i = 0; i < unitPositionEvent.Data.dictionary[1].array.Length; i++)
-                    {
-                        currentUnitIndex += (int)unitPositionEvent.Data.dictionary[1].array[i++].vInt.Value;
-                        activeUnits[currentUnitIndex].Positions.Add(new Position {
-                            TimeSpan = unitPositionEvent.TimeSpan,
-                            Point = new Point {
-                                X = (int)unitPositionEvent.Data.dictionary[1].array[i++].vInt.Value,
-                                Y = (int)unitPositionEvent.Data.dictionary[1].array[i].vInt.Value } });
-                    }
-                }
-
-            // Add an array of Hero units to each player
-            // Currently I'm only getting single heroes (Lost Vikings not yet supported)
-            var earlyGameTimeSpan = new TimeSpan(0, 0, 10);
-            var heroUnitsDictionary = replay.Players.Where(i => replay.Units.Count(j => j.TimeSpanBorn < earlyGameTimeSpan && j.PlayerControlledBy == i && j.Name.StartsWith("Hero")) == 1).ToDictionary(i => i, i => replay.Units.Single(j => j.TimeSpanBorn < earlyGameTimeSpan && j.PlayerControlledBy == i && j.Name.StartsWith("Hero")));
-            foreach (var player in replay.Players)
-                if (heroUnitsDictionary.ContainsKey(player))
-                    player.HeroUnits = new[] { heroUnitsDictionary[player] };
-
-            // Gather Hero deaths using 'death' units
-            if (replay.ReplayBuild >= 38236)
-            {
-                var heroDeathUnits = replay.Units.Where(i => i.Name == "DeadUnitCameraTarget").GroupBy(i => i.PlayerControlledBy).ToDictionary(i => i.Key, i => i.OrderBy(j => j.TimeSpanBorn).ToArray());
-                foreach (var player in replay.Players.Where(i => heroDeathUnits.ContainsKey(i)))
-                    player.Deaths = heroDeathUnits[player].Select(i => new Tuple<TimeSpan, TimeSpan?>(i.TimeSpanBorn, i.TimeSpanDied)).ToArray();
-            }
-
-            // Add derived hero positions from associated unit born/acquired/died info
-            // These are accurate positions: Picking up regen globes, spawning Locusts, etc
-
-            // For Abathur locusts, we need to make sure they aren't spawning from a locust nest (Level 20 talent)
-            var abathurLocustUnits = replay.Units.Where(i => i.Name == "AbathurLocustNormal" || i.Name == "AbathurLocustAssaultStrain" || i.Name == "AbathurLocustBombardStrain").ToList();
-            if (abathurLocustUnits.Any() && replay.Units.Any(i => i.Name == "AbathurLocustNest"))
-            {
-                var abathurLocustNests = replay.Units.Where(i => i.Name == "AbathurLocustNest");
-                foreach (var abathurLocustUnit in abathurLocustUnits.ToArray())
-                    if (abathurLocustNests.Any(i => i.TimeSpanBorn <= abathurLocustUnit.TimeSpanBorn && (!i.TimeSpanDied.HasValue || i.TimeSpanDied >= abathurLocustUnit.TimeSpanBorn) && i.PointBorn.DistanceTo(abathurLocustUnit.PointBorn) <= 3))
-                        abathurLocustUnits.Remove(abathurLocustUnit);
-            }
-
-            foreach (var unit in replay.Units.Where(i => Unit.UnitBornProvidesLocationForOwner.ContainsKey(i.Name) || i.Group == Unit.UnitGroup.HeroTalentSelection).Union(abathurLocustUnits).Where(i => heroUnitsDictionary.ContainsKey(i.PlayerControlledBy)))
-                heroUnitsDictionary[unit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = unit.TimeSpanBorn, Point = unit.PointBorn });
-
-            foreach (var unit in replay.Units.Where(i => Unit.UnitOwnerChangeProvidesLocationForOwner.ContainsKey(i.Name) && i.PlayerControlledBy != null).Where(i => heroUnitsDictionary.ContainsKey(i.PlayerControlledBy)))
-                heroUnitsDictionary[unit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = unit.TimeSpanAcquired.Value, Point = unit.PointBorn });
-
-            // Use 'CCmdUpdateTargetUnitEvent' to find an accurate location of units targeted
-            // Excellent for finding frequent, accurate locations of heroes during team fights
-            foreach (var updateTargetUnitEvent in replay.GameEvents.Where(i => i.eventType == GameEventType.CCmdUpdateTargetUnitEvent))
-                if (replay.Units.Any(i => i.UnitID == (int)updateTargetUnitEvent.data.array[2].unsignedInt.Value))
-                    replay.Units.Single(i => i.UnitID == (int)updateTargetUnitEvent.data.array[2].unsignedInt.Value).Positions.Add(new Position {
-                        TimeSpan = updateTargetUnitEvent.TimeSpan,
-                        Point = Point.FromEventFormat(
-                            updateTargetUnitEvent.data.array[6].array[0].unsignedInt.Value,
-                            updateTargetUnitEvent.data.array[6].array[1].unsignedInt.Value) });
-            
-
-            // Add in 'accurate' positions for each player's death, which sends them to their spawn point
-            // Special Exceptions:
-            // Uther: Level 20 respawn talent: Probably doesn't count as a death in this situation
-            // Diablo: Fast respawn if he has enough souls
-            // Murky: Respawns to his egg if his egg is alive when he dies; unfortunately no way to track his deaths yet
-            // Lost Vikings: Individual Vikings spawn 25% faster per their trait, and 50% faster with a talent. Currently we aren't able to track their deaths anyway
-            // Leroic: Deaths aren't counted like other heroes; unfortunately no way to track his deaths yet
-            foreach (var player in replay.Players.Where(i => i.HeroUnits.Length == 1 && i.Deaths.Length > 0))
-            {
-                var fullTimerDeaths = new List<Tuple<TimeSpan, TimeSpan?>>();
-                if (player.HeroUnits[0].Name == "HeroMurky")
-                {
-                    // Gather a list of the eggs Murky has placed throughout the game
-                    var eggRespawnTimeCutoff = TimeSpan.FromSeconds(7.5);
-                    var murkyEggs = replay.Units.Where(i => i.PlayerControlledBy == player && i.Name == "MurkyRespawnEgg").OrderBy(i => i.TimeSpanBorn).ToArray();
-                    var currentEggIndex = 0;
-
-                    foreach (var murkyDeath in player.Deaths)
-                        // If Murky respawns at the egg, it will be ~5 seconds after his death
-                        if (!murkyDeath.Item2.HasValue || (murkyDeath.Item2.Value - murkyDeath.Item1) > eggRespawnTimeCutoff)
-                            fullTimerDeaths.Add(murkyDeath);
-                        else
-                        {
-                            var murkyRespawnFromEggTimeSpan = murkyDeath.Item2.Value;
-                            for (; currentEggIndex < murkyEggs.Length; currentEggIndex++)
-                            {
-                                if (murkyRespawnFromEggTimeSpan > murkyEggs[currentEggIndex].TimeSpanDied)
-                                    continue;
-                                else
-                                    // Add positions for each second Murky is waiting to spawn from his egg
-                                    for (; murkyRespawnFromEggTimeSpan >= murkyDeath.Item1; murkyRespawnFromEggTimeSpan = murkyRespawnFromEggTimeSpan.Add(TimeSpan.FromSeconds(-1)))
-                                        player.HeroUnits[0].Positions.Add(new Position { TimeSpan = murkyRespawnFromEggTimeSpan, Point = murkyEggs[currentEggIndex].PointBorn, IsEstimated = false });
-
-                                break;
-                            }
-                        }
-                }
-                else
-                    fullTimerDeaths.AddRange(player.Deaths);
-
-
-                // Normal death timer deaths
-                // This is all deaths for most heroes, and Murky deaths if he didn't respawn from his egg
-                if (fullTimerDeaths.Count != 0)
-                {
-                    // Add a 'Position' at the player spawn when the death occurs
-                    player.HeroUnits[0].Positions.AddRange(fullTimerDeaths.Select(i => new Position { TimeSpan = i.Item1, Point = player.HeroUnits[0].PointBorn, IsEstimated = false }));
-
-                    // Add a 'Position' at the player spawn when the hero respawns
-                    foreach (var playerDeath in fullTimerDeaths.Where(i => i.Item2.HasValue))
-                    {                        
-                        var deathTimeSpan = playerDeath.Item1;
-                        while (deathTimeSpan < playerDeath.Item2.Value)
-                        {
-                            // Add a 'Position' at the player spawn for every second the player is dead, to make sure we don't add 'estimated' positions during this time
-                            player.HeroUnits[0].Positions.Add(new Position { TimeSpan = deathTimeSpan, Point = player.HeroUnits[0].PointBorn, IsEstimated = false });
-                            deathTimeSpan = deathTimeSpan.Add(TimeSpan.FromSeconds(1));
-                        }
-                        player.HeroUnits[0].Positions.Add(new Position { TimeSpan = playerDeath.Item2.Value, Point = player.HeroUnits[0].PointBorn, IsEstimated = false });
-                    }
-                }                
-
-                player.HeroUnits[0].Positions = player.HeroUnits[0].Positions.OrderBy(i => i.TimeSpan).ToList();
-            }
-
             // Estimate Hero positions from CCmdEvent and CCmdUpdateTargetPointEvent (Movement points)
             {
-                // List of Hero units (Excluding heroes with multiple units like Lost Vikings - not sure how to handle those)
-                // This is different from the above dictionary in that it excludes Abathur if he chooses the clone hero talent
+                // Excluding heroes with multiple units like Lost Vikings, and Abathur with 'Ultimate Evolution' clones
                 // It's okay to not estimate Abathur's position, as he rarely moves and we also get an accurate position each time he spawns a locust
-                heroUnitsDictionary = replay.Players.Where(i => replay.Units.Count(j => j.PlayerControlledBy == i && j.Name.StartsWith("Hero")) == 1).ToDictionary(i => i, i => replay.Units.Single(j => j.PlayerControlledBy == i && j.Name.StartsWith("Hero")));
+                var playerToActiveHeroUnitIndexDictionary = replay.Players.Where(i => i.HeroUnits.Select(j => j.Name).Distinct().Count() == 1).ToDictionary(i => i, i => 0);
 
-                // This is a list of 'HeroUnit', 'TimeSpan', and 'EventPosition' for each CCmdEvent where ability data is null and a position is included
-                var heroCCmdEventLists = replay.GameEvents.Where(i =>
+                // This is a list of 'Player', 'TimeSpan', and 'EventPosition' for each CCmdEvent where ability data is null and a position is included
+                var playerCCmdEventLists = replay.GameEvents.Where(i =>
                     i.eventType == GameEventType.CCmdEvent &&
                     i.data.array[1] == null &&
                     i.data.array[2] != null &&
                     i.data.array[2].array.Length == 3 &&
-                    heroUnitsDictionary.ContainsKey(i.player)).Select(i => new {
-                        HeroUnit = heroUnitsDictionary[i.player],
-                        Position = new Position { TimeSpan = i.TimeSpan, Point = Point.FromEventFormat(i.data.array[2].array[0].unsignedInt.Value, i.data.array[2].array[1].unsignedInt.Value), IsEstimated = true } })
-                        .GroupBy(i => i.HeroUnit)
+                    playerToActiveHeroUnitIndexDictionary.ContainsKey(i.player)).Select(i => new {
+                        i.player,
+                        Position = new Position {
+                            TimeSpan = i.TimeSpan,
+                            Point = Point.FromEventFormat(i.data.array[2].array[0].unsignedInt.Value, i.data.array[2].array[1].unsignedInt.Value),
+                            IsEstimated = true } })
+                        .GroupBy(i => i.player)
                         .Select(i => new {
-                            HeroUnit = i.Key,
-                            // Take the latest applicable CCmdEvent or CCmdUpdateTargetPointEvent if there are more than one in a second
-                            Positions = i.Select(j => j.Position).Union(replay.GameEvents.Where(j => j.player == i.Key.PlayerControlledBy && j.eventType == GameEventType.CCmdUpdateTargetPointEvent).Select(j => new Position { TimeSpan = j.TimeSpan, Point = Point.FromEventFormat(j.data.array[0].unsignedInt.Value, j.data.array[1].unsignedInt.Value), IsEstimated = true })).GroupBy(j => (int)j.TimeSpan.TotalSeconds).Select(j => j.OrderByDescending(k => k.TimeSpan).First()).OrderBy(j => j.TimeSpan).ToArray() });
-                
+                            Player = i.Key,
+                            Positions = i.Select(j => j.Position)
+
+                                // Union the CCmdUpdateTargetPointEvents for each Player
+                                .Union(replay.GameEvents.Where(j =>
+                                    j.player == i.Key &&
+                                    j.eventType == GameEventType.CCmdUpdateTargetPointEvent)
+                                .Select(j => new Position {
+                                    TimeSpan = j.TimeSpan,
+                                    Point = Point.FromEventFormat(j.data.array[0].unsignedInt.Value, j.data.array[1].unsignedInt.Value),
+                                    IsEstimated = true }))
+
+                                // Take the single latest applicable CCmdEvent or CCmdUpdateTargetPointEvent if there are more than one in a second
+                                .GroupBy(j => (int)j.TimeSpan.TotalSeconds)
+                                .Select(j => j.OrderByDescending(k => k.TimeSpan).First())
+
+                            .ToArray() });
+
+                // Find the applicable events for each Hero unit while they were alive
+                var playerAndHeroCCmdEventLists = playerCCmdEventLists.Select(i => i.Player.HeroUnits.Select(j => new {
+                    HeroUnit = j,
+                    Positions = i.Positions.Where(k => k.TimeSpan > j.TimeSpanBorn && (!j.TimeSpanDied.HasValue || k.TimeSpan < j.TimeSpanDied.Value)).OrderBy(k => k.TimeSpan).ToArray() }));
+
                 const double PlayerSpeedUnitsPerSecond = 5.0;
-                foreach (var heroCCmdEventList in heroCCmdEventLists)
+
+                foreach (var playerCCmdEventList in playerAndHeroCCmdEventLists)
+                foreach (var heroCCmdEventList in playerCCmdEventList)
                 {
                     // Estimate the hero unit travelling to each intended destination
                     // Only save one position per second, and prefer accurate positions
@@ -699,20 +675,9 @@ namespace Heroes.ReplayParser
                 }
             }
 
-            foreach (var unit in replay.Units.Where(i => i.Positions.Any()))
-            {
-                // Save no more than one position event per second per unit
+            // Save no more than one position event per second per unit
+            foreach (var unit in replay.Units.Where(i => i.Positions.Count > 0))
                 unit.Positions = unit.Positions.GroupBy(i => (int)i.TimeSpan.TotalSeconds).Select(i => i.OrderBy(j => j.IsEstimated).First()).OrderBy(i => i.TimeSpan).ToList();
-
-                // If this is a Hero unit, adjust the 'PointDied' and 'TimeSpanDied' to the last position
-                // Currently Hero units stop receiving tracker event updates after their first death
-                if (unit.Group == Unit.UnitGroup.Hero)
-                {
-                    var finalPosition = unit.Positions.Last();
-                    unit.PointDied = finalPosition.Point;
-                    unit.TimeSpanDied = finalPosition.TimeSpan;
-                }
-            }
 
             // Add 'estimated' minion positions based on their fixed pathing
             // Without these positions, minions can appear to travel through walls straight across the map
@@ -724,7 +689,7 @@ namespace Heroes.ReplayParser
             for (var team = 0; team <= 1; team++)
             {
                 // Gather all minion units for this team
-                var minionUnits = replay.Units.Where(i => i.Team == team && i.Group == Unit.UnitGroup.Minions).ToArray();
+                var minionUnits = replay.Units.Where(i => i.Team == team && i.Group == UnitGroup.Minions).ToArray();
 
                 // Each wave spawns together, but not necessarily from top to bottom
                 // We will figure out what order the lanes are spawning in, and order by top to bottom later on
