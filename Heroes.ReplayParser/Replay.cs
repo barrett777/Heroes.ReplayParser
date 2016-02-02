@@ -56,9 +56,6 @@
         /// <summary> Gets a single random value from replay.init.data; currently using as part of replay hash for deduplication. </summary>
         public uint RandomValue { get; set; }
 
-        /// <summary> Gets a hash of the replay; components used are players in game, and a random value (potentially a seed). </summary>
-        public Guid ReplayHash { get; set; }
-
         /// <summary> Team Level Milestones (From talent choices: 1 / 4 / 7 / 10 / 13 / 16 / 20) </summary>
         public TimeSpan[][] TeamLevelMilestones { get; set; } = new TimeSpan[2][];
     }

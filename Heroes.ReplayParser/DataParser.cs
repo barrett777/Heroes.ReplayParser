@@ -163,10 +163,6 @@ namespace Heroes.ReplayParser
             // Replay Resumable Events
             // So far it doesn't look like this file has anything we would be interested in
             // ReplayResumableEvents.Parse(replay, GetMpqFile(archive, "replay.resumable.events"));
-
-            // Set the Replay Hash
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-                replay.ReplayHash = new Guid(md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(string.Join("", replay.Players.OrderBy(i => i.BattleNetId).Select(i => i.BattleNetId.ToString())) + replay.RandomValue.ToString())));
         }
 
         private static byte[] GetMpqFile(MpqArchive archive, string fileName)
