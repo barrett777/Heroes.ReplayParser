@@ -6,26 +6,34 @@ namespace Heroes.ReplayParser
 {
     using System.Collections.Generic;
 
-    public class ReplayAttributeEvents
+    public static class ReplayAttributeEvents
     {
         public const string FileName = "replay.attributes.events";
 
-        public ReplayAttribute[] Attributes { get; set; }
-
         public static void Parse(Replay replay, byte[] buffer)
         {
-            var headerSize = 5;
+            const int headerSize = 5;
 
-            var numAttributes = BitConverter.ToInt32(buffer, headerSize);
-
-            var attributes = new ReplayAttribute[numAttributes];
+            var attributes = new ReplayAttribute[BitConverter.ToInt32(buffer, headerSize)];
 
             var initialOffset = 4 + headerSize;
 
-            for (int i = 0; i < numAttributes; i++)
-                attributes[i] = ReplayAttribute.Parse(buffer, initialOffset + (i*13));
+            for (var i = 0; i < attributes.Length; i++)
+            {
+                var currentOffset = initialOffset + (i * 13);
 
-            new ReplayAttributeEvents { Attributes = attributes.OrderBy(i => i.AttributeType).ToArray() }.ApplyAttributes(replay);
+                var attribute = new ReplayAttribute {
+                    Header = BitConverter.ToInt32(buffer, currentOffset),
+                    AttributeType = (ReplayAttributeEventType)BitConverter.ToInt32(buffer, currentOffset + 4),
+                    PlayerId = buffer[currentOffset + 8],
+                    Value = new byte[4] };
+
+                Array.Copy(buffer, currentOffset + 9, attribute.Value, 0, 4);
+
+                attributes[i] = attribute;
+            }
+
+            ApplyAttributes(replay, attributes.OrderBy(i => i.AttributeType).ToArray());
 
             /* var stringList = attributes.OrderBy(i => i.AttributeType);
             Console.WriteLine(stringList.Count()); */
@@ -35,7 +43,7 @@ namespace Heroes.ReplayParser
         /// Applies the set of attributes to a replay.
         /// </summary>
         /// <param name="replay">Replay to apply the attributes to.</param>
-        public void ApplyAttributes(Replay replay)
+        private static void ApplyAttributes(Replay replay, ReplayAttribute[] Attributes)
         {
             // I'm not entirely sure this is the right encoding here. Might be unicode...
             var encoding = Encoding.UTF8;
@@ -296,33 +304,18 @@ namespace Heroes.ReplayParser
 
             /* 4100 - 4200 are related to Artifacts, no longer in the game */
         }
-    }
 
-    public class ReplayAttribute
-    {
-        public int Header { get; set; }
-        public Heroes.ReplayParser.ReplayAttributeEvents.ReplayAttributeEventType AttributeType { get; set; }
-        public int PlayerId { get; set; }
-        public byte[] Value { get; set; }
-
-        public static ReplayAttribute Parse(byte[] buffer, int offset)
+        private class ReplayAttribute
         {
-            var attribute = new ReplayAttribute
+            public int Header { get; set; }
+            public ReplayAttributeEventType AttributeType { get; set; }
+            public int PlayerId { get; set; }
+            public byte[] Value { get; set; }
+
+            public override string ToString()
             {
-                Header = BitConverter.ToInt32(buffer, offset),
-                AttributeType = (Heroes.ReplayParser.ReplayAttributeEvents.ReplayAttributeEventType)BitConverter.ToInt32(buffer, offset + 4),
-                PlayerId = buffer[offset + 8],
-                Value = new byte[4],
-            };
-
-            Array.Copy(buffer, offset + 9, attribute.Value, 0, 4);
-
-            return attribute;
-        }
-
-        public override string ToString()
-        {
-            return "Player: " + PlayerId + ", AttributeType: " + AttributeType.ToString() + ", Value: " + System.Text.Encoding.UTF8.GetString(Value.Reverse().ToArray());
+                return "Player: " + PlayerId + ", AttributeType: " + AttributeType.ToString() + ", Value: " + Encoding.UTF8.GetString(Value.Reverse().ToArray());
+            }
         }
     }
 }
