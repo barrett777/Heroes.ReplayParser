@@ -56,8 +56,25 @@
         /// <summary> Gets a single random value from replay.init.data; currently using as part of replay hash for deduplication. </summary>
         public uint RandomValue { get; set; }
 
-        /// <summary> Team Level Milestones (From talent choices: 1 / 4 / 7 / 10 / 13 / 16 / 20) </summary>
-        public TimeSpan[][] TeamLevelMilestones { get; set; } = new TimeSpan[2][];
+        /// <summary> Team Levels ([Team][Level] = TimeSpan) </summary>
+        public Dictionary<int, TimeSpan>[] TeamLevels { get; set; } = new Dictionary<int, TimeSpan>[2];
+
+        /// <summary> Periodic XP Breakdown ([Team][PeriodicXPBreakdown]) </summary>
+        public List<PeriodicXPBreakdown>[] TeamPeriodicXPBreakdown { get; set; } = new List<PeriodicXPBreakdown>[2];
+
+        public bool IsGameEventsParsedSuccessfully { get; set; } = false;
+        public bool IsStatisticsParsedSuccessfully { get; set; } = false;
+    }
+
+    public class PeriodicXPBreakdown
+    {
+        public int TeamLevel { get; set; }
+        public TimeSpan TimeSpan { get; set; }
+        public int MinionXP { get; set; }
+        public int CreepXP { get; set; }
+        public int StructureXP { get; set; }
+        public int HeroXP { get; set; }
+        public int TrickleXP { get; set; }
     }
 
     public enum GameMode
