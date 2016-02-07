@@ -32,7 +32,7 @@ namespace ConsoleApplication1
                     Console.WriteLine("Replay Build: " + replay.ReplayBuild);
                     Console.WriteLine("Map: " + replay.Map);
                     foreach (var player in replay.Players.OrderByDescending(i => i.IsWinner))
-                        Console.WriteLine("Player: " + player.Name + ", Win: " + player.IsWinner + ", Hero: " + player.Character + ", Lvl: " + player.CharacterLevel + ", Talents: " + string.Join(",", player.Talents.OrderBy(i => i.Item1)));
+                        Console.WriteLine("Player: " + player.Name + ", Win: " + player.IsWinner + ", Hero: " + player.Character + ", Lvl: " + player.CharacterLevel + ", Talents: " + string.Join(",", player.Talents.Select(i => i.TalentID + ":" + i.TalentName)));
 
                     Console.WriteLine("Press Any Key to Close");
                 }
