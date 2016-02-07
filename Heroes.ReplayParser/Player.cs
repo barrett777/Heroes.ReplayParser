@@ -91,14 +91,63 @@ namespace Heroes.ReplayParser
         public bool IsSilenced { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the player's in game selected Hero talents, and the TimeSpan when they were selected in game.
+        /// Gets or sets the player's selected Hero talents
         /// </summary>
-        public Tuple<int, TimeSpan>[] Talents { get; set; } = new Tuple<int, TimeSpan>[0];
+        public Talent[] Talents { get; set; } = new Talent[0];
 
         /// <summary>
         /// Gets or sets the player's in game Hero units.
         /// </summary>
         public List<Unit> HeroUnits { get; set; } = new List<Unit>();
+
+        /// <summary>
+        /// Gets or sets the player's standard end game score result statistics
+        /// </summary>
+        public ScoreResult ScoreResult { get; set; } = new ScoreResult();
+
+        /// <summary>
+        /// Gets or sets the player's miscellaneous end game score result statistics
+        /// </summary>
+        public Dictionary<string, int> MiscellaneousScoreResultEventDictionary { get; set; } = new Dictionary<string, int>();
+    }
+
+    public class ScoreResult
+    {
+        public int Takedowns { get; set; } = 0;
+        public int SoloKills { get; set; } = 0;
+        public int Assists { get; set; } = 0;
+        public int Deaths { get; set; } = 0;
+
+        public int HeroDamage { get; set; } = 0;
+        public int SiegeDamage { get; set; } = 0;
+        public int StructureDamage { get; set; } = 0;
+        public int MinionDamage { get; set; } = 0;
+        public int CreepDamage { get; set; } = 0;
+        public int SummonDamage { get; set; } = 0;
+
+        public TimeSpan? TimeCCdEnemyHeroes { get; set; } = null;
+
+        public int? Healing { get; set; } = null;
+        public int SelfHealing { get; set; } = 0;
+
+        public int? DamageTaken { get; set; } = null;
+
+        public int ExperienceContribution { get; set; } = 0;
+        public int TownKills { get; set; } = 0;
+
+        public TimeSpan TimeSpentDead { get; set; } = TimeSpan.Zero;
+
+        public int MercCampCaptures { get; set; } = 0;
+        public int WatchTowerCaptures { get; set; } = 0;
+
+        public int MetaExperience { get; set; } = 0; // Exp added to the player's Account and Hero level after the match
+    }
+
+    public class Talent
+    {
+        public int TalentID { get; set; }
+        public string TalentName { get; set; } = null;
+        public TimeSpan TimeSpanSelected { get; set; }
     }
 
     public enum PlayerType
