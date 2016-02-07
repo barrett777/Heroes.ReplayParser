@@ -408,49 +408,6 @@ namespace Heroes.ReplayParser
             { "ZeratulVorpalBladeItem", UnitGroup.HeroTalentSelection }
         };
 
-        private static readonly int[] HeroDeathTimersByTeamLevelInSeconds = new[] {
-            15, //  1
-            16, //  2
-            17, //  3
-            18, //  4
-            19, //  5
-            20, //  6
-            21, //  7
-            22, //  8
-            23, //  9
-            24, // 10
-            26, // 11
-            29, // 12
-            32, // 13
-            36, // 14
-            40, // 15
-            44, // 16
-            50, // 17
-            56, // 18
-            62, // 19
-            65, // 20
-            65, // 21
-            65, // 22
-            65, // 23
-            65, // 24
-            65, // 25
-            65, // 26
-            65, // 27
-            65, // 28
-            65, // 29
-            65  // 30
-        };
-
-        private static readonly int[] HeroDeathTimersByTeamLevelInSecondsForTalentLevels = new[] {
-            15, //  1
-            18, //  4
-            21, //  7
-            24, // 10
-            32, // 13
-            44, // 16
-            65  // 20
-        };
-
         public static void ParseUnitData(Replay replay)
         {
             {
