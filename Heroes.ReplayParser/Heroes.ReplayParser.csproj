@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="DataParser.cs" />
     <Compile Include="MPQFiles\ReplayResumableEvents.cs" />
+    <Compile Include="Statistics.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="MPQFiles\MpqHeader.cs" />
     <Compile Include="Player.cs" />
