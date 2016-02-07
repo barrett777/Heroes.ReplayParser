@@ -123,31 +123,24 @@ namespace Heroes.ReplayParser
             try
             {
                 replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientList, replay.ReplayBuild);
+                replay.IsGameEventsParsedSuccessfully = true;
             }
             catch
             {
                 replay.GameEvents = new List<GameEvent>();
             }
-            
-            // Gather talent selections
-            var talentGameEventsDictionary = replay.GameEvents
-                .Where(i => i.eventType == GameEventType.CHeroTalentSelectedEvent)
-                .GroupBy(i => i.player)
-                .ToDictionary(
-                    i => i.Key,
-                    i => i.Select(j => new Tuple<int, TimeSpan>((int)j.data.unsignedInt.Value, j.TimeSpan)).OrderBy(j => j.Item2).ToArray());
 
-            foreach (var player in talentGameEventsDictionary.Keys)
-                player.Talents = talentGameEventsDictionary[player];
-
-            // Gather Team Level Milestones (From talent choices: 1 / 4 / 7 / 10 / 13 / 16 / 20)
-            for (var currentTeam = 0; currentTeam < replay.TeamLevelMilestones.Length; currentTeam++)
             {
-                var maxTalentChoices = replay.Players.Where(i => i.Team == currentTeam).Select(i => i.Talents.Length).Max();
-                replay.TeamLevelMilestones[currentTeam] = new TimeSpan[maxTalentChoices];
-                var appropriatePlayers = replay.Players.Where(j => j.Team == currentTeam && j.Talents.Length == maxTalentChoices);
-                for (var i = 0; i < replay.TeamLevelMilestones[currentTeam].Length; i++)
-                    replay.TeamLevelMilestones[currentTeam][i] = appropriatePlayers.Select(j => j.Talents[i].Item2).Min();
+                // Gather talent selections
+                var talentGameEventsDictionary = replay.GameEvents
+                    .Where(i => i.eventType == GameEventType.CHeroTalentSelectedEvent)
+                    .GroupBy(i => i.player)
+                    .ToDictionary(
+                        i => i.Key,
+                        i => i.Select(j => new Talent { TalentID = (int)j.data.unsignedInt.Value, TimeSpanSelected = j.TimeSpan }).OrderBy(j => j.TimeSpanSelected).ToArray());
+
+                foreach (var player in talentGameEventsDictionary.Keys)
+                    player.Talents = talentGameEventsDictionary[player];
             }
 
             // Replay Server Battlelobby
@@ -156,6 +149,18 @@ namespace Heroes.ReplayParser
 
             // Parse Unit Data using Tracker events
             Unit.ParseUnitData(replay);
+
+            // Parse Statistics
+            if (replay.ReplayBuild >= 40431)
+                try
+                {
+                    Statistics.Parse(replay);
+                    replay.IsStatisticsParsedSuccessfully = true;
+                }
+                catch
+                {
+
+                }
 
             // Replay Message Events
             // ReplayMessageEvents.Parse(replay, GetMpqFile(archive, ReplayMessageEvents.FileName));
