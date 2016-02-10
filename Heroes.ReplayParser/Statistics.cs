@@ -58,6 +58,7 @@ namespace Heroes.ReplayParser
 
                             case "TalentChosen": // {StatGameEvent: {"TalentChosen", [{{"PurchaseName"}, "NovaCombatStyleAdvancedCloaking"}], [{{"PlayerID"}, 6}], }}
                                 if (trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[0].dictionary[0].blobText == "PlayerID" &&
+                                    trackerEvent.Data.dictionary[1].optionalData != null &&
                                     trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[0].dictionary[0].blobText == "PurchaseName")
                                 {
                                     var playerID = (int)trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value;
@@ -65,8 +66,14 @@ namespace Heroes.ReplayParser
                                     if (!playerIDTalentIndexDictionary.ContainsKey(playerID))
                                         playerIDTalentIndexDictionary[playerID] = 0;
 
-                                    if (playerIDDictionary[playerID].Talents.Length >= playerIDTalentIndexDictionary[playerID])
+                                    if (playerIDDictionary[playerID].Talents.Length > playerIDTalentIndexDictionary[playerID])
                                         playerIDDictionary[playerID].Talents[playerIDTalentIndexDictionary[playerID]++].TalentName = trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText;
+                                    else
+                                        // A talent was selected while a player was disconnected
+                                        // This makes it more difficult to match a 'TalentName' with a 'TalentID'
+                                        // Since this is rare, I'll just clear all 'TalentName' for that player
+                                        foreach (var talent in playerIDDictionary[playerID].Talents)
+                                            talent.TalentName = null;
                                 }
                                 break;
 
