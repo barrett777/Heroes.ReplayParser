@@ -170,7 +170,7 @@ namespace Heroes.ReplayParser
             // ReplayResumableEvents.Parse(replay, GetMpqFile(archive, "replay.resumable.events"));
         }
 
-        private static byte[] GetMpqFile(MpqArchive archive, string fileName)
+        public static byte[] GetMpqFile(MpqArchive archive, string fileName)
         {
             using (var mpqStream = archive.OpenFile(archive.Single(i => i.Filename == fileName)))
             {
