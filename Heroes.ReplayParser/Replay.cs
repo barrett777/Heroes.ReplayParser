@@ -80,6 +80,7 @@
     public enum GameMode
     {
         Unknown = -9,
+        Event = -2,
         Custom = -1,
         TryMe = 0,
         Practice = 1,
