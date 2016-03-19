@@ -177,7 +177,7 @@
 
                     // m_observe
                     var observerStatus = reader.Read(2);
-                    if (observerStatus == 2)
+                    if (observerStatus == 2 && clientListIndex.HasValue)
                         replay.ClientList[clientListIndex.Value].PlayerType = PlayerType.Spectator;
 
                     reader.Read(32); // m_logoIndex
