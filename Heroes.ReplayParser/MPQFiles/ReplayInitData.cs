@@ -219,9 +219,12 @@
                     if (reader.ReadBoolean())
                         reader.Read(4); // m_tandemLeaderUserId
 
-                    reader.ReadBlobPrecededWithLength(9); // m_commander - Empty string
+                    if (replay.ReplayBuild <= 41504)
+                    {
+                        reader.ReadBlobPrecededWithLength(9); // m_commander - Empty string
 
-                    reader.Read(32); // m_commanderLevel - So far, always 0
+                        reader.Read(32); // m_commanderLevel - So far, always 0
+                    }
 
                     if (reader.ReadBoolean() && clientListIndex.HasValue && replay.ClientList[clientListIndex.Value] != null) // m_hasSilencePenalty
                         replay.ClientList[clientListIndex.Value].IsSilenced = true;
