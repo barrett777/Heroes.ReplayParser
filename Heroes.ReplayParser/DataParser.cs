@@ -122,7 +122,7 @@ namespace Heroes.ReplayParser
 
             try
             {
-                replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientList, replay.ReplayBuild);
+                replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientListByUserID, replay.ReplayBuild);
                 replay.IsGameEventsParsedSuccessfully = true;
             }
             catch
@@ -159,7 +159,7 @@ namespace Heroes.ReplayParser
                 }
                 catch
                 {
-
+                    replay.IsGameEventsParsedSuccessfully = false;
                 }
 
             // Replay Message Events

@@ -27,7 +27,7 @@ namespace Heroes.ReplayParser
                     Player player = null;
                     var clientListIndex = binaryReader.ReadByte();
                     if (clientListIndex != 16 /* Global Event, or event with Observer */)
-                        player = replay.ClientList[clientListIndex];
+                        player = replay.ClientListByUserID[clientListIndex];
 
                     // Team color?
                     // Team 0 is always 255 / 255 / 255

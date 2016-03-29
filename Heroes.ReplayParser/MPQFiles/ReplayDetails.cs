@@ -18,26 +18,27 @@ namespace Heroes.ReplayParser
                 using (var reader = new BinaryReader(stream))
                 {
                     var replayDetailsStructure = new TrackerEventStructure(reader);
-                    replay.Players = replayDetailsStructure.dictionary[0].optionalData.array.Select(i => new Player
-                    {
+                    replay.Players = replayDetailsStructure.dictionary[0].optionalData.array.Select(i => new Player {
                         Name = i.dictionary[0].blobText,
                         BattleNetRegionId = (int)i.dictionary[1].dictionary[0].vInt.Value,
                         BattleNetSubId = (int)i.dictionary[1].dictionary[2].vInt.Value,
                         BattleNetId = (int)i.dictionary[1].dictionary[4].vInt.Value,
                         // [2] = Race (SC2 Remnant, Always Empty String in Heroes of the Storm)
                         Color = i.dictionary[3].dictionary.Keys.OrderBy(j => j).Select(j => (int)i.dictionary[3].dictionary[j].vInt.Value).ToArray(),
-                        // [4] = Player Type (2 = Human, 3 = Computer (Practice, Try Me, or Coop)) - This is more accurately gathered in replay.attributes.events
+                        // [4] = Player Type (2 = Human, 3 = Computer (Practice, Try Me, or Cooperative)) - This is more accurately gathered in replay.attributes.events
                         Team = (int)i.dictionary[5].vInt.Value,
                         Handicap = (int)i.dictionary[6].vInt.Value,
-                        // [7] = VInt, Default 0
+                        // [7] = VInt, Default 0 - 'm_observe'
                         IsWinner = i.dictionary[8].vInt.Value == 1,
-                        // [9] = Sometimes player index in ClientList array; usually 0-9, but can be higher if there are observers. I don't fully understand this, as this was incorrect in at least one Custom game, where this said ClientList[8] was null
-                        Character = i.dictionary[10].blobText
-                    }).ToArray();
+                        // [9] = 'm_workingSetSlotId'
+                        Character = i.dictionary[10].blobText }).ToArray();
 
                     if (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5)
                         // Try Me Mode, or something strange
                         return;
+
+                    for (var i = 0; i < replay.Players.Length; i++)
+                        replay.ClientListByWorkingSetSlotID[replayDetailsStructure.dictionary[0].optionalData.array[i].dictionary[9].optionalData.vInt.Value] = replay.Players[i];
 
                     replay.Map = replayDetailsStructure.dictionary[1].blobText;
                     // [2] - m_difficulty

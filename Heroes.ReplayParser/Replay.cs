@@ -35,8 +35,11 @@
         /// <summary> Gets the Time at which the game took place. </summary>
         public DateTime Timestamp { get; set; }
 
-        /// <summary> Gets the list of all clients connected to the game. </summary>
-        public Player[] ClientList { get; set; } = new Player[0x10];
+        /// <summary> Gets the list of all clients connected to the game, using 'm_userId' as index </summary>
+        public Player[] ClientListByUserID { get; set; } = new Player[16];
+
+        /// <summary> Gets the list of all clients connected to the game, using 'm_workingSetSlotId' as index </summary>
+        public Player[] ClientListByWorkingSetSlotID { get; set; } = new Player[16];
 
         /// <summary> Gets the game events. </summary>
         public List<GameEvent> GameEvents { get; set; } = new List<GameEvent>();
@@ -63,7 +66,7 @@
         public List<PeriodicXPBreakdown>[] TeamPeriodicXPBreakdown { get; set; } = new List<PeriodicXPBreakdown>[2];
 
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
-        public bool IsStatisticsParsedSuccessfully { get; set; } = false;
+        public bool? IsStatisticsParsedSuccessfully { get; set; } = null;
     }
 
     public class PeriodicXPBreakdown

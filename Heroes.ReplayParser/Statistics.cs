@@ -147,108 +147,108 @@ namespace Heroes.ReplayParser
                                 case "Takedowns":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.Takedowns = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Takedowns = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "SoloKill":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.SoloKills = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.SoloKills = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "Assists":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.Assists = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Assists = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "Deaths":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.Deaths = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Deaths = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "HeroDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.HeroDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.HeroDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "SiegeDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.SiegeDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.SiegeDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "StructureDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.StructureDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.StructureDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "MinionDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.MinionDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.MinionDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "CreepDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.CreepDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.CreepDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "SummonDamage":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.SummonDamage = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.SummonDamage = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "TimeCCdEnemyHeroes":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value > 0)
-                                            replay.ClientList[i].ScoreResult.TimeCCdEnemyHeroes = TimeSpan.FromSeconds(scoreResultEventValueArray[i].Value);
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.TimeCCdEnemyHeroes = TimeSpan.FromSeconds(scoreResultEventValueArray[i].Value);
                                     break;
                                 case "Healing":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value > 0)
-                                            replay.ClientList[i].ScoreResult.Healing = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Healing = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "SelfHealing":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.SelfHealing = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.SelfHealing = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "DamageTaken":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value > 0)
-                                            replay.ClientList[i].ScoreResult.DamageTaken = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.DamageTaken = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "ExperienceContribution":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.ExperienceContribution = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.ExperienceContribution = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "TownKills":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.TownKills = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.TownKills = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "TimeSpentDead":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.TimeSpentDead = TimeSpan.FromSeconds(scoreResultEventValueArray[i].Value);
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.TimeSpentDead = TimeSpan.FromSeconds(scoreResultEventValueArray[i].Value);
                                     break;
                                 case "MercCampCaptures":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.MercCampCaptures = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.MercCampCaptures = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "WatchTowerCaptures":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.WatchTowerCaptures = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.WatchTowerCaptures = scoreResultEventValueArray[i].Value;
                                     break;
                                 case "MetaExperience":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].ScoreResult.MetaExperience = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.MetaExperience = scoreResultEventValueArray[i].Value;
                                     break;
 
                                 default:
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
-                                            replay.ClientList[i].MiscellaneousScoreResultEventDictionary[scoreResultEventKey] = scoreResultEventValueArray[i].Value;
+                                            replay.ClientListByWorkingSetSlotID[i].MiscellaneousScoreResultEventDictionary[scoreResultEventKey] = scoreResultEventValueArray[i].Value;
                                     break;
                             }
                         }
