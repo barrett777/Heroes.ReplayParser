@@ -49,9 +49,6 @@ namespace Heroes.ReplayParser
 
         public enum TrackerEventType
         {
-            PlayerStatsEvent = 0,
-            /* Not used - this Starcraft 2 event was replaced with 'StatGameEvent' and 'ScoreResultEvent' for Heroes of the Storm */
-
             UnitBornEvent = 1,
             /* UnitID Index, UnitID Recycle, Unit Type Name, PlayerID with Control, PlayerID with Upkeep, X, Y */
 
@@ -65,7 +62,7 @@ namespace Heroes.ReplayParser
             /* UnitID Index, UnitID Recycle, New Unit Type Name */
 
             UpgradeEvent = 5,
-            /* Not sure what this is for - only one event for the entire match, with a blob containing 'CreepColor'; Also seems to contain who gets Dragon on Dragon Shire, and maybe some other odd ones */
+            /* PlayerID, Upgrade Type Name, Count */
 
             UnitInitEvent = 6,
             /* UnitID, Unit Type Name, PlayerID with Control, PlayerID with Upkeep, X, Y */

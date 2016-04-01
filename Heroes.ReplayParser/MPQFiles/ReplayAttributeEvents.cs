@@ -232,6 +232,45 @@ namespace Heroes.ReplayParser
                         // if (replay.GameMode == GameMode.HeroLeague && int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray())) != 5)
                             // Console.WriteLine("WAAT!?");
                         break;
+
+                    case ReplayAttributeEventType.DraftBanMode:
+                        // Options: No Ban (""), One Ban ("1ban"), Two Ban ("2ban"), Mid Ban ("Mban", Default)
+                        break;
+
+                    case ReplayAttributeEventType.DraftTeam1BanChooserSlot:
+                    case ReplayAttributeEventType.DraftTeam2BanChooserSlot:
+                        // For Ranked Play, this is always "Hmmr" -> Highest MMR
+                        break;
+
+                    case ReplayAttributeEventType.DraftTeam1Ban1LockedIn:
+                    case ReplayAttributeEventType.DraftTeam1Ban2LockedIn:
+                    case ReplayAttributeEventType.DraftTeam2Ban1LockedIn:
+                    case ReplayAttributeEventType.DraftTeam2Ban2LockedIn:
+                        // So far I've only seen an empty string here
+                        break;
+
+                    case ReplayAttributeEventType.DraftTeam1Ban1:
+                    case ReplayAttributeEventType.DraftTeam1Ban2:
+                    case ReplayAttributeEventType.DraftTeam2Ban1:
+                    case ReplayAttributeEventType.DraftTeam2Ban2:
+                        var draftTeamBanValue = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        if (draftTeamBanValue != "")
+                            switch (attribute.AttributeType)
+                            {
+                                case ReplayAttributeEventType.DraftTeam1Ban1:
+                                    replay.TeamHeroBans[0][0] = draftTeamBanValue;
+                                    break;
+                                case ReplayAttributeEventType.DraftTeam1Ban2:
+                                    replay.TeamHeroBans[0][1] = draftTeamBanValue;
+                                    break;
+                                case ReplayAttributeEventType.DraftTeam2Ban1:
+                                    replay.TeamHeroBans[1][0] = draftTeamBanValue;
+                                    break;
+                                case ReplayAttributeEventType.DraftTeam2Ban2:
+                                    replay.TeamHeroBans[1][1] = draftTeamBanValue;
+                                    break;
+                            }
+                        break;
                 }
 
             List<ReplayAttribute> currentList = null;
@@ -305,7 +344,21 @@ namespace Heroes.ReplayParser
             ReadyingRound = 4017,
             ReadyMode = 4018,
             ReadyRequirements = 4019,
-            FirstReadyingTeam = 4020
+            FirstReadyingTeam = 4020,
+
+            DraftBanMode = 4021,
+
+            DraftTeam1BanChooserSlot = 4022,
+            DraftTeam1Ban1 = 4023,
+            DraftTeam1Ban1LockedIn = 4024,
+            DraftTeam1Ban2 = 4025,
+            DraftTeam1Ban2LockedIn = 4026,
+
+            DraftTeam2BanChooserSlot = 4027,
+            DraftTeam2Ban1 = 4028,
+            DraftTeam2Ban1LockedIn = 4029,
+            DraftTeam2Ban2 = 4030,
+            DraftTeam2Ban2LockedIn = 4031,
 
             /* 4100 - 4200 are related to Artifacts, no longer in the game */
         }

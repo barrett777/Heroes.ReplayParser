@@ -65,6 +65,9 @@
         /// <summary> Periodic XP Breakdown ([Team][PeriodicXPBreakdown]) </summary>
         public List<PeriodicXPBreakdown>[] TeamPeriodicXPBreakdown { get; set; } = new List<PeriodicXPBreakdown>[2];
 
+        /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
+        public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[2] { null, null }, new string[2] { null, null } };
+
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
         public bool? IsStatisticsParsedSuccessfully { get; set; } = null;
     }
