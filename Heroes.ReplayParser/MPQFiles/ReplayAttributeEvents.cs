@@ -188,6 +188,11 @@ namespace Heroes.ReplayParser
                             break;
                         }
 
+                    case ReplayAttributeEventType.SkinAndSkinTint:
+                        if (encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand")
+                            replay.Players[attribute.PlayerId - 1].IsAutoSelect = true;
+                        break;
+
                     case ReplayAttributeEventType.CharacterLevel:
                         {
                             var characterLevel = int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray()));
