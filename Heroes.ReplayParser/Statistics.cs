@@ -23,8 +23,46 @@ namespace Heroes.ReplayParser
                 switch (trackerEvent.TrackerEventType)
                 {
                     case ReplayTrackerEvents.TrackerEventType.UpgradeEvent:
-                        // Contains interesting data such as tracking some 'Gathering Power' type talents: {UpgradeEvent: {6, "NovaSnipeMasterDamageUpgrade", 1}}
-                        // We should save these kind of statistics somewhere
+                        switch (trackerEvent.Data.dictionary[1].blobText)
+                        {
+                            case "CreepColor":
+                                // Not sure what this is - it's been in the replay file since Alpha, so it may just be a SC2 remnant
+                                break;
+
+                            case "IsPlayer11":
+                            case "IsPlayer12":
+                                // Also not sure what this is
+                                break;
+
+                            case "GatesAreOpen":
+                            case "MinionsAreSpawning":
+                                break;
+
+                            case "VehicleDragonUpgrade":
+                                break;
+
+                            case "NovaSnipeMasterDamageUpgrade":
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    UpgradeEventType = UpgradeEventType.NovaSnipeMasterDamageUpgrade,
+                                    Value = (int) trackerEvent.Data.dictionary[2].vInt.Value });
+                                break;
+
+                            case "GallTalentDarkDescentUpgrade":
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    UpgradeEventType = UpgradeEventType.GallTalentDarkDescentUpgrade,
+                                    Value = (int) trackerEvent.Data.dictionary[2].vInt.Value });
+                                break;
+
+                            case "GallTalentNetherCallsUpgrade":
+                                break;
+
+                            default:
+                                // New Upgrade Event - let's log it until we can identify and properly track it
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].MiscellaneousUpgradeEventDictionary[trackerEvent.Data.dictionary[1].blobText] = true;
+                                break;
+                        }
                         break;
 
                     case ReplayTrackerEvents.TrackerEventType.StatGameEvent:
@@ -110,6 +148,8 @@ namespace Heroes.ReplayParser
                             // Map Objectives
                             case "Altar Captured": break;           // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
                             case "Town Captured": break;            // {StatGameEvent: {"Town Captured", , [{{"New Owner"}, 12}], }}
+                            case "Six Town Event Start": break;     // {StatGameEvent: {"Six Town Event Start", , [{{"Owning Team"}, 1}], [{{"Start Time"}, 742}]}}
+                            case "Six Town Event End": break;       // {StatGameEvent: {"Six Town Event End", , [{{"Owning Team"}, 1}], [{{"End Time"}, 747}]}}
 
                             case "SkyTempleActivated": break;       // {StatGameEvent: {"SkyTempleActivated", , [{{"Event"}, 1}, {{"TempleID"}, 1}], }}
                             case "SkyTempleCaptured": break;        // {StatGameEvent: {"SkyTempleCaptured", , [{{"Event"}, 1}, {{"TempleID"}, 2}, {{"TeamID"}, 2}], }}
@@ -129,6 +169,8 @@ namespace Heroes.ReplayParser
 
                             case "Infernal Shrine Captured": break; // {StatGameEvent: {"Infernal Shrine Captured", , [{{"Event"}, 1}, {{"Winning Team"}, 2}, {{"Winning Score"}, 40}, {{"Losing Score"}, 33}], }}
                             case "Punisher Killed": break;          // {StatGameEvent: {"Punisher Killed", [{{"Punisher Type"}, "BombardShrine"}], [{{"Event"}, 1}, {{"Owning Team of Punisher"}, 2}, {{"Duration"}, 20}], [{{"Siege Damage Done"}, 726}, {{"Hero Damage Done"}, 0}]}}
+
+                            case "DragonKnightActivated": break;    // {StatGameEvent: {"DragonKnightActivated", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
 
                             default:
                                 break;

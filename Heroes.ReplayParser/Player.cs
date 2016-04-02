@@ -106,6 +106,16 @@ namespace Heroes.ReplayParser
         public ScoreResult ScoreResult { get; set; } = new ScoreResult();
 
         /// <summary>
+        /// Gets or sets the player's Upgrade Events
+        /// </summary>
+        public List<UpgradeEvent> UpgradeEvents { get; set; } = new List<UpgradeEvent>();
+
+        /// <summary>
+        /// Gets or sets the player's miscellaneous upgrade events
+        /// </summary>
+        public Dictionary<string, bool> MiscellaneousUpgradeEventDictionary { get; set; } = new Dictionary<string, bool>();
+
+        /// <summary>
         /// Gets or sets the player's miscellaneous end game score result statistics
         /// </summary>
         public Dictionary<string, int> MiscellaneousScoreResultEventDictionary { get; set; } = new Dictionary<string, int>();
@@ -150,6 +160,13 @@ namespace Heroes.ReplayParser
         public TimeSpan TimeSpanSelected { get; set; }
     }
 
+    public class UpgradeEvent
+    {
+        public TimeSpan TimeSpan { get; set; }
+        public UpgradeEventType UpgradeEventType { get; set; }
+        public int Value { get; set; }
+    }
+
     public enum PlayerType
     {
         Human,
@@ -165,5 +182,11 @@ namespace Heroes.ReplayParser
         Adept,
         Veteran,
         Elite
+    }
+
+    public enum UpgradeEventType
+    {
+        NovaSnipeMasterDamageUpgrade = 1,
+        GallTalentDarkDescentUpgrade = 2
     }
 }
