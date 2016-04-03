@@ -12,7 +12,7 @@ namespace Heroes.ReplayParser
         /// <summary> Parses the replay.details file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.details file. </param>
-        public static void Parse(Replay replay, byte[] buffer)
+        public static void Parse(Replay replay, byte[] buffer, bool ignoreErrors = false)
         {
             using (var stream = new MemoryStream(buffer))
                 using (var reader = new BinaryReader(stream))
@@ -33,7 +33,7 @@ namespace Heroes.ReplayParser
                         // [9] = 'm_workingSetSlotId'
                         Character = i.dictionary[10].blobText }).ToArray();
 
-                    if (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5)
+                    if (!ignoreErrors && (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5))
                         // Try Me Mode, or something strange
                         return;
 
