@@ -104,7 +104,7 @@ namespace Heroes.ReplayParser
             archive.AddListfileFilenames();
 
             // Replay Details
-            ReplayDetails.Parse(replay, GetMpqFile(archive, ReplayDetails.FileName));
+            ReplayDetails.Parse(replay, GetMpqFile(archive, ReplayDetails.FileName), ignoreErrors);
 
             if (!ignoreErrors && (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5))
                 // Filter out 'Try Me' games, any games without 10 players, and incomplete games
