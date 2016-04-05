@@ -25,7 +25,7 @@ namespace Heroes.ReplayParser
             PTRRegion = 15
         }
 
-        public static Tuple<ReplayParseResult, Replay> ParseReplay(byte[] bytes, bool ignoreErrors = false)
+        public static Tuple<ReplayParseResult, Replay> ParseReplay(byte[] bytes, bool ignoreErrors = false, bool allowPTRRegion = false)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace Heroes.ReplayParser
                 using (var archive = new MpqArchive(memoryStream))
                     ParseReplayArchive(replay, archive, ignoreErrors);
 
-                return ParseReplayResults(replay, ignoreErrors);
+                return ParseReplayResults(replay, ignoreErrors, allowPTRRegion);
             }
             catch
             {
@@ -49,7 +49,7 @@ namespace Heroes.ReplayParser
             }
         }
 
-        public static Tuple<ReplayParseResult, Replay> ParseReplay(string fileName, bool ignoreErrors, bool deleteFile)
+        public static Tuple<ReplayParseResult, Replay> ParseReplay(string fileName, bool ignoreErrors, bool deleteFile, bool allowPTRRegion = false)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Heroes.ReplayParser
                 if (deleteFile)
                     File.Delete(fileName);
 
-                return ParseReplayResults(replay, ignoreErrors);
+                return ParseReplayResults(replay, ignoreErrors, allowPTRRegion);
             }
             catch
             {
@@ -75,7 +75,7 @@ namespace Heroes.ReplayParser
             }
         }
 
-        private static Tuple<ReplayParseResult, Replay> ParseReplayResults(Replay replay, bool ignoreErrors)
+        private static Tuple<ReplayParseResult, Replay> ParseReplayResults(Replay replay, bool ignoreErrors, bool allowPTRRegion)
         {
             if (ignoreErrors)
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.UnexpectedResult, replay);
@@ -91,7 +91,7 @@ namespace Heroes.ReplayParser
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.PreAlphaWipe, null);
             else if (replay.Players.Any(i => i.PlayerType == PlayerType.Computer || i.Character == "Random Hero" || i.Name.Contains(' ')))
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.ComputerPlayerFound, null);
-            else if (replay.Players.Any(i => i.BattleNetRegionId >= 90 /* PTR/Test Region */))
+            else if (!allowPTRRegion && replay.Players.Any(i => i.BattleNetRegionId >= 90 /* PTR/Test Region */))
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.PTRRegion, null);
             else if (replay.Players.Count(i => i.IsWinner) != 5 || replay.Players.Length != 10 || (replay.GameMode != GameMode.TeamLeague && replay.GameMode != GameMode.HeroLeague && replay.GameMode != GameMode.QuickMatch && replay.GameMode != GameMode.Custom))
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.UnexpectedResult, null);
