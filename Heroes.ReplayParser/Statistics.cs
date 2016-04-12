@@ -134,6 +134,24 @@ namespace Heroes.ReplayParser
                                             TrickleXP = (int)trackerEvent.Data.dictionary[3].optionalData.array[6].dictionary[1].vInt.Value });
                                 break;
 
+                            case "EndOfGameXPBreakdown": // {StatGameEvent: {"EndOfGameXPBreakdown", , [{{"PlayerID"}, 4}], [{{"MinionXP"}, 31222}, {{"CreepXP"}, 1476}, {{"StructureXP"}, 10550}, {{"HeroXP"}, 22676}, {{"TrickleXP"}, 27280}]}}
+                                if (trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[0].dictionary[0].blobText == "PlayerID" &&
+                                    trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[0].dictionary[0].blobText == "MinionXP" &&
+                                    trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[0].dictionary[0].blobText == "CreepXP" &&
+                                    trackerEvent.Data.dictionary[3].optionalData.array[2].dictionary[0].dictionary[0].blobText == "StructureXP" &&
+                                    trackerEvent.Data.dictionary[3].optionalData.array[3].dictionary[0].dictionary[0].blobText == "HeroXP" &&
+                                    trackerEvent.Data.dictionary[3].optionalData.array[4].dictionary[0].dictionary[0].blobText == "TrickleXP" &&
+                                    (!replay.TeamPeriodicXPBreakdown[playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].Team].Any() || replay.TeamPeriodicXPBreakdown[playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].Team].Last().TimeSpan != trackerEvent.TimeSpan))
+                                        replay.TeamPeriodicXPBreakdown[playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].Team].Add(new PeriodicXPBreakdown {
+                                            TeamLevel = replay.TeamLevels[playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].Team].Keys.Max(),
+                                            TimeSpan = trackerEvent.TimeSpan,
+                                            MinionXP = (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value,
+                                            CreepXP = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value,
+                                            StructureXP = (int) trackerEvent.Data.dictionary[3].optionalData.array[2].dictionary[1].vInt.Value,
+                                            HeroXP = (int) trackerEvent.Data.dictionary[3].optionalData.array[3].dictionary[1].vInt.Value,
+                                            TrickleXP = (int) trackerEvent.Data.dictionary[3].optionalData.array[4].dictionary[1].vInt.Value });
+                                break;
+
                             case "TownStructureInit": break;        // {StatGameEvent: {"TownStructureInit", , [{{"TownID"}, 5}, {{"Team"}, 1}, {{"Lane"}, 3}], [{{"PositionX"}, 59}, {{"PositionY"}, 93}]}}
                             case "JungleCampInit": break;           // {StatGameEvent: {"JungleCampInit", , [{{"CampID"}, 1}], [{{"PositionX"}, 101}, {{"PositionY"}, 74}]}}
                             case "PlayerSpawned": break;            // {StatGameEvent: {"PlayerSpawned", [{{"Hero"}, "HeroLeoric"}], [{{"PlayerID"}, 1}], }}
@@ -142,7 +160,6 @@ namespace Heroes.ReplayParser
                             case "RegenGlobePickedUp": break;       // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
                             case "JungleCampCapture": break;        // {StatGameEvent: {"JungleCampCapture", [{{"CampType"}, "Siege Camp"}], [{{"CampID"}, 1}], [{{"TeamID"}, 1}]}}
                             case "TownStructureDeath": break;       // {StatGameEvent: {"TownStructureDeath", , [{{"TownID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], }}
-                            case "EndOfGameXPBreakdown": break;     // {StatGameEvent: {"EndOfGameXPBreakdown", , [{{"PlayerID"}, 4}], [{{"MinionXP"}, 31222}, {{"CreepXP"}, 1476}, {{"StructureXP"}, 10550}, {{"HeroXP"}, 22676}, {{"TrickleXP"}, 27280}]}}
                             case "EndOfGameTimeSpentDead": break;   // {StatGameEvent: {"EndOfGameTimeSpentDead", , [{{"PlayerID"}, 2}], [{{"Time"}, 162}]}}
 
                             // Map Objectives
