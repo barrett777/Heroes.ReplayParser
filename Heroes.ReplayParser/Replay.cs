@@ -65,6 +65,9 @@
         /// <summary> Periodic XP Breakdown ([Team][PeriodicXPBreakdown]) </summary>
         public List<PeriodicXPBreakdown>[] TeamPeriodicXPBreakdown { get; set; } = new List<PeriodicXPBreakdown>[2];
 
+        /// <summary> Team Objectives ([Team][TeamObjective]) </summary>
+        public List<TeamObjective>[] TeamObjectives { get; set; } = new List<TeamObjective>[2];
+
         /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
         public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[2] { null, null }, new string[2] { null, null } };
 
@@ -81,6 +84,16 @@
         public int StructureXP { get; set; }
         public int HeroXP { get; set; }
         public int TrickleXP { get; set; }
+    }
+
+    public class TeamObjective
+    {
+
+    }
+
+    public enum TeamObjectiveType
+    {
+
     }
 
     public enum GameMode

@@ -36,6 +36,9 @@ namespace Heroes.ReplayParser
 
                             case "GatesAreOpen":
                             case "MinionsAreSpawning":
+                            case "GallTalentNetherCallsUpgrade":
+                            case "TracerJumperButtonSwap":
+                                // Not really interested in these
                                 break;
 
                             case "VehicleDragonUpgrade":
@@ -53,9 +56,6 @@ namespace Heroes.ReplayParser
                                     TimeSpan = trackerEvent.TimeSpan,
                                     UpgradeEventType = UpgradeEventType.GallTalentDarkDescentUpgrade,
                                     Value = (int) trackerEvent.Data.dictionary[2].vInt.Value });
-                                break;
-
-                            case "GallTalentNetherCallsUpgrade":
                                 break;
 
                             default:
@@ -158,7 +158,16 @@ namespace Heroes.ReplayParser
                             case "GatesOpen": break;                // {StatGameEvent: {"GatesOpen", , , }}
                             case "PlayerDeath": break;              // {StatGameEvent: {"PlayerDeath", , [{{"PlayerID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], [{{"PositionX"}, 130}, {{"PositionY"}, 80}]}}
                             case "RegenGlobePickedUp": break;       // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
-                            case "JungleCampCapture": break;        // {StatGameEvent: {"JungleCampCapture", [{{"CampType"}, "Siege Camp"}], [{{"CampID"}, 1}], [{{"TeamID"}, 1}]}}
+
+                            case "JungleCampCapture":               // {StatGameEvent: {"JungleCampCapture", [{{"CampType"}, "Boss Camp"}], [{{"CampID"}, 1}], [{{"TeamID"}, 1}]}}
+                                if (trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "Boss Camp")
+                                {
+                                    var teamID = trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value;
+
+                                    // TODO: LOG THIS SOMEWHERE
+                                }
+                                break;
+
                             case "TownStructureDeath": break;       // {StatGameEvent: {"TownStructureDeath", , [{{"TownID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], }}
                             case "EndOfGameTimeSpentDead": break;   // {StatGameEvent: {"EndOfGameTimeSpentDead", , [{{"PlayerID"}, 2}], [{{"Time"}, 162}]}}
 
