@@ -199,6 +199,8 @@ namespace Heroes.ReplayParser
                             var player = replay.Players[attribute.PlayerId - 1];
                             player.CharacterLevel = characterLevel;
 
+                            if (player.IsAutoSelect && player.CharacterLevel > 1)
+                                player.IsAutoSelect = false;
                             break;
                         }
 
