@@ -463,18 +463,12 @@ namespace Heroes.ReplayParser
                 }
             }
 
-            return gameEvents;
-
             // Uncomment this to write out all replay.game.events to individual text files in the 'C:\HOTSLogs\' folder
-            /* var eventGroups = replay.GameEvents.GroupBy(i => i.eventType).Select(i => new { EventType = i.Key, EventCount = i.Count(), Events = i.OrderBy(j => j.TimeSpan) });
-            string eventGroupData = "";
+            /* var eventGroups = gameEvents.GroupBy(i => i.eventType).Select(i => new { EventType = i.Key, EventCount = i.Count(), Events = i.OrderBy(j => j.TimeSpan).ToArray() }).ToArray();
             foreach (var eventGroup in eventGroups)
-            {
-                foreach (var eventData in eventGroup.Events)
-                    eventGroupData += eventData.TimeSpan + ": " + eventData.player + ": " + eventData + "\r\n";
-                File.WriteAllText(@"C:\HOTSLogs\" + (int)eventGroup.EventType + " " + eventGroup.EventType + @".txt", eventGroupData);
-                eventGroupData = "";
-            } */
+                File.WriteAllLines(@"C:\HOTSLogs\" + (int) eventGroup.EventType + " " + eventGroup.EventType + @".txt", eventGroup.Events.Select(i => i.TimeSpan + ": " + i.player + ": " + i).ToArray()); */
+
+            return gameEvents;
         }
     }
 

@@ -186,7 +186,7 @@ namespace Heroes.ReplayParser
             {
                 case 0x00: // array
                     return array != null
-                        ? '[' + string.Join(", ", array.Select(i => i.ToString())) + ']'
+                        ? '[' + string.Join(", ", array.Select(i => i != null ? i.ToString() : null)) + ']'
                         : null;
                 case 0x01: // bitarray, weird alignment requirements, hasn't been used yet
                     throw new NotImplementedException();
@@ -199,7 +199,7 @@ namespace Heroes.ReplayParser
                         ? optionalData.ToString()
                         : null;
                 case 0x05: // struct
-                    return '{' + string.Join(", ", dictionary.Values.Select(i => i.ToString())) + '}';
+                    return '{' + string.Join(", ", dictionary.Values.Select(i => i != null ? i.ToString() : null)) + '}';
                 case 0x06: // u8
                 case 0x07: // u32
                 case 0x08: // u64
