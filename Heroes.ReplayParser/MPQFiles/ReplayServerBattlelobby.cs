@@ -29,44 +29,9 @@
                     reader.ReadBytes(2); // Unknown
                 }
 
-                // This is not always here; we can't blindly wait for 's2mh'
-                /* while (!reader.EndOfStream)
-                    if (reader.ReadString(1) == "s" && reader.ReadString(1) == "2" && reader.ReadString(1) == "m" && reader.ReadString(1) == "h")
-                    {
-                        reader.stream.Position -= 4;
-                        break;
-                    }
-
-                if (reader.EndOfStream)
-                    return;
-
-                for (var j = 0; j < arrayLength; j++)
-                {
-                    reader.ReadString(4); // s2mh
-                    reader.ReadBytes(2); // 0x00 0x00
-                    reader.ReadBytes(2); // 'Realm'
-                    reader.ReadBytes(32); // 'DepHash'
-                }
-                reader.ReadBytes(2); // 0x00 0x00
-
-                // Different Skins / Artifacts / Characters - I think this is what users mouse over in the UI before the game
-                arrayLength = reader.ReadInt16();
-                for (var j = 0; j < arrayLength; j++)
-                    reader.ReadString(reader.ReadByte());
-
-                reader.ReadBytes(2); // 0x00 0x00
-                reader.ReadInt16();
-
-                do
-                    arrayLength = reader.ReadByte();
-                while (!reader.EndOfStream && (arrayLength == 0 || arrayLength == 1));
-
-                if (reader.EndOfStream)
-                    return; */
-
-                // Now get the BattleTag for each player
+                // Search for the BattleTag for each player
                 var battleTagDigits = new List<char>();
-                for (int playerNum = 0; playerNum < replay.Players.Count(); playerNum++)
+                for (var playerNum = 0; playerNum < replay.Players.Length; playerNum++)
                 {
                     var player = replay.Players[playerNum];
                     if (player == null)
@@ -89,43 +54,21 @@
                             break;
                     }
 
-                    // Get the numbers from the BattleTag
+                    // Get the digits from the BattleTag
+                    while (!reader.EndOfStream)
+                    {
+                        var currentCharacter = (char)reader.ReadByte();
 
-                    // if player is in slot 9, there's a chance that an extra digit could
-                    // be appended to the battleTag
-                    if (playerNum == 9)
-                    {
-                        int count = 0;
-                        while (!reader.EndOfStream)
+                        if (playerNum == 9 && (currentCharacter == 'z' || currentCharacter == 'Ø'))
                         {
-                            var currentCharacter = (char)reader.ReadByte();
-                            if (currentCharacter == 'z' || currentCharacter == 'Ø')
-                            {
-                                // removed previously digit
-                                battleTagDigits.RemoveAt(count - 1);
-                                break;
-                            }
-                            else if (char.IsDigit(currentCharacter))
-                            {
-                                battleTagDigits.Add(currentCharacter);
-                                count++;
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            // If player is in slot 9, there's a chance that an extra digit could be appended to the BattleTag
+                            battleTagDigits.RemoveAt(battleTagDigits.Count - 1);
+                            break;
                         }
-                    }
-                    else
-                    {
-                        while (!reader.EndOfStream)
-                        {
-                            var currentCharacter = (char)reader.ReadByte();
-                            if (char.IsDigit(currentCharacter))
-                                battleTagDigits.Add(currentCharacter);
-                            else
-                                break;
-                        }
+                        else if (char.IsDigit(currentCharacter))
+                            battleTagDigits.Add(currentCharacter);
+                        else
+                            break;
                     }
 
                     if (reader.EndOfStream)
