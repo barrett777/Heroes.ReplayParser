@@ -106,7 +106,8 @@
         Cooperative = 2,
         QuickMatch = 3,
         HeroLeague = 4,
-        TeamLeague = 5
+        TeamLeague = 5,
+        UnrankedDraft = 6
     }
 
     public enum GameSpeed

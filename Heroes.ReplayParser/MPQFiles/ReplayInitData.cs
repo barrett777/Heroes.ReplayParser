@@ -84,6 +84,35 @@
                 reader.Read(2); // User Difficulty
                 reader.ReadInt32(); reader.ReadInt32(); // 64 bit int: Client Debug Flags
 
+                // m_ammId
+                if (replay.ReplayBuild >= 43905 && reader.ReadBoolean())
+                    switch (reader.ReadInt32())
+                    {
+                        case 50021: // Versus AI (Cooperative)
+                        case 50041: // Practice
+                            break;
+
+                        case 50001:
+                            replay.GameMode = GameMode.QuickMatch;
+                            break;
+
+                        case 50051:
+                            replay.GameMode = GameMode.UnrankedDraft;
+                            break;
+
+                        case 50061:
+                            replay.GameMode = GameMode.HeroLeague;
+                            break;
+
+                        case 50071:
+                            replay.GameMode = GameMode.TeamLeague;
+                            break;
+
+                        default:
+                            replay.GameMode = GameMode.Unknown;
+                            break;
+                    }
+
                 reader.Read(3); // Game Speed
 
                 // Not sure what this 'Game Type' is

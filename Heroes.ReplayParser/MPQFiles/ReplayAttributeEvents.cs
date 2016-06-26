@@ -206,7 +206,7 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.LobbyMode:
                         {
-                            if (replay.GameMode != GameMode.Custom)
+                            if (replay.ReplayBuild < 43905 && replay.GameMode != GameMode.Custom)
                                 switch (encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0'))
                                 {
                                     case "stan":
@@ -220,7 +220,7 @@ namespace Heroes.ReplayParser
                         break;
 
                     case ReplayAttributeEventType.ReadyMode:
-                        if (replay.GameMode == GameMode.HeroLeague && encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0') == "fcfs")
+                        if (replay.ReplayBuild < 43905 && replay.GameMode == GameMode.HeroLeague && encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower().Trim('\0') == "fcfs")
                             replay.GameMode = GameMode.TeamLeague;
                         break;
 
