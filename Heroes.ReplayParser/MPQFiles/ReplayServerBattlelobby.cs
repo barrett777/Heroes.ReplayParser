@@ -29,45 +29,14 @@
                     reader.ReadBytes(2); // Unknown
                 }
 
-                // This is not always here; we can't blindly wait for 's2mh'
-                /* while (!reader.EndOfStream)
-                    if (reader.ReadString(1) == "s" && reader.ReadString(1) == "2" && reader.ReadString(1) == "m" && reader.ReadString(1) == "h")
-                    {
-                        reader.stream.Position -= 4;
-                        break;
-                    }
-
-                if (reader.EndOfStream)
-                    return;
-
-                for (var j = 0; j < arrayLength; j++)
-                {
-                    reader.ReadString(4); // s2mh
-                    reader.ReadBytes(2); // 0x00 0x00
-                    reader.ReadBytes(2); // 'Realm'
-                    reader.ReadBytes(32); // 'DepHash'
-                }
-                reader.ReadBytes(2); // 0x00 0x00
-
-                // Different Skins / Artifacts / Characters - I think this is what users mouse over in the UI before the game
-                arrayLength = reader.ReadInt16();
-                for (var j = 0; j < arrayLength; j++)
-                    reader.ReadString(reader.ReadByte());
-
-                reader.ReadBytes(2); // 0x00 0x00
-                reader.ReadInt16();
-
-                do
-                    arrayLength = reader.ReadByte();
-                while (!reader.EndOfStream && (arrayLength == 0 || arrayLength == 1));
-
-                if (reader.EndOfStream)
-                    return; */
-
-                // Now get the BattleTag for each player
+                // Search for the BattleTag for each player
                 var battleTagDigits = new List<char>();
-                foreach (var player in replay.Players.Where(i => i != null))
+                for (var playerNum = 0; playerNum < replay.Players.Length; playerNum++)
                 {
+                    var player = replay.Players[playerNum];
+                    if (player == null)
+                        continue;
+
                     // Find each player's name, and then their associated BattleTag
                     battleTagDigits.Clear();
                     var playerNameBytes = Encoding.UTF8.GetBytes(player.Name);
@@ -85,11 +54,18 @@
                             break;
                     }
 
-                    // Get the numbers from the BattleTag
+                    // Get the digits from the BattleTag
                     while (!reader.EndOfStream)
                     {
                         var currentCharacter = (char)reader.ReadByte();
-                        if (char.IsDigit(currentCharacter))
+
+                        if (playerNum == 9 && (currentCharacter == 'z' || currentCharacter == 'Ø'))
+                        {
+                            // If player is in slot 9, there's a chance that an extra digit could be appended to the BattleTag
+                            battleTagDigits.RemoveAt(battleTagDigits.Count - 1);
+                            break;
+                        }
+                        else if (char.IsDigit(currentCharacter))
                             battleTagDigits.Add(currentCharacter);
                         else
                             break;
