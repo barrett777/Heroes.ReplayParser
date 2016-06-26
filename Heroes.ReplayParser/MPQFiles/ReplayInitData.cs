@@ -84,6 +84,11 @@
                 reader.Read(2); // User Difficulty
                 reader.ReadInt32(); reader.ReadInt32(); // 64 bit int: Client Debug Flags
 
+                if (replay.ReplayBuild >= 43905)
+                {
+                    reader.ReadInt32(); // m_ammId
+                    reader.ReadBoolean(); // ???
+                }
                 reader.Read(3); // Game Speed
 
                 // Not sure what this 'Game Type' is
