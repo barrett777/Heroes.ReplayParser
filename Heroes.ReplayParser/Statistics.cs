@@ -77,7 +77,9 @@ namespace Heroes.ReplayParser
                                 break;
 
                             case "PlayerInit": // {StatGameEvent: {"PlayerInit", [{{"Controller"}, "User"}, {{"ToonHandle"}, "1-Hero-1-XXXXX"}], [{{"PlayerID"}, 1}, {{"Team"}, 1}], }}
-                                if (trackerEvent.Data.dictionary[1].optionalData.array[1].dictionary[0].dictionary[0].blobText == "ToonHandle" &&
+                                if (trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "Computer")
+                                    return;
+                                else if (trackerEvent.Data.dictionary[1].optionalData.array[1].dictionary[0].dictionary[0].blobText == "ToonHandle" &&
                                     trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[0].dictionary[0].blobText == "PlayerID")
                                         playerIDDictionary[(int)trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value] = replay.Players.Single(i => i.BattleNetId == int.Parse(trackerEvent.Data.dictionary[1].optionalData.array[1].dictionary[1].blobText.Split('-').Last()));
                                 break;
