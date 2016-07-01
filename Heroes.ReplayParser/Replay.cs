@@ -66,7 +66,7 @@
         public List<PeriodicXPBreakdown>[] TeamPeriodicXPBreakdown { get; set; } = new List<PeriodicXPBreakdown>[2];
 
         /// <summary> Team Objectives ([Team][TeamObjective]) </summary>
-        public List<TeamObjective>[] TeamObjectives { get; set; } = new List<TeamObjective>[2];
+        public List<TeamObjective>[] TeamObjectives { get; set; } = new List<TeamObjective>[2] { new List<TeamObjective>(), new List<TeamObjective>() };
 
         /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
         public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[2] { null, null }, new string[2] { null, null } };
@@ -88,12 +88,50 @@
 
     public class TeamObjective
     {
-
+        public TimeSpan TimeSpan { get; set; }
+        public Player Player { get; set; } = null;
+        public TeamObjectiveType TeamObjectiveType { get; set; }
+        public int Value { get; set; }
     }
 
     public enum TeamObjectiveType
     {
+        BossCampCaptureWithCampID = 1,
 
+        FirstCatapultSpawn = 2,
+        
+        BattlefieldOfEternityImmortalFightEndWithPowerPercent = 100102,
+
+        BlackheartsBayGhostShipCapturedWithCoinCost = 100201,
+
+        CursedHollowTributeCollectedWithTotalTeamTributes = 100301,
+
+        DragonShireDragonKnightActivatedWithDragonDurationSeconds = 100401,
+
+        GardenOfTerrorGardenTerrorActivatedWithGardenTerrorDurationSeconds = 100501,
+
+        // HauntedMines = 1006,
+
+        InfernalShrinesInfernalShrineCapturedWithLosingScore = 100701,
+        InfernalShrinesPunisherKilledWithPunisherType = 100702,
+        InfernalShrinesPunisherKilledWithSiegeDamageDone = 100703,
+        InfernalShrinesPunisherKilledWithHeroDamageDone = 100704,
+
+        SkyTempleShotsFiredWithSkyTempleShotsDamage = 100801,
+
+        TombOfTheSpiderQueenSoulEatersSpawnedWithTeamScore = 100901,
+
+        TowersOfDoomAltarCapturedWithTeamTownsOwned = 101001,
+        TowersOfDoomSixTownEventStartWithEventDurationSeconds = 101002
+
+        // LostCavern = 1011,
+    }
+
+    public enum TeamObjectiveInfernalShrinesPunisherType
+    {
+        BombardShrine = 1,
+        ArcaneShrine = 2,
+        FrozenShrine = 3
     }
 
     public enum GameMode

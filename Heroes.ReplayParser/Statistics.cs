@@ -17,6 +17,23 @@ namespace Heroes.ReplayParser
                 replay.TeamPeriodicXPBreakdown[i] = new List<PeriodicXPBreakdown>();
             }
 
+            foreach (var firstCatapultPerTeam in replay.Units.Where(i => i.Name == "CatapultMinion" && i.Team.HasValue).GroupBy(i => i.Team.Value).Select(i => i.OrderBy(j => j.TimeSpanBorn).First()))
+                replay.TeamObjectives[firstCatapultPerTeam.Team.Value].Add(new TeamObjective {
+                    TimeSpan = firstCatapultPerTeam.TimeSpanBorn,
+                    TeamObjectiveType = TeamObjectiveType.FirstCatapultSpawn,
+                    Value = -1 });
+
+            foreach (var vehicleUnit in replay.Units.Where(i => (i.Name == "VehiclePlantHorror" || i.Name == "VehicleDragon") && (i.PlayerControlledBy != null || i.OwnerChangeEvents.Any(j => j.PlayerNewOwner != null))))
+            {
+                var ownerChangeEvent = vehicleUnit.OwnerChangeEvents.SingleOrDefault(i => i.PlayerNewOwner != null);
+
+                replay.TeamObjectives[(ownerChangeEvent != null ? ownerChangeEvent.PlayerNewOwner : vehicleUnit.PlayerControlledBy).Team].Add(new TeamObjective {
+                    Player = ownerChangeEvent != null ? ownerChangeEvent.PlayerNewOwner : vehicleUnit.PlayerControlledBy,
+                    TimeSpan = ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value,
+                    TeamObjectiveType = vehicleUnit.Name == "VehiclePlantHorror" ? TeamObjectiveType.GardenOfTerrorGardenTerrorActivatedWithGardenTerrorDurationSeconds : TeamObjectiveType.DragonShireDragonKnightActivatedWithDragonDurationSeconds,
+                    Value = (int) ((vehicleUnit.TimeSpanDied ?? replay.ReplayLength) - (ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value)).TotalSeconds });
+            }
+
             var playerIDTalentIndexDictionary = new Dictionary<int, int>();
 
             foreach (var trackerEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UpgradeEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.StatGameEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.ScoreResultEvent))
@@ -96,6 +113,9 @@ namespace Heroes.ReplayParser
                                 }
                                 break;
 
+                            case "EndOfGameTalentChoices": // {StatGameEvent: {"EndOfGameTalentChoices", [{{"Hero"}, "HeroAbathur"}, {{"Win/Loss"}, "Win"}, {{"Map"}, "HauntedWoods"}, {{"Tier 1 Choice"}, "AbathurMasteryRegenerativeMicrobes"}, {{"Tier 2 Choice"}, "AbathurSymbioteCarapaceSustainedCarapace"}, {{"Tier 3 Choice"}, "AbathurMasteryNeedlespine"}, {{"Tier 4 Choice"}, "AbathurHeroicAbilityUltimateEvolution"}, {{"Tier 5 Choice"}, "AbathurSymbioteSpikeBurstSomaTransference"}, {{"Tier 6 Choice"}, "AbathurVolatileMutation"}, {{"Tier 7 Choice"}, "AbathurMasteryLocustMaster"}], [{{"PlayerID"}, 1}, {{"Level"}, 24}], }}
+                                break;
+
                             case "TalentChosen": // {StatGameEvent: {"TalentChosen", [{{"PurchaseName"}, "NovaCombatStyleAdvancedCloaking"}], [{{"PlayerID"}, 6}], }}
                                 if (trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[0].dictionary[0].blobText == "PlayerID" &&
                                     trackerEvent.Data.dictionary[1].optionalData != null &&
@@ -161,46 +181,156 @@ namespace Heroes.ReplayParser
                             case "PlayerDeath": break;              // {StatGameEvent: {"PlayerDeath", , [{{"PlayerID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], [{{"PositionX"}, 130}, {{"PositionY"}, 80}]}}
                             case "RegenGlobePickedUp": break;       // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
 
+                            case "EndOfGameRegenMasterStacks":      // {StatGameEvent: {"EndOfGameRegenMasterStacks", [{{"Hero"}, "HeroZeratul"}], [{{"PlayerID"}, 7}, {{"Stack Count"}, 23}], }}
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    UpgradeEventType = UpgradeEventType.RegenMasterStacks,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
+
+                            case "EndOfGameMarksmanStacks":         // {StatGameEvent: {"EndOfGameMarksmanStacks", [{{"Hero"}, "HeroFalstad"}], [{{"PlayerID"}, 4}, {{"Stack Count"}, 400}], }}
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    UpgradeEventType = UpgradeEventType.MarksmanStacks,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
+
                             case "JungleCampCapture":               // {StatGameEvent: {"JungleCampCapture", [{{"CampType"}, "Boss Camp"}], [{{"CampID"}, 1}], [{{"TeamID"}, 1}]}}
                                 if (trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "Boss Camp")
                                 {
-                                    var teamID = trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value;
+                                    var teamID = trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1;
+                                    Player playerKilledBy = null;
 
-                                    // TODO: LOG THIS SOMEWHERE
+                                    var bossUnitsKilled = replay.Units.Where(i =>
+                                        (i.Name == "JungleGraveGolemDefender" || i.Name == "MercHorsemanDefender") &&
+                                        i.PlayerKilledBy != null &&
+                                        i.PlayerKilledBy.Team == teamID &&
+                                        i.TimeSpanDied > trackerEvent.TimeSpan.Add(TimeSpan.FromSeconds(-30)) &&
+                                        i.TimeSpanDied < trackerEvent.TimeSpan.Add(TimeSpan.FromSeconds(30))).ToArray();
+
+                                    if (bossUnitsKilled.Length == 1)
+                                        playerKilledBy = bossUnitsKilled.Single().PlayerKilledBy;
+
+                                    replay.TeamObjectives[teamID].Add(new TeamObjective {
+                                        Player = playerKilledBy,
+                                        TimeSpan = trackerEvent.TimeSpan,
+                                        TeamObjectiveType = TeamObjectiveType.BossCampCaptureWithCampID,
+                                        Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value });
                                 }
+                                    
                                 break;
 
                             case "TownStructureDeath": break;       // {StatGameEvent: {"TownStructureDeath", , [{{"TownID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], }}
                             case "EndOfGameTimeSpentDead": break;   // {StatGameEvent: {"EndOfGameTimeSpentDead", , [{{"PlayerID"}, 2}], [{{"Time"}, 162}]}}
 
                             // Map Objectives
-                            case "Altar Captured": break;           // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
-                            case "Town Captured": break;            // {StatGameEvent: {"Town Captured", , [{{"New Owner"}, 12}], }}
-                            case "Six Town Event Start": break;     // {StatGameEvent: {"Six Town Event Start", , [{{"Owning Team"}, 1}], [{{"Start Time"}, 742}]}}
-                            case "Six Town Event End": break;       // {StatGameEvent: {"Six Town Event End", , [{{"Owning Team"}, 1}], [{{"End Time"}, 747}]}}
 
+                                // Towers of Doom
+                            case "Altar Captured":                  // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.TowersOfDoomAltarCapturedWithTeamTownsOwned,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
+                            case "Town Captured": break;            // {StatGameEvent: {"Town Captured", , [{{"New Owner"}, 12}], }}
+                            case "Six Town Event Start":            // {StatGameEvent: {"Six Town Event Start", , [{{"Owning Team"}, 1}], [{{"Start Time"}, 742}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.TowersOfDoomSixTownEventStartWithEventDurationSeconds,
+                                    Value = (int) (replay.ReplayLength - trackerEvent.TimeSpan).TotalSeconds - 10 });
+                                break;
+                            case "Six Town Event End":              // {StatGameEvent: {"Six Town Event End", , [{{"Owning Team"}, 1}], [{{"End Time"}, 747}]}}
+                                var mostRecentSixTownEventStartTeamObjective = replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value - 1].Where(i => i.TeamObjectiveType == TeamObjectiveType.TowersOfDoomSixTownEventStartWithEventDurationSeconds).OrderByDescending(i => i.TimeSpan).First();
+                                mostRecentSixTownEventStartTeamObjective.Value = (int) (trackerEvent.TimeSpan - mostRecentSixTownEventStartTeamObjective.TimeSpan).TotalSeconds;
+                                break;
+
+                                // Sky Temple
                             case "SkyTempleActivated": break;       // {StatGameEvent: {"SkyTempleActivated", , [{{"Event"}, 1}, {{"TempleID"}, 1}], }}
                             case "SkyTempleCaptured": break;        // {StatGameEvent: {"SkyTempleCaptured", , [{{"Event"}, 1}, {{"TempleID"}, 2}, {{"TeamID"}, 2}], }}
-                            case "SkyTempleShotsFired": break;      // {StatGameEvent: {"SkyTempleShotsFired", , [{{"Event"}, 1}, {{"TempleID"}, 2}, {{"TeamID"}, 2}], [{{"SkyTempleShotsDamage"}, 450}]}}
+                            case "SkyTempleShotsFired":             // {StatGameEvent: {"SkyTempleShotsFired", , [{{"Event"}, 1}, {{"TempleID"}, 2}, {{"TeamID"}, 2}], [{{"SkyTempleShotsDamage"}, 450}]}}
+                                if (trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value == 0) // Not sure why, but sometimes 'TeamID' = 0.  I've seen it 3 times in about ~60 Sky Temple games
+                                    break;
 
-                            case "Immortal Defeated": break;        // {StatGameEvent: {"Immortal Defeated", , [{{"Event"}, 1}, {{"Winning Team"}, 1}, {{"Immortal Fight Duration"}, 62}], [{{"Immortal Power Percent"}, 14}]}}
+                                var recentSkyTempleShotsFiredTeamObjective = replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value - 1].Where(i => i.TeamObjectiveType == TeamObjectiveType.SkyTempleShotsFiredWithSkyTempleShotsDamage && i.TimeSpan > trackerEvent.TimeSpan.Add(TimeSpan.FromSeconds(-130))).SingleOrDefault();
+
+                                if (recentSkyTempleShotsFiredTeamObjective != null)
+                                    recentSkyTempleShotsFiredTeamObjective.Value += (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value;
+                                else
+                                    replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                        TimeSpan = trackerEvent.TimeSpan,
+                                        TeamObjectiveType = TeamObjectiveType.SkyTempleShotsFiredWithSkyTempleShotsDamage,
+                                        Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value });
+                                break;
+
+                                // Battlefield of Eternity
+                            case "Immortal Defeated":               // {StatGameEvent: {"Immortal Defeated", , [{{"Event"}, 1}, {{"Winning Team"}, 1}, {{"Immortal Fight Duration"}, 62}], [{{"Immortal Power Percent"}, 14}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.BattlefieldOfEternityImmortalFightEndWithPowerPercent,
+                                    Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value });
+                                break;
                             case "Boss Duel Started": break;        // {StatGameEvent: {"Boss Duel Started", , [{{"Boss Duel Number"}, 1}], }}
 
-                            case "SoulEatersSpawned": break;        // {StatGameEvent: {"SoulEatersSpawned", , [{{"Event"}, 1}, {{"TeamScore"}, 50}, {{"OpponentScore"}, 5}], [{{"TeamID"}, 2}]}}
+                                // Tomb of the Spider Queen
+                            case "SoulEatersSpawned":               // {StatGameEvent: {"SoulEatersSpawned", , [{{"Event"}, 1}, {{"TeamScore"}, 50}, {{"OpponentScore"}, 5}], [{{"TeamID"}, 2}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.TombOfTheSpiderQueenSoulEatersSpawnedWithTeamScore,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
 
-                            case "TributeCollected": break;         // {StatGameEvent: {"TributeCollected", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
+                                // Cursed Hollow
+                            case "TributeCollected":                // {StatGameEvent: {"TributeCollected", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.CursedHollowTributeCollectedWithTotalTeamTributes,
+                                    Value = replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Count(i => i.TeamObjectiveType == TeamObjectiveType.CursedHollowTributeCollectedWithTotalTeamTributes) + 1 });
+                                break;
                             case "RavenCurseActivated": break;      // {StatGameEvent: {"RavenCurseActivated", , [{{"Event"}, 1}, {{"TeamScore"}, 3}, {{"OpponentScore"}, 2}], [{{"TeamID"}, 2}]}}
 
-                            case "GhostShipCaptured": break;        // {StatGameEvent: {"GhostShipCaptured", , [{{"Event"}, 1}, {{"TeamScore"}, 10}, {{"OpponentScore"}, 6}], [{{"TeamID"}, 2}]}}
+                                // Blackheart's Bay
+                            case "GhostShipCaptured":               // {StatGameEvent: {"GhostShipCaptured", , [{{"Event"}, 1}, {{"TeamScore"}, 10}, {{"OpponentScore"}, 6}], [{{"TeamID"}, 2}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.BlackheartsBayGhostShipCapturedWithCoinCost,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
 
+                                // Garden of Terror - This is populated using Unit data at the top of this function
                             case "GardenTerrorActivated": break;    // {StatGameEvent: {"GardenTerrorActivated", , , [{{"Event"}, 1}, {{"TeamID"}, 2}]}}
 
-                            case "Infernal Shrine Captured": break; // {StatGameEvent: {"Infernal Shrine Captured", , [{{"Event"}, 1}, {{"Winning Team"}, 2}, {{"Winning Score"}, 40}, {{"Losing Score"}, 33}], }}
-                            case "Punisher Killed": break;          // {StatGameEvent: {"Punisher Killed", [{{"Punisher Type"}, "BombardShrine"}], [{{"Event"}, 1}, {{"Owning Team of Punisher"}, 2}, {{"Duration"}, 20}], [{{"Siege Damage Done"}, 726}, {{"Hero Damage Done"}, 0}]}}
+                                // Infernal Shrines
+                            case "Infernal Shrine Captured":        // {StatGameEvent: {"Infernal Shrine Captured", , [{{"Event"}, 1}, {{"Winning Team"}, 2}, {{"Winning Score"}, 40}, {{"Losing Score"}, 33}], }}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.InfernalShrinesInfernalShrineCapturedWithLosingScore,
+                                    Value = (int) trackerEvent.Data.dictionary[2].optionalData.array[3].dictionary[1].vInt.Value });
+                                break;
+                            case "Punisher Killed":                 // {StatGameEvent: {"Punisher Killed", [{{"Punisher Type"}, "BombardShrine"}], [{{"Event"}, 1}, {{"Owning Team of Punisher"}, 2}, {{"Duration"}, 20}], [{{"Siege Damage Done"}, 726}, {{"Hero Damage Done"}, 0}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.InfernalShrinesPunisherKilledWithPunisherType,
+                                    Value = trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "BombardShrine" ? (int) TeamObjectiveInfernalShrinesPunisherType.BombardShrine :
+                                            trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "ArcaneShrine"  ? (int) TeamObjectiveInfernalShrinesPunisherType.ArcaneShrine :
+                                                                                                                                              (int) TeamObjectiveInfernalShrinesPunisherType.FrozenShrine });
 
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.InfernalShrinesPunisherKilledWithSiegeDamageDone,
+                                    Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value });
+
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.InfernalShrinesPunisherKilledWithHeroDamageDone,
+                                    Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
+
+                            // Dragon Shire - This is populated using Unit data at the top of this function
                             case "DragonKnightActivated": break;    // {StatGameEvent: {"DragonKnightActivated", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
 
                             default:
+                                // New Stat Game Event - let's log it until we can identify and properly track it
+                                playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].MiscellaneousUpgradeEventDictionary[trackerEvent.Data.dictionary[0].blobText] = true;
                                 break;
                         }
                         break;
@@ -324,6 +454,9 @@ namespace Heroes.ReplayParser
                         }
                         break;
                 }
+
+            for (var i = 0; i < replay.TeamObjectives.Length; i++)
+                replay.TeamObjectives[i] = replay.TeamObjectives[i].OrderBy(j => j.TimeSpan).ToList();
         }
     }
 }

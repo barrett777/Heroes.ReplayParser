@@ -187,6 +187,8 @@ namespace Heroes.ReplayParser
     public enum UpgradeEventType
     {
         NovaSnipeMasterDamageUpgrade = 1,
-        GallTalentDarkDescentUpgrade = 2
+        GallTalentDarkDescentUpgrade = 2,
+        RegenMasterStacks = 3,
+        MarksmanStacks = 4
     }
 }
