@@ -131,8 +131,10 @@ namespace Heroes.ReplayParser
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[24] };
                             else if (replayBuild < 42958)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[25] };
-                            else
+                            else if (replayBuild < 44256)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[24] };
+                            else
+                                gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[26] };
 
                             for (var i = 0; i < gameEvent.data.array[0].array.Length; i++)
                                 gameEvent.data.array[0].array[i] = new TrackerEventStructure { DataType = 7, unsignedInt = bitReader.Read(1) };
@@ -181,6 +183,10 @@ namespace Heroes.ReplayParser
                                     gameEvent.data.array[2] = new TrackerEventStructure { unsignedInt = bitReader.Read(32) };
                                     break;
                             }
+
+                            // m_vector
+                            if (replayBuild >= 44256 && bitReader.ReadBoolean())
+                                new TrackerEventStructure { array = new[] { new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 } } };
 
                             if (replayBuild >= 33684)
                                 bitReader.Read(32); // m_sequence
