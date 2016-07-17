@@ -5,8 +5,8 @@
 
     public class Replay
     {
-        /// <summary> Gets a list of all chat messages which took place during the game. </summary>
-        public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
+        /// <summary> Gets a list of all messages which took place during the game. </summary>
+        public List<Message> Messages { get; set; } = new List<Message>();
 
         /// <summary> Gets the speed the game was played at. </summary>
         public GameSpeed GameSpeed { get; set; }
