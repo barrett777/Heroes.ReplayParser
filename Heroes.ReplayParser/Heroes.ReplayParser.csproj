@@ -87,7 +87,7 @@
     <Compile Include="BitReader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MpqTool\MpqTool.csproj">
+    <ProjectReference Include="..\MpqTool\MpqTool.csproj">
       <Project>{fa50e172-836b-47bb-8745-60595e4fb12a}</Project>
       <Name>MpqTool</Name>
     </ProjectReference>
