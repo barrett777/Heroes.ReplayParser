@@ -162,7 +162,7 @@
         {
             All = 0,
             Allies = 1,
-            //Observers = ?,
+            Observers = 4,
         }
 
         public enum VitalType
