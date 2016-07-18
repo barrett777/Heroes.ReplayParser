@@ -163,7 +163,7 @@ namespace Heroes.ReplayParser
                 }
 
             // Replay Message Events
-            // ReplayMessageEvents.Parse(replay, GetMpqFile(archive, ReplayMessageEvents.FileName));
+            //ReplayMessageEvents.Parse(replay, GetMpqFile(archive, ReplayMessageEvents.FileName), replay.ClientListByUserID);
 
             // Replay Resumable Events
             // So far it doesn't look like this file has anything we would be interested in
