@@ -11,7 +11,7 @@
         /// <summary> Parses the Replay.Messages.Events file. </summary>
         /// <param name="buffer"> Buffer containing the contents of the replay.messages.events file. </param>
         /// <returns> A list of messages parsed from the buffer. </returns>
-        public static void Parse(Replay replay, byte[] buffer, Player[] clientList)
+        public static void Parse(Replay replay, byte[] buffer)
         {
             if (buffer.Length <= 1)
                 // Chat has been removed from this replay
@@ -27,16 +27,11 @@
                     var message = new Message();
 
                     ticksElapsed += (int)bitReader.Read(6 + (bitReader.Read(2) << 3));
-                    int playerIndex = (int)bitReader.Read(5);
+                    message.Timestamp = new TimeSpan(0, 0, (int) Math.Round(ticksElapsed / 16.0));
 
-                    string playerName = string.Empty;
-                    string characterName = string.Empty;
-
+                    var playerIndex = (int)bitReader.Read(5);
                     if (playerIndex != 16)
-                    {
-                        playerName = clientList[playerIndex].Name;
-                        characterName = clientList[playerIndex].Character;
-                    }
+                        message.MessageSender = replay.ClientListByUserID[playerIndex];
 
                     message.MessageEventType = (MessageEventType)bitReader.Read(4);
                     switch (message.MessageEventType)
@@ -47,11 +42,6 @@
 
                                 chatMessage.MessageTarget = (MessageTarget)bitReader.Read(3); // m_recipient (the target)
                                 chatMessage.Message = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(11)); // m_string
-
-                                chatMessage.Timestamp = new TimeSpan(0, 0, (int)Math.Round(ticksElapsed / 16.0));
-                                chatMessage.PlayerId = playerIndex;
-                                chatMessage.PlayerName = playerName;
-                                chatMessage.CharacterName = characterName;
 
                                 message.ChatMessage = chatMessage;
                                 replay.Messages.Add(message);
@@ -64,12 +54,7 @@
                                 pingMessage.MessageTarget = (MessageTarget)bitReader.Read(3); // m_recipient (the target) 
 
                                 pingMessage.XCoordinate = bitReader.ReadInt32() - (-2147483648); // m_point x
-                                pingMessage.YCoordinate = bitReader.ReadInt32() - (-2147483648); // m_point y      
-
-                                pingMessage.Timestamp = new TimeSpan(0, 0, (int)Math.Round(ticksElapsed / 16.0));
-                                pingMessage.PlayerId = playerIndex;
-                                pingMessage.PlayerName = playerName;
-                                pingMessage.CharacterName = characterName;
+                                pingMessage.YCoordinate = bitReader.ReadInt32() - (-2147483648); // m_point y
 
                                 message.PingMessage = pingMessage;
                                 replay.Messages.Add(message);
@@ -141,11 +126,6 @@
                                         throw new NotImplementedException();
                                 }
 
-                                announceMessage.Timestamp = new TimeSpan(0, 0, (int)Math.Round(ticksElapsed / 16.0));
-                                announceMessage.PlayerId = playerIndex;
-                                announceMessage.PlayerName = playerName;
-                                announceMessage.CharacterName = characterName;
-
                                 message.PlayerAnnounceMessage = announceMessage;
                                 replay.Messages.Add(message);
                                 break;
@@ -208,20 +188,8 @@
 
         public class ChatMessage
         {
-            public int PlayerId { get; set; }
-            public string PlayerName { get; set; }
-            public string CharacterName { get; set; }
             public MessageTarget MessageTarget { get; set; }
             public string Message { get; set; }
-            public TimeSpan Timestamp { get; set; }
-            public override string ToString()
-            {
-                if (!string.IsNullOrEmpty(CharacterName))
-                    return $"({Timestamp}) [{MessageTarget}] {PlayerName} ({CharacterName}): {Message}";
-                else
-                    return $"({Timestamp}) [{MessageTarget}] {PlayerName}: {Message}";
-
-            }
         }
 
         // Ping messages include normal pings (no target), targeted pings (such as Player 1 wants to help Player 2), retreat,
@@ -230,40 +198,17 @@
         // no way to tell which one is which
         public class PingMessage
         {
-            public int PlayerId { get; set; }
-            public string PlayerName { get; set; }
-            public string CharacterName { get; set; }
             public MessageTarget MessageTarget { get; set; }
             public int XCoordinate { get; set; }
             public int YCoordinate { get; set; }
-            public TimeSpan Timestamp { get; set; }
-
-            public override string ToString()
-            {
-                if (!string.IsNullOrEmpty(CharacterName))
-                    return $"({Timestamp}) [{MessageTarget}] {PlayerName} ({CharacterName}) used a ping";
-                else
-                    return $"({Timestamp}) [{MessageTarget}] {PlayerName} used a ping";
-            }
         }
 
         public class PlayerAnnounceMessage
         {
-            public int PlayerId { get; set; }
-            public string PlayerName { get; set; }
-            public string CharacterName { get; set; }
             public AbilityAnnouncment AbilityAnnouncement { get; set; }
             public BehaviorAnnouncment BehaviorAnnouncement { get; set; }
             public VitalAnnouncment VitalAnnouncement { get; set; }
             public AnnouncementType AnnouncementType { get; set; }
-            public TimeSpan Timestamp { get; set; }
-            public override string ToString()
-            {
-                if (!string.IsNullOrEmpty(CharacterName))
-                    return $"({Timestamp}) {PlayerName} ({CharacterName}) announced {AnnouncementType}";
-                else
-                    return $"({Timestamp}) {PlayerName} announced {AnnouncementType}";
-            }
         }
     }
 }
