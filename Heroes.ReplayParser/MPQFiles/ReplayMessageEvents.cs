@@ -13,6 +13,10 @@
         /// <returns> A list of messages parsed from the buffer. </returns>
         public static void Parse(Replay replay, byte[] buffer, Player[] clientList)
         {
+            if (buffer.Length <= 1)
+                // Chat has been removed from this replay
+                return;
+
             var ticksElapsed = 0;
             using (var stream = new MemoryStream(buffer))
             {
