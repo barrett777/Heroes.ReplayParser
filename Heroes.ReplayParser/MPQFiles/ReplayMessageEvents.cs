@@ -183,8 +183,6 @@
             All = 0,
             Allies = 1,
             //Observers = ?,
-
-            // party? private?
         }
 
         public enum VitalType
