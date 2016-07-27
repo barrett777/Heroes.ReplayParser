@@ -266,7 +266,6 @@
                     if (i != replay.ClientListByUserID.Length - 1)
                     {
                         // these similar bytes don't occur for last player?
-                        //bitReader.ReadBytes(31);
                         bitReader.ReadBytes(27);
                     }
                 }
