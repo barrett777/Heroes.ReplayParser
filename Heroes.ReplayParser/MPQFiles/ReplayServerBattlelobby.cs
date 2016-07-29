@@ -258,16 +258,14 @@
                     {
                         // use this to determine who is in a party
                         // those in the same party will have the same exact 8 bytes of data
+                        // the party leader is the first one (in the order of the client list)
                         bitReader.ReadBytes(8);
                     }
 
                     bitReader.ReadString(bitReader.ReadByte()); // battleTag <name>#xxxxx
 
-                    if (i != replay.ClientListByUserID.Length - 1)
-                    {
-                        // these similar bytes don't occur for last player?
-                        bitReader.ReadBytes(27);
-                    }
+                    // these similar bytes don't occur for last player
+                    bitReader.ReadBytes(27);
                 }
 
                 // some more bytes after (at least 700)
