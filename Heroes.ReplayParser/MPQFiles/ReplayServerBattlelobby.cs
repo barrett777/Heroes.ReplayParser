@@ -167,110 +167,127 @@
 
                 // Player info 
                 // ------------------------
-                if (replay.ReplayBuild <= 43259)
+                if (replay.ReplayBuild <= 43259 || replay.ReplayBuild >= 45228)
                 {
+                    // Builds that are not yet supported for detailed parsing
                     GetBattleTags(replay, ref bitReader);
                     return;
                 }
 
-                bitReader.ReadInt32();
-                bitReader.ReadBytes(33);
+                var currentReaderPosition = bitReader.stream.Position;
 
-                ReadByte0x00(ref bitReader);
-                ReadByte0x00(ref bitReader);
-                bitReader.ReadByte();  // why 0x19?
-
-                for (int i = 0; i < replay.ClientListByUserID.Length; i++)
+                try
                 {
-                    if (replay.ClientListByUserID[i] == null)
-                        break;
+                    bitReader.ReadInt32();
+                    bitReader.ReadBytes(33);
 
-                    string TId;
-                    string TId_2;
+                    ReadByte0x00(ref bitReader);
+                    ReadByte0x00(ref bitReader);
+                    bitReader.ReadByte();  // why 0x19?
 
-                    // this first one is weird, nothing to indicate the length of the string
-                    if (i == 0)
+                    for (int i = 0; i < replay.ClientListByUserID.Length; i++)
                     {
-                        var offset = bitReader.ReadByte();
-                        bitReader.ReadString(2); // T:
-                        TId = bitReader.ReadString(12 + offset);
+                        if (replay.ClientListByUserID[i] == null)
+                            break;
 
-                        //$"T:{TId}";
+                        string TId;
+                        string TId_2;
 
-                        bitReader.ReadBytes(6);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        bitReader.Read(6);
+                        // this first one is weird, nothing to indicate the length of the string
+                        if (i == 0)
+                        {
+                            var offset = bitReader.ReadByte();
+                            bitReader.ReadString(2); // T:
+                            TId = bitReader.ReadString(12 + offset);
 
-                        // get T: again
-                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+                            //$"T:{TId}";
 
-                        if (TId != TId_2)
-                            throw new Exception("TID dup not equal");
+                            bitReader.ReadBytes(6);
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            bitReader.Read(6);
 
-                        //$"T:{TId}";
+                            // get T: again
+                            TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+
+                            if (TId != TId_2)
+                                throw new Exception("TID dup not equal");
+
+                            //$"T:{TId}";
+                        }
+                        else
+                        {
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            bitReader.Read(6);
+
+                            // get XXXXXXXX#YYY
+                            TId = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+
+                            bitReader.ReadBytes(6);
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            ReadByte0x00(ref bitReader);
+                            bitReader.Read(6);
+
+                            // get T: again
+                            TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+
+                            if (TId != TId_2)
+                                throw new Exception("TID dup not equal");
+
+                            //$"T:{TId}";
+                        }
+
+                        // next 31 bytes
+                        bitReader.ReadBytes(4); // same for all players
+                        bitReader.ReadByte();
+                        bitReader.ReadBytes(8);  // same for all players
+                        bitReader.ReadBytes(4);
+
+                        bitReader.ReadBytes(14); // same for all players
+
+                        if (replay.ReplayBuild >= 44468)
+                            bitReader.ReadBytes(36);
+                        else
+                            bitReader.ReadBytes(35);
+
+                        bitReader.Read(4);
+                        bitReader.Read(1);
+                        bool party = bitReader.ReadBoolean(); // is in party? seems right
+                        bitReader.Read(2); // ???
+
+                        if (party)
+                        {
+                            // use this to determine who is in a party
+                            // those in the same party will have the same exact 8 bytes of data
+                            // the party leader is the first one (in the order of the client list)
+                            bitReader.ReadBytes(8);
+                        }
+
+                        var battleTag = bitReader.ReadString(bitReader.ReadByte()).Split('#'); // battleTag <name>#xxxxx
+
+                        if (battleTag.Length != 2 || battleTag[0] != replay.ClientListByUserID[i].Name)
+                            throw new Exception("Couldn't find BattleTag");
+
+                        replay.ClientListByUserID[i].BattleTag = int.Parse(battleTag[1]);
+
+                        // these similar bytes don't occur for last player
+                        bitReader.ReadBytes(27);
                     }
-                    else
-                    {
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        bitReader.Read(6);
 
-                        // get XXXXXXXX#YYY
-                        TId = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
-
-                        bitReader.ReadBytes(6);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        bitReader.Read(6);
-
-                        // get T: again
-                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
-
-                        if (TId != TId_2)
-                            throw new Exception("TID dup not equal");
-
-                        //$"T:{TId}";
-                    }
-
-                    // next 31 bytes
-                    bitReader.ReadBytes(4); // same for all players
-                    bitReader.ReadByte();
-                    bitReader.ReadBytes(8);  // same for all players
-                    bitReader.ReadBytes(4);
-
-                    bitReader.ReadBytes(14); // same for all players
-
-                    if (replay.ReplayBuild >= 44468)
-                        bitReader.ReadBytes(36);
-                    else
-                        bitReader.ReadBytes(35);
-
-                    bitReader.Read(4);
-                    bitReader.Read(1);
-                    bool party = bitReader.ReadBoolean(); // is in party? seems right
-                    bitReader.Read(2); // ???
-
-                    if (party)
-                    {
-                        // use this to determine who is in a party
-                        // those in the same party will have the same exact 8 bytes of data
-                        // the party leader is the first one (in the order of the client list)
-                        bitReader.ReadBytes(8);
-                    }
-
-                    bitReader.ReadString(bitReader.ReadByte()); // battleTag <name>#xxxxx
-
-                    // these similar bytes don't occur for last player
-                    bitReader.ReadBytes(27);
+                    // some more bytes after (at least 700)
+                    // theres some HeroICONs and other repetitive stuff
+                    // --------------------------------
                 }
-
-                // some more bytes after (at least 700)
-                // theres some HeroICONs and other repetitive stuff
-                // --------------------------------
+                catch
+                {
+                    // Make sure we at least parse BattleTag if the above code fails in the future
+                    bitReader.stream.Position = currentReaderPosition;
+                    GetBattleTags(replay, ref bitReader);
+                }
             }
         }
 
