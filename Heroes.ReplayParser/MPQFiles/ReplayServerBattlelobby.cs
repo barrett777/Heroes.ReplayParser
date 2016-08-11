@@ -167,7 +167,7 @@
 
                 // Player info 
                 // ------------------------
-                if (replay.ReplayBuild <= 43259 || replay.ReplayBuild >= 45228)
+                if (replay.ReplayBuild <= 43259)
                 {
                     // Builds that are not yet supported for detailed parsing
                     GetBattleTags(replay, ref bitReader);
@@ -249,15 +249,25 @@
 
                         bitReader.ReadBytes(14); // same for all players
 
-                        if (replay.ReplayBuild >= 44468)
+                        if (replay.ReplayBuild >= 45228)
+                            bitReader.ReadBytes(37);
+                        else if (replay.ReplayBuild >= 44468)
                             bitReader.ReadBytes(36);
                         else
                             bitReader.ReadBytes(35);
 
-                        bitReader.Read(4);
-                        bitReader.Read(1);
-                        bool party = bitReader.ReadBoolean(); // is in party? seems right
-                        bitReader.Read(2); // ???
+                        bool party = false;
+                        if (replay.ReplayBuild >= 45228)
+                        {
+                            bitReader.Read(3);
+                            party = bitReader.ReadBoolean();
+                        }
+                        else
+                        {
+                            bitReader.Read(4);
+                            bitReader.Read(1);
+                            party = bitReader.ReadBoolean();
+                        }
 
                         if (party)
                         {
@@ -267,7 +277,8 @@
                             bitReader.ReadBytes(8);
                         }
 
-                        var battleTag = bitReader.ReadString(bitReader.ReadByte()).Split('#'); // battleTag <name>#xxxxx
+                        bitReader.Read(1);
+                        var battleTag = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(7)).Split('#'); // battleTag <name>#xxxxx
 
                         if (battleTag.Length != 2 || battleTag[0] != replay.ClientListByUserID[i].Name)
                             throw new Exception("Couldn't find BattleTag");
