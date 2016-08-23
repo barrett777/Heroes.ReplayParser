@@ -5,6 +5,8 @@
     using System;
     using System.Text;
     using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+    using System.Linq;
 
     /// <summary> Parses the replay.server.battlelobby file in the replay file. </summary>
     public class ReplayServerBattlelobby
@@ -366,6 +368,67 @@
         {
             if (bitReader.ReadByte() != 0)
                 throw new Exception("Not 0x00");
+        }
+    }
+
+    public static class StandaloneBattleLobbyParser
+    {
+        public static Replay Parse(byte[] data)
+        {
+            var stringData = Encoding.UTF8.GetString(data);
+
+            var replay = new Replay();
+
+            // Find player region using Regex
+            var playerBattleNetRegionId = 99;
+            switch (Regex.Match(stringData, @"s2mh..(US|EU|KR|CN|XX)").Value.Substring(6))
+            {
+                case "US":
+                    playerBattleNetRegionId = 1;
+                    break;
+                case "EU":
+                    playerBattleNetRegionId = 2;
+                    break;
+                case "KR":
+                    playerBattleNetRegionId = 3;
+                    break;
+                case "CN":
+                    playerBattleNetRegionId = 5;
+                    break;
+                case "XX":
+                default:
+                    break;
+            }
+
+            // Find player BattleTags using Regex
+            replay.Players = Regex.Matches(stringData, @"(\p{L}|\d){3,24}#\d{4,10}[zØ]?").Cast<Match>().Select(i => i.Value.Split('#')).Select(i => new Player {
+                Name = i[0],
+                BattleTag = int.Parse(i[1].Last() == 'z' || i[1].Last() == 'Ø' ? i[1].Substring(0, i[1].Length - 2) : i[1]),
+                BattleNetRegionId = playerBattleNetRegionId
+            }).ToArray();
+
+            // For all game modes other than Custom, players should be ordered by team in the lobby
+            // This may be true for Custom games as well; more testing needed
+            for (var i = 0; i < replay.Players.Length; i++)
+                replay.Players[i].Team = i >= 5 ? 1 : 0;
+
+            return replay;
+        }
+
+        public static string Base64EncodeStandaloneBattlelobby(Heroes.ReplayParser.Replay replay)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join(",", replay.Players.Select(i => i.BattleNetRegionId + "#" + i.Name + "#" + i.BattleTag + "#" + i.Team))));
+        }
+
+        public static Replay Base64DecodeStandaloneBattlelobby(string base64EncodedData)
+        {
+            return new Replay {
+                Players = Encoding.UTF8.GetString(Convert.FromBase64String(base64EncodedData)).Split(',').Select(i => i.Split('#')).Select(i => new Player {
+                    Name = i[1],
+                    BattleTag = int.Parse(i[2]),
+                    BattleNetRegionId = int.Parse(i[0]),
+                    Team = int.Parse(i[3])
+                }).ToArray() };
         }
     }
 }
