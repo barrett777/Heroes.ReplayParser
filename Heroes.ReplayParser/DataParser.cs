@@ -25,6 +25,20 @@ namespace Heroes.ReplayParser
             PTRRegion = 15
         }
 
+        public static readonly Dictionary<string, Tuple<double, double, double, double>> MapOffsets = new Dictionary<string, Tuple<double, double, double, double>>
+        {
+            { "Garden of Terror", new Tuple<double, double, double, double>(-2.5, 21.5, 1.05, 0.95) },
+            { "Cursed Hollow", new Tuple<double, double, double, double>(6.0, 35.0, 0.99, 0.906) },
+            { "Dragon Shire", new Tuple<double, double, double, double>(0.0, 32.0, 1.035, 0.941) },
+            { "Blackheart's Bay", new Tuple<double, double, double, double>(-3.0, 12.0, 1.03, 0.935) },
+            { "Sky Temple", new Tuple<double, double, double, double>(-0.25, 22.5, 1.04, 0.942) },
+            { "Haunted Mines", new Tuple<double, double, double, double>(-3.0, 6.0, 1.027, 0.930) },
+            { "Tomb of the Spider Queen", new Tuple<double, double, double, double>(-4.5, 28.0, 1.075, 0.973) },
+            { "Infernal Shrines", new Tuple<double, double, double, double>(6.5, 41.0, 1.0, 0.92) },
+            { "Towers of Doom", new Tuple<double, double, double, double>(4.0, 42.0, 1.03, 0.925) },
+            { "Battlefield of Eternity", new Tuple<double, double, double, double>(-5.0, 33.0, 1.09, 0.96) }
+        };
+
         public static Tuple<ReplayParseResult, Replay> ParseReplay(byte[] bytes, bool ignoreErrors = false, bool allowPTRRegion = false)
         {
             try
