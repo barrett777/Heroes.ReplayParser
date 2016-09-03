@@ -95,9 +95,6 @@
                                             ability.AbilityIndex = (int)bitReader.Read(5); // m_abilCmdIndex
                                             ability.ButtonLink = bitReader.ReadInt16(); // m_buttonLink
 
-                                            bitReader.ReadInt32(); // m_otherUnitTag
-                                            bitReader.ReadInt32(); // m_unitTag
-
                                             announceMessage.AbilityAnnouncement = ability;
                                             break;
                                         }
@@ -106,9 +103,6 @@
                                         {
                                             bitReader.ReadInt16(); // m_behaviorLink
                                             bitReader.ReadInt16(); // m_buttonLink
-
-                                            bitReader.ReadInt32(); // m_otherUnitTag
-                                            bitReader.ReadInt32(); // m_unitTag
                                             break;
                                         }
                                     case AnnouncementType.Vitals:
@@ -116,15 +110,19 @@
                                             VitalAnnouncment vital = new VitalAnnouncment();
                                             vital.VitalType = (VitalType)(bitReader.ReadInt16() - (-32768));
 
-                                            bitReader.ReadInt32(); // m_otherUnitTag
-                                            bitReader.ReadInt32(); // m_unitTag
-
                                             announceMessage.VitalAnnouncement = vital;
                                             break;
                                         }
                                     default:
                                         throw new NotImplementedException();
                                 }
+
+                                if (replay.ReplayBuild > 45635)
+                                    // m_announceLink
+                                    bitReader.ReadInt16();
+
+                                bitReader.ReadInt32(); // m_otherUnitTag
+                                bitReader.ReadInt32(); // m_unitTag
 
                                 message.PlayerAnnounceMessage = announceMessage;
                                 replay.Messages.Add(message);
