@@ -258,17 +258,11 @@
 
                     bool party = false;
                     if (replay.ReplayBuild >= 45228)
-                    {
                         bitReader.Read(3);
-                        party = bitReader.ReadBoolean();
-                    }
                     else
-                    {
-                        bitReader.Read(4);
-                        bitReader.Read(1);
-                        party = bitReader.ReadBoolean();
-                    }
+                        bitReader.Read(5);
 
+                    party = bitReader.ReadBoolean();
                     if (party)
                     {
                         // use this to determine who is in a party
