@@ -156,7 +156,7 @@
                 {
                     for (int j = 0; j < 16; j++) // 16 is total player slots
                     {
-                        ReadByte0x00(ref bitReader);
+                        ReadByte0x00(bitReader);
                         var num = bitReader.Read(8);
                         if (num == 1)
                         { } // true;                          
@@ -172,7 +172,7 @@
                 if (replay.ReplayBuild <= 43259)
                 {
                     // Builds that are not yet supported for detailed parsing
-                    GetBattleTags(replay, ref bitReader);
+                    GetBattleTags(replay, bitReader);
                     return;
                 }
 
@@ -181,8 +181,8 @@
                 bitReader.ReadInt32();
                 bitReader.ReadBytes(33);
 
-                ReadByte0x00(ref bitReader);
-                ReadByte0x00(ref bitReader);
+                ReadByte0x00(bitReader);
+                ReadByte0x00(bitReader);
                 bitReader.ReadByte();  // why 0x19?
 
                 for (int i = 0; i < replay.ClientListByUserID.Length; i++)
@@ -203,13 +203,13 @@
                         //$"T:{TId}";
 
                         bitReader.ReadBytes(6);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
                         bitReader.Read(6);
 
                         // get T: again
-                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
 
                         if (TId != TId_2)
                             throw new Exception("TID dup not equal");
@@ -218,22 +218,22 @@
                     }
                     else
                     {
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
                         bitReader.Read(6);
 
                         // get XXXXXXXX#YYY
-                        TId = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+                        TId = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
 
                         bitReader.ReadBytes(6);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
-                        ReadByte0x00(ref bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
+                        ReadByte0x00(bitReader);
                         bitReader.Read(6);
 
                         // get T: again
-                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(ref bitReader, 8));
+                        TId_2 = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
 
                         if (TId != TId_2)
                             throw new Exception("TID dup not equal");
@@ -301,11 +301,11 @@
             {
                 var bitReader = new BitReader(stream);
 
-                GetBattleTags(replay, ref bitReader);
+                GetBattleTags(replay, bitReader);
             }
         }
 
-        private static void GetBattleTags(Replay replay, ref BitReader reader)
+        private static void GetBattleTags(Replay replay, BitReader reader)
         {
             // Search for the BattleTag for each player
             var battleTagDigits = new List<char>();
@@ -356,7 +356,7 @@
             }
         }
 
-        public static byte[] ReadSpecialBlob(ref BitReader bitReader, int numBitsForLength)
+        public static byte[] ReadSpecialBlob(BitReader bitReader, int numBitsForLength)
         {
             var stringLength = bitReader.Read(numBitsForLength);
             bitReader.AlignToByte();
@@ -364,7 +364,7 @@
             return bitReader.ReadBytes((int)stringLength);
         }
 
-        private static void ReadByte0x00(ref BitReader bitReader)
+        private static void ReadByte0x00(BitReader bitReader)
         {
             if (bitReader.ReadByte() != 0)
                 throw new Exception("Not 0x00");
