@@ -46,17 +46,17 @@
 
                 // seems to be in all replays
                 bitReader.ReadInt16();
-                bitReader.ReadBytes(684);
+                bitReader.stream.Position = bitReader.stream.Position + 684;
 
                 // seems to be in all replays
                 bitReader.ReadInt16();
-                bitReader.ReadBytes(1944);
+                bitReader.stream.Position = bitReader.stream.Position + 1944;
 
                 if (bitReader.ReadString(8) != "HumnComp")
                     throw new Exception("Not HumnComp");
 
                 // seems to be in all replays
-                bitReader.ReadBytes(19859);
+                bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + 19859;
 
                 // next section is language libraries?
                 // ---------------------------------------
