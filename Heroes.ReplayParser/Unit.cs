@@ -639,10 +639,10 @@ namespace Heroes.ReplayParser
             // Add 'estimated' minion positions based on their fixed pathing
             // Without these positions, minions can appear to travel through walls straight across the map
             // These estimated positions are actually quite accurate, as minions always follow a path connecting each fort/keep in their lane
-            var numberOfStructureTiers = replay.Units.Where(i => i.Name.StartsWith("TownTownHall")).Select(i => i.Name).Distinct().Count();
-            var uniqueTierName = replay.Units.First(i => i.Name.StartsWith("TownTownHall")).Name;
-            var numberOfLanes = replay.Units.Count(i => i.Name == uniqueTierName && i.Team == 0);
-            var minionWayPoints = replay.Units.Where(i => i.Name.StartsWith("TownTownHall")).Select(j => j.PointBorn).OrderBy(j => j.X).Skip(numberOfLanes).OrderByDescending(j => j.X).Skip(numberOfLanes).OrderBy(j => j.Y);
+            var townHallUnits = replay.Units.Where(i => i.Name.StartsWith("TownTownHall")).ToArray();
+            var numberOfStructureTiers = townHallUnits.Select(i => i.Name).Distinct().Count();
+            var numberOfLanes = replay.Units.Count(i => i.Name == townHallUnits[0].Name && i.Team == 0);
+            var minionWayPoints = townHallUnits.Select(j => j.PointBorn).OrderBy(j => j.X).Skip(numberOfLanes).OrderByDescending(j => j.X).Skip(numberOfLanes).OrderBy(j => j.Y);
             for (var team = 0; team <= 1; team++)
             {
                 // Gather all minion units for this team
