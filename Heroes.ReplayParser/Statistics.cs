@@ -344,6 +344,12 @@ namespace Heroes.ReplayParser
 
                             switch (scoreResultEventKey)
                             {
+                                case "Level":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Level = scoreResultEventValueArray[i].Value;
+                                    break;
+
                                 case "Takedowns":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
@@ -445,10 +451,175 @@ namespace Heroes.ReplayParser
                                             replay.ClientListByWorkingSetSlotID[i].ScoreResult.MetaExperience = scoreResultEventValueArray[i].Value;
                                     break;
 
-                                default:
+                                case "HighestKillStreak":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.HighestKillStreak = scoreResultEventValueArray[i].Value;
+                                    break;
+
+                                case "EndOfMatchAwardMVPBoolean":
+                                case "EndOfMatchAwardHighestKillStreakBoolean":
+                                case "EndOfMatchAwardMostXPContributionBoolean":
+                                case "EndOfMatchAwardMostHeroDamageDoneBoolean":
+                                case "EndOfMatchAwardMostSiegeDamageDoneBoolean":
+                                case "EndOfMatchAwardMostDamageTakenBoolean":
+                                case "EndOfMatchAwardMostHealingBoolean":
+                                case "EndOfMatchAwardMostStunsBoolean":
+                                case "EndOfMatchAwardMostMercCampsCapturedBoolean":
+                                case "EndOfMatchAwardMapSpecificBoolean":
+
+                                case "EndOfMatchAwardMostDragonShrinesCapturedBoolean":
+                                case "EndOfMatchAwardMostCurseDamageDoneBoolean":
+                                case "EndOfMatchAwardMostCoinsPaidBoolean":
+                                case "EndOfMatchAwardMostImmortalDamageBoolean":
+                                case "EndOfMatchAwardMostDamageDoneToZergBoolean":
+                                case "EndOfMatchAwardMostDamageToPlantsBoolean":
+                                case "EndOfMatchAwardMostDamageToMinionsBoolean":
+                                case "EndOfMatchAwardMostTimeInTempleBoolean":
+                                case "EndOfMatchAwardMostGemsTurnedInBoolean":
+                                case "EndOfMatchAwardMostAltarDamageDone":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value == 1)
+                                            switch (scoreResultEventKey)
+                                            {
+                                                case "EndOfMatchAwardMVPBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MVP);
+                                                    break;
+                                                case "EndOfMatchAwardHighestKillStreakBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.HighestKillStreak);
+                                                    break;
+                                                case "EndOfMatchAwardMostXPContributionBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostXPContribution);
+                                                    break;
+                                                case "EndOfMatchAwardMostHeroDamageDoneBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostHeroDamageDone);
+                                                    break;
+                                                case "EndOfMatchAwardMostSiegeDamageDoneBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostSiegeDamageDone);
+                                                    break;
+                                                case "EndOfMatchAwardMostDamageTakenBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDamageTaken);
+                                                    break;
+                                                case "EndOfMatchAwardMostHealingBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostHealing);
+                                                    break;
+                                                case "EndOfMatchAwardMostStunsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostStuns);
+                                                    break;
+                                                case "EndOfMatchAwardMostMercCampsCapturedBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostMercCampsCaptured);
+                                                    break;
+                                                case "EndOfMatchAwardMapSpecificBoolean":
+                                                    // Instead of tracking this generic one, just check if the player has one of the other map-specific Match Awards above 1000
+                                                    break;
+                                                case "EndOfMatchAwardMostDragonShrinesCapturedBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDragonShrinesCaptured);
+                                                    break;
+                                                case "EndOfMatchAwardMostCurseDamageDoneBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostCurseDamageDone);
+                                                    break;
+                                                case "EndOfMatchAwardMostCoinsPaidBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostCoinsPaid);
+                                                    break;
+                                                case "EndOfMatchAwardMostImmortalDamageBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostImmortalDamage);
+                                                    break;
+                                                case "EndOfMatchAwardMostDamageDoneToZergBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDamageDoneToZerg);
+                                                    break;
+                                                case "EndOfMatchAwardMostDamageToPlantsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDamageToPlants);
+                                                    break;
+                                                case "EndOfMatchAwardMostDamageToMinionsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDamageToMinions);
+                                                    break;
+                                                case "EndOfMatchAwardMostTimeInTempleBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTimeInTemple);
+                                                    break;
+                                                case "EndOfMatchAwardMostGemsTurnedInBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostGemsTurnedIn);
+                                                    break;
+                                                case "EndOfMatchAwardMostAltarDamageDone":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostAltarDamage);
+                                                    break;
+                                            }
+                                    break;
+
+                                // Misc Events
+                                case "GameScore": // 0 for all players (Last checked 9/7/2016)
+                                case "TeamTakedowns":
+                                case "Role":
+
+                                // Map Objectives
+                                case "DamageDoneToZerg":
+                                case "DamageDoneToShrineMinions":
+                                case "DragonNumberOfDragonCaptures":
+                                case "DragonShrinesCaptured":
+                                case "TimeInTemple":
+                                case "GemsTurnedIn":
+                                case "AltarDamageDone":
+                                case "CurseDamageDone":
+                                case "GardensPlantDamage":
+                                case "DamageDoneToImmortal":
+                                case "RavenTributesCollected":
+                                case "GardensSeedsCollected":
+                                case "BlackheartDoubloonsCollected":
+                                case "BlackheartDoubloonsTurnedIn":
+
+                                // Special Events
+                                case "LunarNewYearEventCompleted":
+                                case "KilledTreasureGoblin":
+                                case "StarcraftDailyEventCompleted":
+                                case "StarcraftPiecesCollected":
+
+                                // Talent Selections
+                                case "Tier1Talent":
+                                case "Tier2Talent":
+                                case "Tier3Talent":
+                                case "Tier4Talent":
+                                case "Tier5Talent":
+                                case "Tier6Talent":
+                                case "Tier7Talent":
+
+                                // Franchise Booleans
+                                case "TeamWinsDiablo":
+                                case "TeamWinsStarCraft":
+                                case "TeamWinsWarcraft":
+                                case "WinsStarCraft":
+                                case "WinsDiablo":
+                                case "WinsWarcraft":
+                                case "PlaysStarCraft":
+                                case "PlaysDiablo":
+                                case "PlaysWarCraft":
+
+                                // Gender Booleans
+                                case "TeamWinsFemale":
+                                case "TeamWinsMale":
+                                case "WinsMale":
+                                case "WinsFemale":
+                                case "PlaysMale":
+                                case "PlaysFemale":
+
+                                // Role Booleans
+                                case "WinsWarrior":
+                                case "WinsAssassin":
+                                case "WinsSupport":
+                                case "WinsSpecialist":
+                                case "PlaysWarrior":
+                                case "PlaysAssassin":
+                                case "PlaysSupport":
+                                case "PlaysSpecialist":
+
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
                                             replay.ClientListByWorkingSetSlotID[i].MiscellaneousScoreResultEventDictionary[scoreResultEventKey] = scoreResultEventValueArray[i].Value;
+                                    break;
+
+                                default:
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            // New score result event
+                                            replay.ClientListByWorkingSetSlotID[i].MiscellaneousUpgradeEventDictionary[scoreResultEventKey] = true;
                                     break;
                             }
                         }

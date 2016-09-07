@@ -123,10 +123,13 @@ namespace Heroes.ReplayParser
 
     public class ScoreResult
     {
+        public int Level { get; set; } = 0;
+
         public int Takedowns { get; set; } = 0;
         public int SoloKills { get; set; } = 0;
         public int Assists { get; set; } = 0;
         public int Deaths { get; set; } = 0;
+        public int HighestKillStreak { get; set; } = 0;
 
         public int HeroDamage { get; set; } = 0;
         public int SiegeDamage { get; set; } = 0;
@@ -151,6 +154,8 @@ namespace Heroes.ReplayParser
         public int WatchTowerCaptures { get; set; } = 0;
 
         public int MetaExperience { get; set; } = 0; // Exp added to the player's Account and Hero level after the match
+
+        public List<MatchAwardType> MatchAwards { get; set; } = new List<MatchAwardType>();
     }
 
     public class Talent
@@ -190,5 +195,35 @@ namespace Heroes.ReplayParser
         GallTalentDarkDescentUpgrade = 2,
         RegenMasterStacks = 3,
         MarksmanStacks = 4
+    }
+
+    public enum MatchAwardType
+    {
+        MVP = 1,
+
+        HighestKillStreak = 2,
+        MostXPContribution = 3,
+        MostHeroDamageDone = 4,
+        MostSiegeDamageDone = 5,
+        MostDamageTaken = 6,
+        MostHealing = 7,
+        MostStuns = 8,
+        MostMercCampsCaptured = 9,
+
+        // MapSpecific = 10 - Instead of tracking this generic one, just check if the player has one of the other map-specific Match Awards above 1000
+
+        MostImmortalDamage = 1001,
+        MostCoinsPaid = 1002,
+        MostCurseDamageDone = 1003,
+        MostDragonShrinesCaptured = 1004,
+        MostDamageToPlants = 1005,
+        // Haunted Mines = 1006 - No Map award
+        MostDamageToMinions = 1007, // TODO: VERIFY THIS IS TALKING ABOUT INFERNAL SHRINES!!
+        MostTimeInTemple = 1008,
+        MostGemsTurnedIn = 1009,
+        MostAltarDamage = 1010,
+        // Lost Cavern = 1011 - No map award
+        MostDamageDoneToZerg = 1012,
+        // Warhead Junction = 1013 - TODO: Check for map award when this map is in PTR or released
     }
 }
