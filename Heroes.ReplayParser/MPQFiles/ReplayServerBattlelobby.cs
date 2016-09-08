@@ -249,7 +249,9 @@
 
                     bitReader.ReadBytes(14); // same for all players
 
-                    if (replay.ReplayBuild >= 45228)
+                    if (replay.ReplayBuild >= 45889)
+                        bitReader.ReadBytes(38);
+                    else if (replay.ReplayBuild >= 45228)
                         bitReader.ReadBytes(37);
                     else if (replay.ReplayBuild >= 44468)
                         bitReader.ReadBytes(36);
@@ -257,7 +259,9 @@
                         bitReader.ReadBytes(35);
 
                     bool party = false;
-                    if (replay.ReplayBuild >= 45228)
+                    if (replay.ReplayBuild >= 45889)
+                        bitReader.Read(2);
+                    else if (replay.ReplayBuild >= 45228)
                         bitReader.Read(3);
                     else
                         bitReader.Read(5);
