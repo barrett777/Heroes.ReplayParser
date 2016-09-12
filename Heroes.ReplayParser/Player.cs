@@ -217,8 +217,8 @@ namespace Heroes.ReplayParser
         MostCurseDamageDone = 1003,
         MostDragonShrinesCaptured = 1004,
         MostDamageToPlants = 1005,
-        // Haunted Mines = 1006 - No Map award
-        MostDamageToMinions = 1007, // TODO: VERIFY THIS IS TALKING ABOUT INFERNAL SHRINES!!
+        // Haunted Mines = 1006 - No map award
+        MostDamageToMinions = 1007,
         MostTimeInTemple = 1008,
         MostGemsTurnedIn = 1009,
         MostAltarDamage = 1010,

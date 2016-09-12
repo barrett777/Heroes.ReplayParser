@@ -565,6 +565,7 @@ namespace Heroes.ReplayParser
                                 case "GardensSeedsCollected":
                                 case "BlackheartDoubloonsCollected":
                                 case "BlackheartDoubloonsTurnedIn":
+                                case "MinesSkullsCollected":
 
                                 // Special Events
                                 case "LunarNewYearEventCompleted":
