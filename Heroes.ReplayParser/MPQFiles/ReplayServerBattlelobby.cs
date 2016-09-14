@@ -22,6 +22,12 @@
             {
                 var bitReader = new BitReader(stream);
 
+                if (replay.ReplayBuild < 38793)
+                {
+                    GetBattleTags(replay, bitReader);
+                    return;
+                }
+
                 int s2mArrayLength = bitReader.ReadByte();
                 int stringLength = bitReader.ReadByte();
 
