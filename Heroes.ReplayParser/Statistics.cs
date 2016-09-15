@@ -627,6 +627,11 @@ namespace Heroes.ReplayParser
                         break;
                 }
 
+            foreach (var player in replay.Players)
+                // Sometimes awards are duplicated, which is probably related to this: https://github.com/Blizzard/heroprotocol/issues/25
+                // We can just manually remove duplicates
+                player.ScoreResult.MatchAwards = player.ScoreResult.MatchAwards.Distinct().OrderBy(i => i).ToList();
+
             for (var i = 0; i < replay.TeamObjectives.Length; i++)
                 replay.TeamObjectives[i] = replay.TeamObjectives[i].OrderBy(j => j.TimeSpan).ToList();
         }
