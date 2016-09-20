@@ -51,6 +51,14 @@ namespace Heroes.ReplayParser
                                 // Also not sure what this is
                                 break;
 
+                            case "IsOrderPlayer":
+                            case "IsChaosPlayer":
+                                // TODO: FIGURE OUT WHAT THIS IS
+                                // This shows up on 'Warhead Junction' replays from the 9/19/2016 PTR
+                                // I've only been able to look at a few replays, but so far, players 1-5 are 'Order', and 6-10 are 'Chaos'
+                                // Perhaps at a time, the map was intended to be split like the Diablo maps?
+                                break;
+
                             case "GatesAreOpen":
                             case "MinionsAreSpawning":
                             case "GallTalentNetherCallsUpgrade":
@@ -478,6 +486,7 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardMostTimeInTempleBoolean":
                                 case "EndOfMatchAwardMostGemsTurnedInBoolean":
                                 case "EndOfMatchAwardMostAltarDamageDone":
+                                case "EndOfMatchAwardMostNukeDamageDoneBoolean":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value == 1)
                                             switch (scoreResultEventKey)
@@ -540,6 +549,9 @@ namespace Heroes.ReplayParser
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostGemsTurnedIn);
                                                     break;
                                                 case "EndOfMatchAwardMostAltarDamageDone":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostAltarDamage);
+                                                    break;
+                                                case "EndOfMatchAwardMostNukeDamageDoneBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostAltarDamage);
                                                     break;
                                             }
