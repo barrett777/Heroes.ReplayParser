@@ -552,7 +552,7 @@ namespace Heroes.ReplayParser
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostAltarDamage);
                                                     break;
                                                 case "EndOfMatchAwardMostNukeDamageDoneBoolean":
-                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostAltarDamage);
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostNukeDamageDone);
                                                     break;
                                             }
                                     break;
