@@ -122,9 +122,11 @@
         TombOfTheSpiderQueenSoulEatersSpawnedWithTeamScore = 100901,
 
         TowersOfDoomAltarCapturedWithTeamTownsOwned = 101001,
-        TowersOfDoomSixTownEventStartWithEventDurationSeconds = 101002
+        TowersOfDoomSixTownEventStartWithEventDurationSeconds = 101002,
 
         // LostCavern = 1011,
+
+        BraxisHoldoutZergRushWithLosingZergStrength = 101201
     }
 
     public enum TeamObjectiveInfernalShrinesPunisherType

@@ -17,12 +17,14 @@ namespace Heroes.ReplayParser
                 replay.TeamPeriodicXPBreakdown[i] = new List<PeriodicXPBreakdown>();
             }
 
+            // First Catapult Spawn
             foreach (var firstCatapultPerTeam in replay.Units.Where(i => i.Name == "CatapultMinion" && i.Team.HasValue).GroupBy(i => i.Team.Value).Select(i => i.OrderBy(j => j.TimeSpanBorn).First()))
                 replay.TeamObjectives[firstCatapultPerTeam.Team.Value].Add(new TeamObjective {
                     TimeSpan = firstCatapultPerTeam.TimeSpanBorn,
                     TeamObjectiveType = TeamObjectiveType.FirstCatapultSpawn,
                     Value = -1 });
 
+            // Dragon and Plant Horror
             foreach (var vehicleUnit in replay.Units.Where(i => (i.Name == "VehiclePlantHorror" || i.Name == "VehicleDragon") && (i.PlayerControlledBy != null || i.OwnerChangeEvents.Any(j => j.PlayerNewOwner != null))))
             {
                 var ownerChangeEvent = vehicleUnit.OwnerChangeEvents.SingleOrDefault(i => i.PlayerNewOwner != null);
@@ -32,6 +34,64 @@ namespace Heroes.ReplayParser
                     TimeSpan = ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value,
                     TeamObjectiveType = vehicleUnit.Name == "VehiclePlantHorror" ? TeamObjectiveType.GardenOfTerrorGardenTerrorActivatedWithGardenTerrorDurationSeconds : TeamObjectiveType.DragonShireDragonKnightActivatedWithDragonDurationSeconds,
                     Value = (int) ((vehicleUnit.TimeSpanDied ?? replay.ReplayLength) - (ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value)).TotalSeconds });
+            }
+
+            // Braxis Holdout Zerg Strength
+            {
+                var zergUnits = replay.Units.Where(i => i.Name == "ZergHydralisk" || i.Name == "ZergGuardian").OrderBy(i => i.TimeSpanBorn).ToArray();
+
+                if (zergUnits.Length > 0)
+                {
+                    var teamZergUnitCount = new int[2];
+                    var zergSpawnNumberToStrength = new Dictionary<int, decimal> {
+                        { 0, 0m },    // None
+                        { 1, 0.15m }, // Hydralisk
+                        { 2, 0.3m },  // Hydralisk
+                        { 3, 0.3m },  // Guardian
+                        { 4, 0.4m },  // Hydralisk
+                        { 5, 0.55m }, // Hydralisk
+                        { 6, 0.6m },  // Guardian
+                        { 7, 0.7m },  // Hydralisk
+                        { 8, 0.85m }, // Hydralisk
+                        { 9, 0.9m },  // Guardian
+                        { 10, 0.98m } // Hydralisk
+                    };
+
+                    var currentZergGroupDeath = zergUnits[0].TimeSpanDied ?? zergUnits[zergUnits.Length - 1].TimeSpanBorn;
+
+                    for (var i = 0; i < zergUnits.Length; i++)
+                    {
+                        if (zergUnits[i].TimeSpanBorn >= currentZergGroupDeath)
+                        {
+                            if (zergUnits[i].TimeSpanBorn == zergUnits[zergUnits.Length - 1].TimeSpanBorn)
+                            {
+                                // Last zerg unit spawned in the game
+                                teamZergUnitCount[zergUnits[i].Team.Value]++;
+
+                                // Check to see if the objective was not completed before the game ended
+                                if (!teamZergUnitCount.Any(j => j == zergSpawnNumberToStrength.Count - 1))
+                                    break;
+                            }
+
+                            // Add Team Objective for current zerg group
+                            var winningTeam = teamZergUnitCount.All(j => j == zergSpawnNumberToStrength.Count - 1) ? zergUnits[i - 1].Team.Value : teamZergUnitCount[0] > teamZergUnitCount[1] ? 0 : 1;
+
+                            replay.TeamObjectives[winningTeam].Add(new TeamObjective {
+                                TimeSpan = zergUnits[i - 1].TimeSpanDied ?? zergUnits[i - 1].TimeSpanBorn,
+                                TeamObjectiveType = TeamObjectiveType.BraxisHoldoutZergRushWithLosingZergStrength,
+                                Value = (int) (zergSpawnNumberToStrength[teamZergUnitCount[winningTeam == 0 ? 1 : 0]] * 100) });
+
+                            teamZergUnitCount = new int[2];
+                            currentZergGroupDeath = zergUnits[i].TimeSpanDied ?? zergUnits[zergUnits.Length - 1].TimeSpanBorn;
+
+                            // Make sure we don't skip the last zerg group
+                            if (currentZergGroupDeath > zergUnits[zergUnits.Length - 1].TimeSpanBorn)
+                                currentZergGroupDeath = zergUnits[zergUnits.Length - 1].TimeSpanBorn;
+                        }
+
+                        teamZergUnitCount[zergUnits[i].Team.Value]++;
+                    }
+                }
             }
 
             var playerIDTalentIndexDictionary = new Dictionary<int, int>();
