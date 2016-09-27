@@ -62,9 +62,12 @@ namespace Heroes.ReplayParser
                             var type = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower();
 
                             if (type == "comp")
-                                replay.Players[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
+                                replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
                             else if (type == "humn")
-                                replay.Players[attribute.PlayerId - 1].PlayerType = PlayerType.Human;
+                                replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1].PlayerType = PlayerType.Human;
+                            else if (type == "open")
+                                // Less than 10 players in a Custom game
+                                break;
                             else
                                 throw new Exception("Unexpected value for PlayerType");
 
@@ -81,26 +84,27 @@ namespace Heroes.ReplayParser
                     case ReplayAttributeEventType.DifficultyLevelAttribute:
                         {
                             var diffLevel = encoding.GetString(attribute.Value.Reverse().ToArray());
-                            var player = replay.Players[attribute.PlayerId - 1];
+                            var player = replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1];
 
-                            switch (diffLevel)
-                            {
-                                case "VyEy":
-                                    player.Difficulty = Difficulty.Beginner;
-                                    break;
-                                case "Easy":
-                                    player.Difficulty = Difficulty.Recruit;
-                                    break;
-                                case "Medi":
-                                    player.Difficulty = Difficulty.Adept;
-                                    break;
-                                case "HdVH":
-                                    player.Difficulty = Difficulty.Veteran;
-                                    break;
-                                case "VyHd":
-                                    player.Difficulty = Difficulty.Elite;
-                                    break;
-                            }
+                            if (player != null)
+                                switch (diffLevel)
+                                {
+                                    case "VyEy":
+                                        player.Difficulty = Difficulty.Beginner;
+                                        break;
+                                    case "Easy":
+                                        player.Difficulty = Difficulty.Recruit;
+                                        break;
+                                    case "Medi":
+                                        player.Difficulty = Difficulty.Adept;
+                                        break;
+                                    case "HdVH":
+                                        player.Difficulty = Difficulty.Veteran;
+                                        break;
+                                    case "VyHd":
+                                        player.Difficulty = Difficulty.Elite;
+                                        break;
+                                }
 
                             break;
                         }
@@ -184,19 +188,23 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.Hero:
                         {
-                            replay.Players[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
+                            if (replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1] != null)
+                                replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
                             break;
                         }
 
                     case ReplayAttributeEventType.SkinAndSkinTint:
                         if (encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand")
-                            replay.Players[attribute.PlayerId - 1].IsAutoSelect = true;
+                            replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1].IsAutoSelect = true;
                         break;
 
                     case ReplayAttributeEventType.CharacterLevel:
                         {
+                            if (replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1] == null)
+                                break;
+
                             var characterLevel = int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray()));
-                            var player = replay.Players[attribute.PlayerId - 1];
+                            var player = replay.ClientListByWorkingSetSlotID[attribute.PlayerId - 1];
                             player.CharacterLevel = characterLevel;
 
                             if (player.IsAutoSelect && player.CharacterLevel > 1)
@@ -291,7 +299,7 @@ namespace Heroes.ReplayParser
             if (currentList != null)
                 foreach (var att in currentList)
                     // Reverse the values then parse, you don't notice the effects of this until theres 10+ teams o.o
-                    replay.Players[att.PlayerId - 1].Team = int.Parse(encoding.GetString(att.Value.Reverse().ToArray()).Trim('\0', 'T'));
+                    replay.ClientListByWorkingSetSlotID[att.PlayerId - 1].Team = int.Parse(encoding.GetString(att.Value.Reverse().ToArray()).Trim('\0', 'T'));
         }
 
         public enum ReplayAttributeEventType
