@@ -94,6 +94,16 @@ namespace Heroes.ReplayParser
                 }
             }
 
+            // Warhead Junction Nuke Launch
+            // Failed nuke launches 'die' within the 1.5 seconds of channeling
+            // Successful nuke launches 'die' after 5-6 seconds
+            foreach (var successfulNukeLaunchUnit in replay.Units.Where(i => i.Name == "NukeTargetMinimapIconUnit" && i.TimeSpanDied.HasValue && (i.TimeSpanDied.Value - i.TimeSpanBorn).TotalSeconds >= 4))
+                replay.TeamObjectives[successfulNukeLaunchUnit.Team.Value].Add(new TeamObjective {
+                    TimeSpan = successfulNukeLaunchUnit.TimeSpanDied.Value,
+                    Player = successfulNukeLaunchUnit.PlayerControlledBy,
+                    TeamObjectiveType = TeamObjectiveType.WarheadJunctionNukeLaunch,
+                    Value = -1 });
+
             var playerIDTalentIndexDictionary = new Dictionary<int, int>();
 
             foreach (var trackerEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UpgradeEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.StatGameEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.ScoreResultEvent))

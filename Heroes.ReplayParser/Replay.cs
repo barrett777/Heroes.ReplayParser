@@ -126,7 +126,9 @@
 
         // LostCavern = 1011,
 
-        BraxisHoldoutZergRushWithLosingZergStrength = 101201
+        BraxisHoldoutZergRushWithLosingZergStrength = 101201,
+
+        WarheadJunctionNukeLaunch = 101301
     }
 
     public enum TeamObjectiveInfernalShrinesPunisherType
