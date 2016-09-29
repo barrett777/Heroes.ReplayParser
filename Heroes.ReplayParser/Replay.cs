@@ -23,6 +23,9 @@
         /// <summary> Gets the details of all players in the replay. </summary>
         public Player[] Players { get; set; }
 
+        /// <summary> In some places, this is used instead of the 'Player' array, in games with less than 10 players </summary>
+        public Player[] PlayersWithOpenSlots { get; set; } = new Player[10];
+
         /// <summary> Gets the build number of the Heroes version used in creating the replay. </summary>
         public int ReplayBuild { get; set; }
 

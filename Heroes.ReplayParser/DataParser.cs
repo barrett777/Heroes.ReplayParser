@@ -96,7 +96,7 @@ namespace Heroes.ReplayParser
             else if (replay.Players.Length == 1)
                 // Filter out 'Try Me' games, as they have unusual format that throws exceptions in other areas
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.TryMeMode, null);
-            else if (replay.Players.Length == 5)
+            else if (replay.Players.Length <= 5)
                 // Custom game with all computer players on the opposing team won't register them as players at all (Noticed at build 34053)
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.ComputerPlayerFound, null);
             else if (replay.Players.All(i => !i.IsWinner) || replay.ReplayLength.TotalMinutes < 2)

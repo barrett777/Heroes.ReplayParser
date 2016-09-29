@@ -441,9 +441,9 @@ namespace Heroes.ReplayParser
                                     Group = UnitGroupDictionary.ContainsKey(unitTrackerEvent.Data.dictionary[2].blobText) ? UnitGroupDictionary[unitTrackerEvent.Data.dictionary[2].blobText] : UnitGroup.Unknown,
                                     TimeSpanBorn = unitTrackerEvent.TimeSpan,
                                     Team = unitTrackerEvent.Data.dictionary[3].vInt.Value == 11 || unitTrackerEvent.Data.dictionary[3].vInt.Value == 12 ? (int)unitTrackerEvent.Data.dictionary[3].vInt.Value - 11
-                                    : unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.ClientListByWorkingSetSlotID[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1].Team
+                                    : unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.PlayersWithOpenSlots[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1].Team
                                     : (int?)null,
-                                    PlayerControlledBy = unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.ClientListByWorkingSetSlotID[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1] : null,
+                                    PlayerControlledBy = unitTrackerEvent.Data.dictionary[3].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[3].vInt.Value <= 10 ? replay.PlayersWithOpenSlots[unitTrackerEvent.Data.dictionary[3].vInt.Value - 1] : null,
                                     PointBorn = new Point { X = (int)unitTrackerEvent.Data.dictionary[5].vInt.Value, Y = (int)unitTrackerEvent.Data.dictionary[6].vInt.Value } };
                             else
                             {
@@ -492,7 +492,7 @@ namespace Heroes.ReplayParser
                             var playerIDKilledBy = unitTrackerEvent.Data.dictionary[2].optionalData != null ? (int)unitTrackerEvent.Data.dictionary[2].optionalData.vInt.Value : (int?)null;
 
                             unitThatDied.TimeSpanDied = unitTrackerEvent.TimeSpan;
-                            unitThatDied.PlayerKilledBy = playerIDKilledBy.HasValue && playerIDKilledBy.Value > 0 && playerIDKilledBy.Value <= 10 ? replay.ClientListByWorkingSetSlotID[playerIDKilledBy.Value - 1] : null;
+                            unitThatDied.PlayerKilledBy = playerIDKilledBy.HasValue && playerIDKilledBy.Value > 0 && playerIDKilledBy.Value <= 10 ? replay.PlayersWithOpenSlots[playerIDKilledBy.Value - 1] : null;
                             unitThatDied.PointDied = new Point { X = (int)unitTrackerEvent.Data.dictionary[3].vInt.Value, Y = (int)unitTrackerEvent.Data.dictionary[4].vInt.Value };
                             unitThatDied.UnitKilledBy = unitTrackerEvent.Data.dictionary[5].optionalData != null ? activeUnitsByIndex[(int)unitTrackerEvent.Data.dictionary[5].optionalData.vInt.Value] : null;
 
@@ -508,7 +508,7 @@ namespace Heroes.ReplayParser
                             var ownerChangeEvent = new OwnerChangeEvent {
                                 TimeSpanOwnerChanged = unitTrackerEvent.TimeSpan,
                                 Team = unitTrackerEvent.Data.dictionary[2].vInt.Value == 11 || unitTrackerEvent.Data.dictionary[2].vInt.Value == 12 ? (int)unitTrackerEvent.Data.dictionary[2].vInt.Value - 11 : (int?)null,
-                                PlayerNewOwner = unitTrackerEvent.Data.dictionary[2].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[2].vInt.Value <= 10 ? replay.ClientListByWorkingSetSlotID[unitTrackerEvent.Data.dictionary[2].vInt.Value - 1] : null };
+                                PlayerNewOwner = unitTrackerEvent.Data.dictionary[2].vInt.Value > 0 && unitTrackerEvent.Data.dictionary[2].vInt.Value <= 10 ? replay.PlayersWithOpenSlots[unitTrackerEvent.Data.dictionary[2].vInt.Value - 1] : null };
 
                             if (!ownerChangeEvent.Team.HasValue && ownerChangeEvent.PlayerNewOwner != null)
                                 ownerChangeEvent.Team = ownerChangeEvent.PlayerNewOwner.Team;
