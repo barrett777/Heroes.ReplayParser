@@ -66,7 +66,7 @@ namespace Heroes.ReplayParser
                             var type = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower();
 
                             if (type == "comp" || type == "humn")
-                                replay.PlayersWithOpenSlots[attribute.PlayerId - 1] = replay.Players[attribute.PlayerId - replayPlayersWithOpenSlotsIndex++];
+                                replay.PlayersWithOpenSlots[attribute.PlayerId - 1] = replay.Players[attribute.PlayerId - replayPlayersWithOpenSlotsIndex];
 
                             if (type == "comp")
                                 replay.PlayersWithOpenSlots[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
