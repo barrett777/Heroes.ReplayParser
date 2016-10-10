@@ -640,79 +640,83 @@ namespace Heroes.ReplayParser
             // Without these positions, minions can appear to travel through walls straight across the map
             // These estimated positions are actually quite accurate, as minions always follow a path connecting each fort/keep in their lane
             var townHallUnits = replay.Units.Where(i => i.Name.StartsWith("TownTownHall")).ToArray();
-            var numberOfStructureTiers = townHallUnits.Select(i => i.Name).Distinct().Count();
-            var numberOfLanes = replay.Units.Count(i => i.Name == townHallUnits[0].Name && i.Team == 0);
-            var minionWayPoints = townHallUnits.Select(j => j.PointBorn).OrderBy(j => j.X).Skip(numberOfLanes).OrderByDescending(j => j.X).Skip(numberOfLanes).OrderBy(j => j.Y);
-            for (var team = 0; team <= 1; team++)
+
+            if (townHallUnits.Length > 0)
             {
-                // Gather all minion units for this team
-                var minionUnits = replay.Units.Where(i => i.Team == team && i.Group == UnitGroup.Minions).ToArray();
-
-                // Each wave spawns together, but not necessarily from top to bottom
-                // We will figure out what order the lanes are spawning in, and order by top to bottom later on
-                var unitsPerLaneTemp = new List<Unit>[numberOfLanes];
-                for (var i = 0; i < unitsPerLaneTemp.Length; i++)
-                    unitsPerLaneTemp[i] = new List<Unit>();
-                var minionLaneOrderMinions = minionUnits.Where(i => i.Name == "WizardMinion").Take(numberOfLanes).ToArray();
-                var minionLaneOrder = new List<Tuple<int, int>>();
-                for (var i = 0; i < numberOfLanes; i++)
-                    minionLaneOrder.Add(new Tuple<int, int>(i, minionLaneOrderMinions[i].PointBorn.Y));
-                minionLaneOrder = minionLaneOrder.OrderBy(i => i.Item2).ToList();
-
-                // Group minion units by lane
-                var currentIndex = 0;
-                var minionUnitsPerWave = 7;
-                while (currentIndex < minionUnits.Length)
-                    for (var i = 0; i < unitsPerLaneTemp.Length; i++)
-                        for (var j = 0; j < minionUnitsPerWave; j++)
-                        {
-                            if (currentIndex == minionUnits.Length)
-                                break;
-                            unitsPerLaneTemp[i].Add(minionUnits[currentIndex++]);
-
-                            // CatapultMinions don't seem to spawn exactly with their minion wave, which is strange
-                            // For now I will leave them out of this, which means they may appear to travel through walls
-                            if (currentIndex < minionUnits.Length && minionUnits[currentIndex].Name == "CatapultMinion")
-                                currentIndex++;
-                        }
-
-                // Order the lanes by top to bottom
-                var unitsPerLane = unitsPerLaneTemp.ToArray();
-                for (var i = 0; i < unitsPerLane.Length; i++)
-                    unitsPerLane[i] = unitsPerLaneTemp[minionLaneOrder[i].Item1];
-
-                for (var i = 0; i < numberOfLanes; i++)
+                var numberOfStructureTiers = townHallUnits.Select(i => i.Name).Distinct().Count();
+                var numberOfLanes = replay.Units.Count(i => i.Name == townHallUnits[0].Name && i.Team == 0);
+                var minionWayPoints = townHallUnits.Select(j => j.PointBorn).OrderBy(j => j.X).Skip(numberOfLanes).OrderByDescending(j => j.X).Skip(numberOfLanes).OrderBy(j => j.Y);
+                for (var team = 0; team <= 1; team++)
                 {
-                    // For each lane, take the forts in that lane, and see if the minions in that lane walked beyond this
-                    var currentLaneUnitsToAdjust = unitsPerLane[i].Where(j => j.Positions.Any() || j.TimeSpanDied.HasValue);
-                    var currentLaneWaypoints = minionWayPoints.Skip(numberOfStructureTiers * i).Take(numberOfStructureTiers);
-                    if (team == 0)
-                        currentLaneWaypoints = currentLaneWaypoints.OrderBy(j => j.X);
-                    else
-                        currentLaneWaypoints = currentLaneWaypoints.OrderByDescending(j => j.X);
+                    // Gather all minion units for this team
+                    var minionUnits = replay.Units.Where(i => i.Team == team && i.Group == UnitGroup.Minions).ToArray();
 
-                    foreach (var laneUnit in currentLaneUnitsToAdjust)
-                    {
-                        var isLaneUnitModified = false;
-                        var beginningPosition = new Position { TimeSpan = laneUnit.TimeSpanBorn, Point = laneUnit.PointBorn };
-                        var firstLaneUnitPosition = laneUnit.Positions.Any()
-                            ? laneUnit.Positions.First()
-                            : new Position { TimeSpan = laneUnit.TimeSpanDied.Value, Point = laneUnit.PointDied };
-                        foreach (var laneWaypoint in currentLaneWaypoints)
-                            if ((team == 0 && firstLaneUnitPosition.Point.X > laneWaypoint.X) || team == 1 && firstLaneUnitPosition.Point.X < laneWaypoint.X)
+                    // Each wave spawns together, but not necessarily from top to bottom
+                    // We will figure out what order the lanes are spawning in, and order by top to bottom later on
+                    var unitsPerLaneTemp = new List<Unit>[numberOfLanes];
+                    for (var i = 0; i < unitsPerLaneTemp.Length; i++)
+                        unitsPerLaneTemp[i] = new List<Unit>();
+                    var minionLaneOrderMinions = minionUnits.Where(i => i.Name == "WizardMinion").Take(numberOfLanes).ToArray();
+                    var minionLaneOrder = new List<Tuple<int, int>>();
+                    for (var i = 0; i < numberOfLanes; i++)
+                        minionLaneOrder.Add(new Tuple<int, int>(i, minionLaneOrderMinions[i].PointBorn.Y));
+                    minionLaneOrder = minionLaneOrder.OrderBy(i => i.Item2).ToList();
+
+                    // Group minion units by lane
+                    var currentIndex = 0;
+                    var minionUnitsPerWave = 7;
+                    while (currentIndex < minionUnits.Length)
+                        for (var i = 0; i < unitsPerLaneTemp.Length; i++)
+                            for (var j = 0; j < minionUnitsPerWave; j++)
                             {
-                                var leg1Distance = beginningPosition.Point.DistanceTo(laneWaypoint);
-                                var newPosition = new Position {
-                                    TimeSpan = beginningPosition.TimeSpan + TimeSpan.FromSeconds((long)((firstLaneUnitPosition.TimeSpan - beginningPosition.TimeSpan).TotalSeconds * (leg1Distance / (leg1Distance + laneWaypoint.DistanceTo(firstLaneUnitPosition.Point))))),
-                                    Point = laneWaypoint };
-                                laneUnit.Positions.Add(newPosition);
-                                beginningPosition = newPosition;
-                                isLaneUnitModified = true;
+                                if (currentIndex == minionUnits.Length)
+                                    break;
+                                unitsPerLaneTemp[i].Add(minionUnits[currentIndex++]);
+
+                                // CatapultMinions don't seem to spawn exactly with their minion wave, which is strange
+                                // For now I will leave them out of this, which means they may appear to travel through walls
+                                if (currentIndex < minionUnits.Length && minionUnits[currentIndex].Name == "CatapultMinion")
+                                    currentIndex++;
                             }
-                            else
-                                break;
-                        if (isLaneUnitModified)
-                            laneUnit.Positions = laneUnit.Positions.OrderBy(j => j.TimeSpan).ToList();
+
+                    // Order the lanes by top to bottom
+                    var unitsPerLane = unitsPerLaneTemp.ToArray();
+                    for (var i = 0; i < unitsPerLane.Length; i++)
+                        unitsPerLane[i] = unitsPerLaneTemp[minionLaneOrder[i].Item1];
+
+                    for (var i = 0; i < numberOfLanes; i++)
+                    {
+                        // For each lane, take the forts in that lane, and see if the minions in that lane walked beyond this
+                        var currentLaneUnitsToAdjust = unitsPerLane[i].Where(j => j.Positions.Any() || j.TimeSpanDied.HasValue);
+                        var currentLaneWaypoints = minionWayPoints.Skip(numberOfStructureTiers * i).Take(numberOfStructureTiers);
+                        if (team == 0)
+                            currentLaneWaypoints = currentLaneWaypoints.OrderBy(j => j.X);
+                        else
+                            currentLaneWaypoints = currentLaneWaypoints.OrderByDescending(j => j.X);
+
+                        foreach (var laneUnit in currentLaneUnitsToAdjust)
+                        {
+                            var isLaneUnitModified = false;
+                            var beginningPosition = new Position { TimeSpan = laneUnit.TimeSpanBorn, Point = laneUnit.PointBorn };
+                            var firstLaneUnitPosition = laneUnit.Positions.Any()
+                                ? laneUnit.Positions.First()
+                                : new Position { TimeSpan = laneUnit.TimeSpanDied.Value, Point = laneUnit.PointDied };
+                            foreach (var laneWaypoint in currentLaneWaypoints)
+                                if ((team == 0 && firstLaneUnitPosition.Point.X > laneWaypoint.X) || team == 1 && firstLaneUnitPosition.Point.X < laneWaypoint.X)
+                                {
+                                    var leg1Distance = beginningPosition.Point.DistanceTo(laneWaypoint);
+                                    var newPosition = new Position {
+                                        TimeSpan = beginningPosition.TimeSpan + TimeSpan.FromSeconds((long)((firstLaneUnitPosition.TimeSpan - beginningPosition.TimeSpan).TotalSeconds * (leg1Distance / (leg1Distance + laneWaypoint.DistanceTo(firstLaneUnitPosition.Point))))),
+                                        Point = laneWaypoint };
+                                    laneUnit.Positions.Add(newPosition);
+                                    beginningPosition = newPosition;
+                                    isLaneUnitModified = true;
+                                }
+                                else
+                                    break;
+                            if (isLaneUnitModified)
+                                laneUnit.Positions = laneUnit.Positions.OrderBy(j => j.TimeSpan).ToList();
+                        }
                     }
                 }
             }
