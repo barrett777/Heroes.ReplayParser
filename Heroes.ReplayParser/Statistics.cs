@@ -557,6 +557,13 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardMostGemsTurnedInBoolean":
                                 case "EndOfMatchAwardMostAltarDamageDone":
                                 case "EndOfMatchAwardMostNukeDamageDoneBoolean":
+
+                                case "EndOfMatchAwardMostKillsBoolean":
+                                case "EndOfMatchAwardHatTrickBoolean":
+                                case "EndOfMatchAwardClutchHealerBoolean":
+                                case "EndOfMatchAwardMostProtectionBoolean":
+                                case "EndOfMatchAward0DeathsBoolean":
+                                case "EndOfMatchAwardMostRootsBoolean":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value == 1)
                                             switch (scoreResultEventKey)
@@ -623,6 +630,25 @@ namespace Heroes.ReplayParser
                                                     break;
                                                 case "EndOfMatchAwardMostNukeDamageDoneBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostNukeDamageDone);
+                                                    break;
+
+                                                case "EndOfMatchAwardMostKillsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostKills);
+                                                    break;
+                                                case "EndOfMatchAwardHatTrickBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.HatTrick);
+                                                    break;
+                                                case "EndOfMatchAwardClutchHealerBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.ClutchHealer);
+                                                    break;
+                                                case "EndOfMatchAwardMostProtectionBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostProtection);
+                                                    break;
+                                                case "EndOfMatchAward0DeathsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.ZeroDeaths);
+                                                    break;
+                                                case "EndOfMatchAwardMostRootsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostRoots);
                                                     break;
                                             }
                                     break;

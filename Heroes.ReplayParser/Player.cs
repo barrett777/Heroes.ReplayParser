@@ -209,8 +209,14 @@ namespace Heroes.ReplayParser
         MostHealing = 7,
         MostStuns = 8,
         MostMercCampsCaptured = 9,
-
-        // MapSpecific = 10 - Instead of tracking this generic one, just check if the player has one of the other map-specific Match Awards above 1000
+        // MapSpecific = 10, - Instead of tracking this generic one, just check if the player has one of the other map-specific Match Awards above 1000
+        
+        MostKills = 11,
+        HatTrick = 12,
+        ClutchHealer = 13,
+        MostProtection = 14,
+        ZeroDeaths = 15,
+        MostRoots = 16,
 
         MostImmortalDamage = 1001,
         MostCoinsPaid = 1002,
