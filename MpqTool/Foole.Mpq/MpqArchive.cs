@@ -53,7 +53,13 @@ namespace Foole.Mpq
 		public MpqArchive(string filename)
 		{
 			BaseStream = File.Open(filename, FileMode.Open, FileAccess.Read);
-			Init();
+			try {
+				Init();
+			} catch {
+				// close stream if constructor failed
+				Dispose();
+				throw;
+			}
 		}
 		
 		public MpqArchive(Stream sourceStream)
