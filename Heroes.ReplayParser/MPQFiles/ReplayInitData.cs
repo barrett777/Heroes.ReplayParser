@@ -96,6 +96,10 @@
                             replay.GameMode = GameMode.QuickMatch;
                             break;
 
+                        case 50031:
+                            replay.GameMode = GameMode.Brawl;
+                            break;
+
                         case 50051:
                             replay.GameMode = GameMode.UnrankedDraft;
                             break;
