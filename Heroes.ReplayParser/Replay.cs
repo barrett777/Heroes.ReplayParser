@@ -152,7 +152,8 @@
         QuickMatch = 3,
         HeroLeague = 4,
         TeamLeague = 5,
-        UnrankedDraft = 6
+        UnrankedDraft = 6,
+        Brawl = 7
     }
 
     public enum GameSpeed
