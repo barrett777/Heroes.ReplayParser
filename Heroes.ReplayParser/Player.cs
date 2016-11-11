@@ -221,9 +221,9 @@ namespace Heroes.ReplayParser
         MostDaredevilEscapes = 18,
         MostEscapes = 19,
         MostSilences = 20,
-        MostTeamfightDamage = 21,
-        MostTeamfightHealing = 22,
-        MostTeamfightHeroDamage = 23,
+        MostTeamfightDamageTaken = 21,
+        MostTeamfightHealingDone = 22,
+        MostTeamfightHeroDamageDone = 23,
         MostVengeancesPerformed = 24,
 
         MostImmortalDamage = 1001,

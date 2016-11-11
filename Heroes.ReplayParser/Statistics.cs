@@ -671,13 +671,13 @@ namespace Heroes.ReplayParser
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostSilences);
                                                     break;
                                                 case "EndOfMatchAwardMostTeamfightDamageTakenBoolean":
-                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightDamage);
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightDamageTaken);
                                                     break;
                                                 case "EndOfMatchAwardMostTeamfightHealingDoneBoolean":
-                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHealing);
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHealingDone);
                                                     break;
                                                 case "EndOfMatchAwardMostTeamfightHeroDamageDoneBoolean":
-                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHeroDamage);
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHeroDamageDone);
                                                     break;
                                                 case "EndOfMatchAwardMostVengeancesPerformedBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostVengeancesPerformed);
