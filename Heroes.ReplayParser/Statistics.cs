@@ -564,6 +564,14 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardMostProtectionBoolean":
                                 case "EndOfMatchAward0DeathsBoolean":
                                 case "EndOfMatchAwardMostRootsBoolean":
+                                case "EndOfMatchAward0OutnumberedDeathsBoolean":
+                                case "EndOfMatchAwardMostDaredevilEscapesBoolean":
+                                case "EndOfMatchAwardMostEscapesBoolean":
+                                case "EndOfMatchAwardMostSilencesBoolean":
+                                case "EndOfMatchAwardMostTeamfightDamageTakenBoolean":
+                                case "EndOfMatchAwardMostTeamfightHealingDoneBoolean":
+                                case "EndOfMatchAwardMostTeamfightHeroDamageDoneBoolean":
+                                case "EndOfMatchAwardMostVengeancesPerformedBoolean":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value == 1)
                                             switch (scoreResultEventKey)
@@ -649,6 +657,30 @@ namespace Heroes.ReplayParser
                                                     break;
                                                 case "EndOfMatchAwardMostRootsBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostRoots);
+                                                    break;
+                                                case "EndOfMatchAward0OutnumberedDeathsBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.ZeroOutnumberedDeaths);
+                                                    break;
+                                                case "EndOfMatchAwardMostDaredevilEscapesBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDaredevilEscapes);
+                                                    break;
+                                                case "EndOfMatchAwardMostEscapesBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostEscapes);
+                                                    break;
+                                                case "EndOfMatchAwardMostSilencesBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostSilences);
+                                                    break;
+                                                case "EndOfMatchAwardMostTeamfightDamageTakenBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightDamage);
+                                                    break;
+                                                case "EndOfMatchAwardMostTeamfightHealingDoneBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHealing);
+                                                    break;
+                                                case "EndOfMatchAwardMostTeamfightHeroDamageDoneBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTeamfightHeroDamage);
+                                                    break;
+                                                case "EndOfMatchAwardMostVengeancesPerformedBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostVengeancesPerformed);
                                                     break;
                                             }
                                     break;
