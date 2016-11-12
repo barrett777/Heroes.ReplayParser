@@ -564,6 +564,7 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardMostProtectionBoolean":
                                 case "EndOfMatchAward0DeathsBoolean":
                                 case "EndOfMatchAwardMostRootsBoolean":
+
                                 case "EndOfMatchAward0OutnumberedDeathsBoolean":
                                 case "EndOfMatchAwardMostDaredevilEscapesBoolean":
                                 case "EndOfMatchAwardMostEscapesBoolean":
@@ -606,6 +607,7 @@ namespace Heroes.ReplayParser
                                                 case "EndOfMatchAwardMapSpecificBoolean":
                                                     // Instead of tracking this generic one, just check if the player has one of the other map-specific Match Awards above 1000
                                                     break;
+
                                                 case "EndOfMatchAwardMostDragonShrinesCapturedBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostDragonShrinesCaptured);
                                                     break;
@@ -658,6 +660,7 @@ namespace Heroes.ReplayParser
                                                 case "EndOfMatchAwardMostRootsBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostRoots);
                                                     break;
+
                                                 case "EndOfMatchAward0OutnumberedDeathsBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.ZeroOutnumberedDeaths);
                                                     break;
