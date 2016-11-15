@@ -259,9 +259,9 @@ namespace Heroes.ReplayParser
                                     break;
                                 case 2: // OneIndices
                                 case 3: // ZeroIndices
-                                    gameEvent.data.array[1].array[1] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
-                                    for (var i = 0; i < gameEvent.data.array[1].array[1].array.Length; i++)
-                                        gameEvent.data.array[1].array[1].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(9) };
+                                    gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(9)] };
+                                    for (var i = 0; i < gameEvent.data.array.Length; i++)
+                                        gameEvent.data.array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(9) };
                                     break;
                             }
                             break;

@@ -406,9 +406,11 @@ namespace Heroes.ReplayParser
                             // Dragon Shire - This is populated using Unit data at the top of this function
                             case "DragonKnightActivated": break;    // {StatGameEvent: {"DragonKnightActivated", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
 
+                            case "EndOfGameUpVotesCollected": break;// {StatGameEvent: {"EndOfGameUpVotesCollected", , [{{"Player"}, 10}, {{"Voter"}, 10}, {{"UpVotesReceived"}, 1}], }}
+
                             default:
                                 // New Stat Game Event - let's log it until we can identify and properly track it
-                                playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].MiscellaneousUpgradeEventDictionary[trackerEvent.Data.dictionary[0].blobText] = true;
+                                playerIDDictionary.Values.First().MiscellaneousUpgradeEventDictionary[trackerEvent.Data.dictionary[0].blobText] = true;
                                 break;
                         }
                         break;
