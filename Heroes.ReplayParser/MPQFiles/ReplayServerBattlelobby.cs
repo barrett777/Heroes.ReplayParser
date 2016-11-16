@@ -148,7 +148,16 @@
                 // All the Heroes, skins, mounts, effects, some other weird stuff (Cocoon, ArtifactSlot2, TestMountRideSurf, etc...)
                 // --------------------------------------------------------------
                 List<string> skins = new List<string>();
-                int skinArrayLength = bitReader.ReadInt32();
+
+                int skinArrayLength = 0;
+
+                if (replay.ReplayBuild >= 48027)
+                    skinArrayLength = bitReader.ReadInt16();
+                else 
+                    skinArrayLength = bitReader.ReadInt32();
+
+                if (skinArrayLength > 1000)
+                    throw new Exception("skinArrayLength is an unusually large number");
 
                 for (int i = 0; i < skinArrayLength; i++)
                 {
@@ -163,7 +172,7 @@
                 {
                     for (int j = 0; j < 16; j++) // 16 is total player slots
                     {
-                        ReadByte0x00(bitReader);
+                        bitReader.ReadByte();
 
                         // new values beginning on ptr 47801
                         // 0xC3 = free to play?
@@ -239,7 +248,10 @@
 
                     // these were important in ptr build 47801, not sure what it's used for now
                     // each byte has a max value of 0x7F (127)
-                    bitReader.ReadBytes(4);
+                    if (replay.ReplayBuild >= 48027)
+                        bitReader.ReadInt16();
+                    else
+                        bitReader.ReadInt32();
 
                     // this data is a repeat of the usable skins section above
                     //bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
