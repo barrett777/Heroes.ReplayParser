@@ -258,6 +258,7 @@ namespace Heroes.ReplayParser
                             case "GatesOpen": break;                // {StatGameEvent: {"GatesOpen", , , }}
                             case "PlayerDeath": break;              // {StatGameEvent: {"PlayerDeath", , [{{"PlayerID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], [{{"PositionX"}, 130}, {{"PositionY"}, 80}]}}
                             case "RegenGlobePickedUp": break;       // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
+                            case "ChoGall Gall Spawn Error": break; // {StatGameEvent: {"ChoGall Gall Spawn Error", , [{{"PlayerID"}, 6}], }}
 
                             case "EndOfGameRegenMasterStacks":      // {StatGameEvent: {"EndOfGameRegenMasterStacks", [{{"Hero"}, "HeroZeratul"}], [{{"PlayerID"}, 7}, {{"Stack Count"}, 23}], }}
                                 playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
@@ -400,6 +401,14 @@ namespace Heroes.ReplayParser
                                 replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[1].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
                                     TimeSpan = trackerEvent.TimeSpan,
                                     TeamObjectiveType = TeamObjectiveType.InfernalShrinesPunisherKilledWithHeroDamageDone,
+                                    Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value });
+                                break;
+
+                            // Haunted Mines
+                            case "GraveGolemSpawned":               // {StatGameEvent: {"GraveGolemSpawned", , [{{"Event"}, 1}], [{{"TeamID"}, 2}, {{"SkullCount"}, 34}]}}
+                                replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    TeamObjectiveType = TeamObjectiveType.HauntedMinesGraveGolemSpawnedWithSkullCount,
                                     Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value });
                                 break;
 
@@ -711,6 +720,7 @@ namespace Heroes.ReplayParser
                                 case "BlackheartDoubloonsCollected":
                                 case "BlackheartDoubloonsTurnedIn":
                                 case "MinesSkullsCollected":
+                                case "NukeDamageDone":
 
                                 // Special Events
                                 case "LunarNewYearEventCompleted":

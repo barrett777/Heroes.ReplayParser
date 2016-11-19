@@ -113,7 +113,7 @@
 
         GardenOfTerrorGardenTerrorActivatedWithGardenTerrorDurationSeconds = 100501,
 
-        // HauntedMines = 1006,
+        HauntedMinesGraveGolemSpawnedWithSkullCount = 100601,
 
         InfernalShrinesInfernalShrineCapturedWithLosingScore = 100701,
         InfernalShrinesPunisherKilledWithPunisherType = 100702,
