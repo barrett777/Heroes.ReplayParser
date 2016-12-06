@@ -406,6 +406,7 @@ namespace Heroes.ReplayParser
                                 break;
 
                             // Haunted Mines
+                            case "GolemLanes": break;               // {StatGameEvent: {"GolemLanes", , [{{"TopGolemTeam"}, 1}, {{"BottomGolemTeam"}, 2}], }}
                             case "GraveGolemSpawned":               // {StatGameEvent: {"GraveGolemSpawned", , [{{"Event"}, 1}], [{{"TeamID"}, 2}, {{"SkullCount"}, 34}]}}
                                 replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
                                     TimeSpan = trackerEvent.TimeSpan,
@@ -702,8 +703,24 @@ namespace Heroes.ReplayParser
 
                                 // Misc Events
                                 case "GameScore": // 0 for all players (Last checked 9/7/2016)
+                                case "TeamLevel":
                                 case "TeamTakedowns":
                                 case "Role":
+
+                                // New Stats Added in PTR 12/6/2016
+                                // Currently all 0 values - if these are filled in, let's add them to the Player.ScoreResult object
+                                case "ProtectionGivenToAllies":
+                                case "TimeSilencingEnemyHeroes":
+                                case "TimeRootingEnemyHeroes":
+                                case "TimeStunningEnemyHeroes":
+                                case "ClutchHealsPerformed":
+                                case "EscapesPerformed":
+                                case "VengeancesPerformed":
+                                case "OutnumberedDeaths":
+                                case "TeamfightEscapesPerformed":
+                                case "TeamfightHealingDone":
+                                case "TeamfightDamageTaken":
+                                case "TeamfightHeroDamage":
 
                                 // Map Objectives
                                 case "DamageDoneToZerg":
