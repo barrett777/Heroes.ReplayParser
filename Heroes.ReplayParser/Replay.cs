@@ -87,6 +87,7 @@
         public int StructureXP { get; set; }
         public int HeroXP { get; set; }
         public int TrickleXP { get; set; }
+        public int TotalXP { get { return this.MinionXP + this.CreepXP + this.StructureXP + this.HeroXP + this.TrickleXP; } }
     }
 
     public class TeamObjective
