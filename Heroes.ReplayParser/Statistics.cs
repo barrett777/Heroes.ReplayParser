@@ -123,10 +123,9 @@ namespace Heroes.ReplayParser
 
                             case "IsOrderPlayer":
                             case "IsChaosPlayer":
-                                // TODO: FIGURE OUT WHAT THIS IS
+                                // Apparently this is just an old news legacy name for Blue team and Red team
+                                // https://www.reddit.com/r/heroesofthestorm/comments/5idgxv/who_is_chaos_and_why_are_they_in_my_try_mode/db7gszk/
                                 // This shows up on 'Warhead Junction' replays from the 9/19/2016 PTR
-                                // I've only been able to look at a few replays, but so far, players 1-5 are 'Order', and 6-10 are 'Chaos'
-                                // Perhaps at a time, the map was intended to be split like the Diablo maps?
                                 break;
 
                             case "GatesAreOpen":
