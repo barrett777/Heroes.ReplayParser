@@ -705,6 +705,7 @@ namespace Heroes.ReplayParser
                                 case "TeamLevel":
                                 case "TeamTakedowns":
                                 case "Role":
+                                case "EndOfMatchAwardGivenToNonwinner":
 
                                 // New Stats Added in PTR 12/6/2016
                                 // Currently all 0 values - if these are filled in, let's add them to the Player.ScoreResult object
@@ -740,7 +741,9 @@ namespace Heroes.ReplayParser
                                 case "NukeDamageDone":
 
                                 // Special Events
-                                case "LunarNewYearEventCompleted":
+                                case "LunarNewYearEventCompleted":           // Early 2016
+                                case "LunarNewYearSuccesfulArtifactTurnIns": // Early 2017
+                                case "LunarNewYearRoosterEventCompleted":    // Early 2017
                                 case "KilledTreasureGoblin":
                                 case "StarcraftDailyEventCompleted":
                                 case "StarcraftPiecesCollected":

@@ -53,7 +53,7 @@
             // [4] = VInt, Default 0 - m_useScaledTime
             // [5] = Depending on replay build, either Blob with gibberish, or array of 16 bytes (basically a Blob), also with gibberish.  Of ~770 pre-wipe replays, there were only 11 distinct blobs, so this is likely a map version hash or something - 'm_ngdpRootKey'
             // [6] = Replay Build (Usually the same as what is in [1], but can be incremented by itself for smaller 'hotfix' patches) - m_dataBuildNum
-            // [7] = m_fixedFileHash
+            // [7] = m_fixedFileHash (Renamed to m_replayCompatibilityHash in build 49582 - same data type)
         }
     }
 }

@@ -101,6 +101,8 @@ namespace Heroes.ReplayParser
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.ComputerPlayerFound, null);
             else if (replay.Players.All(i => !i.IsWinner) || replay.ReplayLength.TotalMinutes < 2)
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.Incomplete, null);
+            else if (replay.Timestamp == DateTime.MinValue)
+                return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.UnexpectedResult, null);
             else if (replay.Timestamp < new DateTime(2014, 10, 6, 0, 0, 0, DateTimeKind.Utc))
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.PreAlphaWipe, null);
             else if (replay.Players.Any(i => i.PlayerType == PlayerType.Computer || i.Character == "Random Hero" || i.Name.Contains(' ')))
@@ -120,12 +122,18 @@ namespace Heroes.ReplayParser
             // Replay Details
             ReplayDetails.Parse(replay, GetMpqFile(archive, ReplayDetails.FileName), ignoreErrors);
 
-            if (!ignoreErrors && (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5))
-                // Filter out 'Try Me' games, any games without 10 players, and incomplete games
-                return;
-            else if (!ignoreErrors && replay.Timestamp < new DateTime(2014, 10, 6, 0, 0, 0, DateTimeKind.Utc))
-                // Technical Alpha replays
-                return;
+            if (!ignoreErrors)
+            {
+                if (replay.Players.Length != 10 || replay.Players.Count(i => i.IsWinner) != 5)
+                    // Filter out 'Try Me' games, any games without 10 players, and incomplete games
+                    return;
+                else if (replay.Timestamp == DateTime.MinValue)
+                    // Uncommon issue when parsing replay.details
+                    return;
+                else if (replay.Timestamp < new DateTime(2014, 10, 6, 0, 0, 0, DateTimeKind.Utc))
+                    // Technical Alpha replays
+                    return;
+            }
 
             // Replay Init Data
             ReplayInitData.Parse(replay, GetMpqFile(archive, ReplayInitData.FileName));

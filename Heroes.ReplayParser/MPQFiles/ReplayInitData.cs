@@ -241,9 +241,12 @@
                     reader.ReadBlobPrecededWithLength(7); // m_toonHandle
 
                     // m_licenses
-                    var licensesLength = reader.Read(9);
-                    for (var j = 0; j < licensesLength; j++)
-                        reader.Read(32);
+                    if (replay.ReplayBuild < 49582)
+                    {
+                        var licensesLength = reader.Read(9);
+                        for (var j = 0; j < licensesLength; j++)
+                            reader.Read(32);
+                    }
 
                     if (reader.ReadBoolean())
                         reader.Read(4); // m_tandemLeaderUserId

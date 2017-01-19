@@ -38,7 +38,11 @@ namespace Heroes.ReplayParser
                         return;
 
                     for (var i = 0; i < replay.Players.Length; i++)
-                        replay.ClientListByWorkingSetSlotID[replayDetailsStructure.dictionary[0].optionalData.array[i].dictionary[9].optionalData.vInt.Value] = replay.Players[i];
+                        if (replayDetailsStructure.dictionary[0].optionalData.array[i].dictionary[9].optionalData != null)
+                            replay.ClientListByWorkingSetSlotID[replayDetailsStructure.dictionary[0].optionalData.array[i].dictionary[9].optionalData.vInt.Value] = replay.Players[i];
+                        else
+                            // Less than 0.1% of replays seem to be missing this.  I'm not sure why
+                            return;
 
                     replay.Map = replayDetailsStructure.dictionary[1].blobText;
                     // [2] - m_difficulty
