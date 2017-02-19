@@ -152,6 +152,13 @@ namespace Heroes.ReplayParser
                                     Value = (int) trackerEvent.Data.dictionary[2].vInt.Value });
                                 break;
 
+							case "WitchDoctorPlagueofToadsPandemicTalentCompletion":
+								playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
+                                    TimeSpan = trackerEvent.TimeSpan,
+                                    UpgradeEventType = UpgradeEventType.WitchDoctorPlagueofToadsPandemicTalentCompletion,
+                                    Value = (int) trackerEvent.Data.dictionary[2].vInt.Value });
+								break;
+
                             default:
                                 // New Upgrade Event - let's log it until we can identify and properly track it
                                 playerIDDictionary[(int) trackerEvent.Data.dictionary[0].vInt.Value].MiscellaneousUpgradeEventDictionary[trackerEvent.Data.dictionary[1].blobText] = true;

@@ -194,8 +194,9 @@ namespace Heroes.ReplayParser
         NovaSnipeMasterDamageUpgrade = 1,
         GallTalentDarkDescentUpgrade = 2,
         RegenMasterStacks = 3,
-        MarksmanStacks = 4
-    }
+        MarksmanStacks = 4,
+		WitchDoctorPlagueofToadsPandemicTalentCompletion = 5
+	}
 
     public enum MatchAwardType
     {
