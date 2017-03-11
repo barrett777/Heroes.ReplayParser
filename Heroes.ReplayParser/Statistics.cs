@@ -131,7 +131,8 @@ namespace Heroes.ReplayParser
                             case "GatesAreOpen":
                             case "MinionsAreSpawning":
                             case "GallTalentNetherCallsUpgrade":
-                            case "TracerJumperButtonSwap":
+							case "GallDreadOrbDoubleBackTalentUpgrade":
+							case "TracerJumperButtonSwap":
                                 // Not really interested in these
                                 break;
 
