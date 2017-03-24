@@ -177,6 +177,7 @@
                         // new values beginning on ptr 47801
                         // 0xC3 = free to play?
                         // more values: 0xC1, 0x02, 0x83
+                        // Note: New values gone with build 51779 
                         var num = bitReader.Read(8);
                         if (replay.ClientListByUserID[j] != null)
                         {
@@ -246,35 +247,35 @@
                     bitReader.ReadBytes(14);
                     bitReader.ReadBytes(12); // same for all players
 
-                    // these were important in ptr build 47801, not sure what it's used for now
-                    // each byte has a max value of 0x7F (127)
-                    if (replay.ReplayBuild >= 48027)
-                        bitReader.ReadInt16();
+                    if (replay.ReplayBuild >= 51609)
+                    {
+                        bitReader.ReadBytes(46);
+                        bitReader.Read(7);
+                    }
                     else
-                        bitReader.ReadInt32();
-
-                    // this data is a repeat of the usable skins section above
-                    //bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
-                    for (int i = 0; i < skinArrayLength; i++)
                     {
                         // each byte has a max value of 0x7F (127)
-                        int value = 0;
-                        int x = (int)bitReader.Read(8);
-                        if (x > 0)
+                        if (replay.ReplayBuild >= 48027)
+                            bitReader.ReadInt16();
+                        else
+                            bitReader.ReadInt32();
+
+
+                        // this data is a repeat of the usable skins section above
+                        //bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
+                        for (int i = 0; i < skinArrayLength; i++)
                         {
-                            value += x + 127;
+                            // each byte has a max value of 0x7F (127)
+                            int value = 0;
+                            int x = (int)bitReader.Read(8);
+                            if (x > 0)
+                            {
+                                value += x + 127;
+                            }
+                            value += (int)bitReader.Read(8);
                         }
-                        value += (int)bitReader.Read(8);
-                    }
 
-                    bitReader.Read(1);
-
-                    if (bitReader.ReadBoolean())
-                    {
-                        // use this to determine who is in a party
-                        // those in the same party will have the same exact 8 bytes of data
-                        // the party leader is the first one (in the order of the client list)
-                        bitReader.ReadBytes(8);
+                        bitReader.Read(1);
                     }
 
                     bitReader.Read(1);
