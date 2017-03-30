@@ -82,10 +82,19 @@ namespace Heroes.ReplayParser
             ScoreResultEvent = 11,
             /* InstanceList (20+ length array of Name/Value pairs) */
 
-            UnitRevivedEvent = 12
-            /* UnitID, X, Y */
-        }
-    }
+            UnitRevivedEvent = 12,
+			/* UnitID, X, Y */
+
+			HeroBannedEvent = 13,
+			/* Hero, ControllingTeam */
+
+			HeroPickedEvent = 14,
+			/* Hero, ControllingPlayer */
+
+			HeroSwappedEvent = 15
+			/* Hero, NewControllingPlayer */
+		}
+	}
 
     /// <summary>
     /// Defines a single replay tracker event.

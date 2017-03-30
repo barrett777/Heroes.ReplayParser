@@ -60,7 +60,12 @@
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_skin - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_mount - Currently Empty String
-                    Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7)); // m_toonHandle - Currently Empty String
+					if (replay.ReplayBuild >= 51978)
+					{
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner - Currently Empty String
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray - Currently Empty String
+					}
+					Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7)); // m_toonHandle - Currently Empty String
                 }
 
                 // Marked as 'Random Value', so I will use as seed
@@ -258,9 +263,17 @@
                         reader.Read(32); // m_commanderLevel - So far, always 0
                     }
 
-                    if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
+					if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsSilenced = true;
-                }
+
+					if(replay.ReplayBuild >= 51978)
+					{
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
+						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
+					}
+				}
 
                 if (reader.Read(32) != replay.RandomValue) // m_randomSeed
                     throw new Exception("Replay Random Seed Values in Replay Init Data did not match");

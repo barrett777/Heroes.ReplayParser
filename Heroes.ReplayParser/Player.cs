@@ -232,7 +232,7 @@ namespace Heroes.ReplayParser
         MostCurseDamageDone = 1003,
         MostDragonShrinesCaptured = 1004,
         MostDamageToPlants = 1005,
-        // Haunted Mines = 1006 - No map award
+		MostSkullsCollected = 1006,
         MostDamageToMinions = 1007,
         MostTimeInTemple = 1008,
         MostGemsTurnedIn = 1009,
