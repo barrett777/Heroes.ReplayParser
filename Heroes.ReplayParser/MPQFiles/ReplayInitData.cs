@@ -60,7 +60,7 @@
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_skin - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_mount - Currently Empty String
-					if (replay.ReplayBuild >= 51978)
+					if (replay.ReplayVersionMajor >= 2)
 					{
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner - Currently Empty String
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray - Currently Empty String
@@ -266,7 +266,7 @@
 					if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsSilenced = true;
 
-					if(replay.ReplayBuild >= 51978)
+					if(replay.ReplayVersionMajor >= 2)
 					{
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray

@@ -144,7 +144,7 @@ namespace Heroes.ReplayParser
 
             try
             {
-                replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientListByUserID, replay.ReplayBuild);
+                replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientListByUserID, replay.ReplayBuild, replay.ReplayVersionMajor);
                 replay.IsGameEventsParsedSuccessfully = true;
             }
             catch

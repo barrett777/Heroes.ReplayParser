@@ -11,7 +11,7 @@ namespace Heroes.ReplayParser
     {
         public const string FileName = "replay.game.events";
 
-        public static List<GameEvent> Parse(byte[] buffer, Player[] clientList, int replayBuild)
+        public static List<GameEvent> Parse(byte[] buffer, Player[] clientList, int replayBuild, int replayVersionMajor)
         {
             // Referenced from https://raw.githubusercontent.com/Blizzard/heroprotocol/master/protocol39445.py
 
@@ -135,7 +135,7 @@ namespace Heroes.ReplayParser
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[24] };
                             else if (replayBuild <= 45635)
                                 gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[26] };
-                            else if(replayBuild < 51978)
+                            else if(replayVersionMajor < 2)
 								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[25] };
 							else
 								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[26] };
@@ -205,7 +205,7 @@ namespace Heroes.ReplayParser
 
 								// m_delta
 								new TrackerEventStructure { array = new[] {
-									new TrackerEventStructure { unsignedInt = bitReader.Read(replayBuild < 51978 ? 9 : 5) }, // m_subgroupIndex
+									new TrackerEventStructure { unsignedInt = bitReader.Read(replayVersionMajor < 2 ? 9 : 5) }, // m_subgroupIndex
 									new TrackerEventStructure(),
 									new TrackerEventStructure(),
 									new TrackerEventStructure() } } } };
@@ -216,27 +216,27 @@ namespace Heroes.ReplayParser
                                 case 0: // None
                                     break;
                                 case 1: // Mask
-                                    bitReader.Read(bitReader.Read(replayBuild < 51978 ? 9 : 6));
+                                    bitReader.Read(bitReader.Read(replayVersionMajor < 2 ? 9 : 6));
                                     break;
                                 case 2: // OneIndices
                                 case 3: // ZeroIndices
-                                    gameEvent.data.array[1].array[1] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayBuild < 51978 ? 9 : 6)] };
+                                    gameEvent.data.array[1].array[1] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayVersionMajor < 2 ? 9 : 6)] };
                                     for (var i = 0; i < gameEvent.data.array[1].array[1].array.Length; i++)
-                                        gameEvent.data.array[1].array[1].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(replayBuild < 51978 ? 9 : 5) };
+                                        gameEvent.data.array[1].array[1].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(replayVersionMajor < 2 ? 9 : 5) };
                                     break;
                             }
 
                             // m_addSubgroups
-                            gameEvent.data.array[1].array[2] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayBuild < 51978 ? 9 : 6)] };
+                            gameEvent.data.array[1].array[2] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayVersionMajor < 2 ? 9 : 6)] };
                             for (var i = 0; i < gameEvent.data.array[1].array[2].array.Length; i++)
                                 gameEvent.data.array[1].array[2].array[i] = new TrackerEventStructure { array = new[] {
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(16) }, // m_unitLink
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_subgroupPriority
                                     new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_intraSubgroupPriority
-                                    new TrackerEventStructure { unsignedInt = bitReader.Read(replayBuild < 51978 ? 9 : 6) } } }; // m_count
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(replayVersionMajor < 2 ? 9 : 6) } } }; // m_count
 
                             // m_addUnitTags
-                            gameEvent.data.array[1].array[3] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayBuild < 51978 ? 9 : 6)] };
+                            gameEvent.data.array[1].array[3] = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayVersionMajor < 2 ? 9 : 6)] };
                             for (var i = 0; i < gameEvent.data.array[1].array[3].array.Length; i++)
                                 gameEvent.data.array[1].array[3].array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(32) };
                             break;
@@ -255,13 +255,13 @@ namespace Heroes.ReplayParser
                                 case 0: // None
                                     break;
                                 case 1: // Mask
-                                    bitReader.Read(bitReader.Read(replayBuild < 51978 ? 9 : 6));
+                                    bitReader.Read(bitReader.Read(replayVersionMajor < 2 ? 9 : 6));
                                     break;
                                 case 2: // OneIndices
                                 case 3: // ZeroIndices
-                                    gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayBuild < 51978 ? 9 : 6)] };
+                                    gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[bitReader.Read(replayVersionMajor < 2 ? 9 : 6)] };
                                     for (var i = 0; i < gameEvent.data.array.Length; i++)
-                                        gameEvent.data.array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(replayBuild < 51978 ? 9 : 5) };
+                                        gameEvent.data.array[i] = new TrackerEventStructure { unsignedInt = bitReader.Read(replayVersionMajor < 2 ? 9 : 5) };
                                     break;
                             }
                             break;
@@ -269,7 +269,7 @@ namespace Heroes.ReplayParser
                             bitReader.Read(4); // m_controlGroupId
 
                             // m_selectionSyncData
-							if (replayBuild < 51978)
+							if (replayVersionMajor < 2)
 							{
 								bitReader.Read(9); // m_count
 								bitReader.Read(9); // m_subgroupCount
