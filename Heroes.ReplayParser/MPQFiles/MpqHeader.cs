@@ -38,11 +38,15 @@
             // [0] = Blob, "Heroes of the Storm replay 11" - Strange backward arrow before 11 as well.  I don't think the '11' will change, as I believe it was also always '11' in Starcraft 2 replays.
 
             replay.ReplayVersion = string.Format("{0}.{1}.{2}.{3}", headerStructure.dictionary[1].dictionary[0].vInt.Value, headerStructure.dictionary[1].dictionary[1].vInt.Value, headerStructure.dictionary[1].dictionary[2].vInt.Value, headerStructure.dictionary[1].dictionary[3].vInt.Value);
-			replay.ReplayVersionMajor = (int)headerStructure.dictionary[1].dictionary[1].vInt.Value;
 
 			replay.ReplayBuild = (int)headerStructure.dictionary[1].dictionary[4].vInt.Value;
 
-            if (replay.ReplayBuild >= 39951)
+			if(replay.ReplayBuild >= 51978)
+				replay.ReplayVersionMajor = (int)headerStructure.dictionary[1].dictionary[1].vInt.Value;
+			else
+				replay.ReplayVersionMajor = 1;
+
+			if (replay.ReplayBuild >= 39951)
                 // 'm_dataBuildNum' may have always been incremented for these smaller 'hotfix' patches, but build 39951 is the first time I've noticed where a Hero's available talent selection has changed in one of these smaller patches
                 // We probably want to use this as the most precise build number from now on
                 replay.ReplayBuild = (int)headerStructure.dictionary[6].vInt.Value;
