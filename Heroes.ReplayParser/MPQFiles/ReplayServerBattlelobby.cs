@@ -247,7 +247,12 @@
                     bitReader.ReadBytes(14);
                     bitReader.ReadBytes(12); // same for all players
 
-                    if (replay.ReplayBuild >= 51609)
+                    if (replay.ReplayBuild >= 52124)
+                    {
+                        bitReader.ReadBytes(47);
+                        bitReader.Read(4);
+                    }
+                    else if (replay.ReplayBuild >= 51609)
                     {
                         bitReader.ReadBytes(46);
                         bitReader.Read(7);
@@ -276,6 +281,14 @@
                         }
 
                         bitReader.Read(1);
+                    }
+
+                    if (bitReader.ReadBoolean())
+                    {
+                        // use this to determine who is in a party
+                        // those in the same party will have the same exact 8 bytes of data
+                        // the party leader is the first one (in the order of the client list)
+                        bitReader.ReadBytes(8);
                     }
 
                     bitReader.Read(1);
