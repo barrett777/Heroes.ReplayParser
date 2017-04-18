@@ -272,6 +272,17 @@
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
+
+						// m_heroMasteryTiers
+						if(replay.ReplayBuild >= 52561)
+						{
+							var heroMasteryTiersLength = reader.Read(10);
+							for (var j = 0; j < heroMasteryTiersLength; j++)
+							{
+								reader.Read(32); // m_hero
+								reader.Read(8); // m_tier
+							}
+						}
 					}
 				}
 

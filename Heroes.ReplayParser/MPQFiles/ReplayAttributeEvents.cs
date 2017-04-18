@@ -303,13 +303,14 @@ namespace Heroes.ReplayParser
             else if (replay.TeamSize.Equals("FFA"))
                 currentList = attributesffa;
 
+			/* Team is parsed in ReplayDetails.cs, this is unnecessary
             if (currentList != null)
                 foreach (var att in currentList)
                     // Reverse the values then parse, you don't notice the effects of this until theres 10+ teams o.o
-                    replay.PlayersWithOpenSlots[att.PlayerId - 1].Team = int.Parse(encoding.GetString(att.Value.Reverse().ToArray()).Trim('\0', 'T'));
-        }
+                    replay.PlayersWithOpenSlots[att.PlayerId - 1].Team = int.Parse(encoding.GetString(att.Value.Reverse().ToArray()).Trim('\0', 'T')); */
+		}
 
-        public enum ReplayAttributeEventType
+		public enum ReplayAttributeEventType
         {
             PlayerTypeAttribute = 500,
             Rules = 1000,

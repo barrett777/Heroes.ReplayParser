@@ -133,6 +133,7 @@ namespace Heroes.ReplayParser
                             case "GallTalentNetherCallsUpgrade":
 							case "GallDreadOrbDoubleBackTalentUpgrade":
 							case "TracerJumperButtonSwap":
+							case "DisplayLockedMapMechanicAbility":
                                 // Not really interested in these
                                 break;
 
@@ -581,6 +582,7 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardMostAltarDamageDone":
                                 case "EndOfMatchAwardMostNukeDamageDoneBoolean":
 								case "EndOfMatchAwardMostSkullsCollectedBoolean":
+								case "EndOfMatchAwardMostTimePushingBoolean":
 
                                 case "EndOfMatchAwardMostKillsBoolean":
                                 case "EndOfMatchAwardHatTrickBoolean":
@@ -668,6 +670,9 @@ namespace Heroes.ReplayParser
 												case "EndOfMatchAwardMostSkullsCollectedBoolean":
 													replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostSkullsCollected);
 													break;
+												case "EndOfMatchAwardMostTimePushingBoolean":
+													replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostTimePushing);
+													break;
 
 												case "EndOfMatchAwardMostKillsBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostKills);
@@ -721,10 +726,11 @@ namespace Heroes.ReplayParser
                                 case "TeamTakedowns":
                                 case "Role":
                                 case "EndOfMatchAwardGivenToNonwinner":
+								case "OnFireTimeOnFire":
 
-                                // New Stats Added in PTR 12/6/2016
-                                // Currently all 0 values - if these are filled in, let's add them to the Player.ScoreResult object
-                                case "ProtectionGivenToAllies":
+								// New Stats Added in PTR 12/6/2016
+								// Currently all 0 values - if these are filled in, let's add them to the Player.ScoreResult object
+								case "ProtectionGivenToAllies":
                                 case "TimeSilencingEnemyHeroes":
                                 case "TimeRootingEnemyHeroes":
                                 case "TimeStunningEnemyHeroes":
@@ -754,6 +760,7 @@ namespace Heroes.ReplayParser
                                 case "BlackheartDoubloonsTurnedIn":
                                 case "MinesSkullsCollected":
                                 case "NukeDamageDone":
+								case "TimeOnPayload":
 
                                 // Special Events
                                 case "LunarNewYearEventCompleted":           // Early 2016
