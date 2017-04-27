@@ -145,39 +145,35 @@
                     bitReader.ReadBytes(32);
                 }
 
-                // All the Heroes, skins, mounts, effects, some other weird stuff (Cocoon, ArtifactSlot2, TestMountRideSurf, etc...)
+                // Player collections - starting with HOTS 2.0 (live build 52860)
                 // --------------------------------------------------------------
-                List<string> skins = new List<string>();
+                List<string> playerCollection = new List<string>();
 
-                int skinArrayLength = 0;
+                int collectionSize = 0;
 
                 if (replay.ReplayBuild >= 48027)
-                    skinArrayLength = bitReader.ReadInt16();
-                else 
-                    skinArrayLength = bitReader.ReadInt32();
+                    collectionSize = bitReader.ReadInt16();
+                else
+                    collectionSize = bitReader.ReadInt32();
 
-                if (skinArrayLength > 1000)
+                if (collectionSize > 5000)
                     throw new Exception("skinArrayLength is an unusually large number");
 
-                for (int i = 0; i < skinArrayLength; i++)
+                for (int i = 0; i < collectionSize; i++)
                 {
-                    skins.Add(bitReader.ReadString(bitReader.ReadByte()));
+                    playerCollection.Add(bitReader.ReadString(bitReader.ReadByte()));
                 }
 
-                // use to determine if the heroes, skins, mounts are usable by the player (owns/free to play/internet cafe)
-                if (bitReader.ReadInt32() != skinArrayLength)
+                // use to determine if the collection item is usable by the player (owns/free to play/internet cafe)
+                if (bitReader.ReadInt32() != collectionSize)
                     throw new Exception("skinArrayLength not equal");
 
-                for (int i = 0; i < skinArrayLength; i++)
+                for (int i = 0; i < collectionSize; i++)
                 {
                     for (int j = 0; j < 16; j++) // 16 is total player slots
                     {
                         bitReader.ReadByte();
 
-                        // new values beginning on ptr 47801
-                        // 0xC3 = free to play?
-                        // more values: 0xC1, 0x02, 0x83
-                        // Note: New values gone with build 51779 
                         var num = bitReader.Read(8);
                         if (replay.ClientListByUserID[j] != null)
                         {
@@ -242,12 +238,28 @@
                         TId = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
                     }
 
-                    // next 30 bytes
+                    replay.ClientListByUserID[player].BattleNetTId = TId;
+
+                    // next 18 bytes
                     bitReader.ReadBytes(4); // same for all players
                     bitReader.ReadBytes(14);
-                    bitReader.ReadBytes(12); // same for all players
 
-                    if (replay.ReplayBuild >= 52124)
+                    // same for all players
+                    if (replay.ReplayBuild >= 52860)
+                    {
+                        bitReader.ReadBytes(14);
+                    }
+                    else
+                    {
+                        bitReader.ReadBytes(12);
+                    }
+
+                    if (replay.ReplayBuild >= 52860)
+                    {
+                        bitReader.ReadBytes(214);
+                        bitReader.Read(7);
+                    }
+                    else if (replay.ReplayBuild >= 52124)
                     {
                         bitReader.ReadBytes(47);
                         bitReader.Read(4);
@@ -267,8 +279,8 @@
 
 
                         // this data is a repeat of the usable skins section above
-                        //bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
-                        for (int i = 0; i < skinArrayLength; i++)
+                        // bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
+                        for (int i = 0; i < collectionSize; i++)
                         {
                             // each byte has a max value of 0x7F (127)
                             int value = 0;
@@ -300,7 +312,14 @@
                     replay.ClientListByUserID[player].BattleTag = int.Parse(battleTag[1]);
 
                     // these similar bytes don't occur for last player
-                    bitReader.ReadBytes(27);
+                    if (replay.ReplayBuild >= 52860)
+                    {
+                        bitReader.ReadBytes(31);
+                    }
+                    else
+                    {
+                        bitReader.ReadBytes(27);
+                    }
                 }
 
                 // some more data after this
