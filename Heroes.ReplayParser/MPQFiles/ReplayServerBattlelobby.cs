@@ -238,7 +238,7 @@
                         TId = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
                     }
 
-                    replay.ClientListByUserID[player].BattleNetTId = TId;
+                    // replay.ClientListByUserID[player].BattleNetTId = TId; - Not sure what the intention was for this :)
 
                     // next 18 bytes
                     bitReader.ReadBytes(4); // same for all players
