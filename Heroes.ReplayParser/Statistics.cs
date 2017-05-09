@@ -106,9 +106,16 @@ namespace Heroes.ReplayParser
 
             var playerIDTalentIndexDictionary = new Dictionary<int, int>();
 
-            foreach (var trackerEvent in replay.TrackerEvents.Where(i => i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UpgradeEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.StatGameEvent || i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.ScoreResultEvent))
+            foreach (var trackerEvent in replay.TrackerEvents.Where(i =>
+				i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.PlayerSetupEvent ||
+				i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.UpgradeEvent ||
+				i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.StatGameEvent ||
+				i.TrackerEventType == ReplayTrackerEvents.TrackerEventType.ScoreResultEvent))
                 switch (trackerEvent.TrackerEventType)
                 {
+					case ReplayTrackerEvents.TrackerEventType.PlayerSetupEvent:
+						playerIDDictionary[(int)trackerEvent.Data.dictionary[0].vInt.Value] = replay.ClientListByWorkingSetSlotID[(int)trackerEvent.Data.dictionary[3].optionalData.vInt.Value];
+						break;
                     case ReplayTrackerEvents.TrackerEventType.UpgradeEvent:
                         switch (trackerEvent.Data.dictionary[1].blobText)
                         {
