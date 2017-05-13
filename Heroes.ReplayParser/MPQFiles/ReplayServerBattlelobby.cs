@@ -22,7 +22,8 @@
             {
                 var bitReader = new BitReader(stream);
 
-                if (replay.ReplayBuild < 38793)
+                if (replay.ReplayBuild < 38793 ||
+                    replay.ReplayBuild == 52124 || replay.ReplayBuild == 52381) // non-test ptr builds
                 {
                     GetBattleTags(replay, bitReader);
                     return;
@@ -157,7 +158,7 @@
                     collectionSize = bitReader.ReadInt32();
 
                 if (collectionSize > 5000)
-                    throw new Exception("skinArrayLength is an unusually large number");
+                    throw new Exception("collectionSize is an unusually large number");
 
                 for (int i = 0; i < collectionSize; i++)
                 {
@@ -201,12 +202,10 @@
                     return;
                 }
 
-                bitReader.ReadInt32();
-                bitReader.ReadBytes(33);
+                bitReader.ReadInt32(); // m_randomSeed 
+                bitReader.ReadBytes(32);
 
-                ReadByte0x00(bitReader);
-                ReadByte0x00(bitReader);
-                bitReader.ReadByte(); // 0x19
+                bitReader.ReadInt32(); // 0x19
 
                 if (replay.ReplayBuild <= 47479 || replay.ReplayBuild == 47903)
                 {
@@ -238,35 +237,39 @@
                         TId = Encoding.UTF8.GetString(ReadSpecialBlob(bitReader, 8));
                     }
 
-                    // replay.ClientListByUserID[player].BattleNetTId = TId; - Not sure what the intention was for this :)
 
                     // next 18 bytes
                     bitReader.ReadBytes(4); // same for all players
                     bitReader.ReadBytes(14);
 
-                    // same for all players
-                    if (replay.ReplayBuild >= 52860)
+                    if (replay.ReplayBuild == 53270)
                     {
-                        bitReader.ReadBytes(14);
+                        bitReader.ReadBytes(232);
+                        bitReader.Read(1);
                     }
-                    else
+                    else if (replay.ReplayBuild >= 52860)
                     {
-                        bitReader.ReadBytes(12);
-                    }
-
-                    if (replay.ReplayBuild >= 52860)
-                    {
-                        bitReader.ReadBytes(214);
+                        bitReader.ReadBytes(228);
                         bitReader.Read(7);
+                    }
+                    else if (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 52561)
+                    {
+                        bitReader.ReadBytes(227);
+                        bitReader.Read(4);
+                    }
+                    else if (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978)
+                    {
+                        bitReader.ReadBytes(224);
+                        bitReader.Read(0);
                     }
                     else if (replay.ReplayBuild >= 52124)
                     {
-                        bitReader.ReadBytes(47);
+                        bitReader.ReadBytes(59);
                         bitReader.Read(4);
                     }
                     else if (replay.ReplayBuild >= 51609)
                     {
-                        bitReader.ReadBytes(46);
+                        bitReader.ReadBytes(58);
                         bitReader.Read(7);
                     }
                     else
@@ -311,15 +314,11 @@
 
                     replay.ClientListByUserID[player].BattleTag = int.Parse(battleTag[1]);
 
-                    // these similar bytes don't occur for last player
-                    if (replay.ReplayBuild >= 52860)
-                    {
-                        bitReader.ReadBytes(31);
-                    }
-                    else
-                    {
-                        bitReader.ReadBytes(27);
-                    }
+
+                    if (replay.ReplayBuild >= 52860 || (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978))
+                        bitReader.ReadInt32(); // player's account level
+
+                    bitReader.ReadBytes(27); // these similar bytes don't occur for last player
                 }
 
                 // some more data after this
