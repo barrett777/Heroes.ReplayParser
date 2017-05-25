@@ -31,7 +31,10 @@
 
                     var playerIndex = (int)bitReader.Read(5);
                     if (playerIndex != 16)
+                    {
                         message.MessageSender = replay.ClientListByUserID[playerIndex];
+                        message.PlayerIndex = playerIndex;
+                    }
 
                     message.MessageEventType = (MessageEventType)bitReader.Read(4);
                     switch (message.MessageEventType)
