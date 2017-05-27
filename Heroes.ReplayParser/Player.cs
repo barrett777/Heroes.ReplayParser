@@ -134,6 +134,11 @@ namespace Heroes.ReplayParser
         /// Gets or sets the player's TId (alternative to battletag)
         /// </summary>
         public string BattleNetTId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's account level
+        /// </summary>
+        public int AccountLevel { get; set; }
     }
 
     public class ScoreResult

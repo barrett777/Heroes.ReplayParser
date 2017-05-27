@@ -320,7 +320,7 @@
                     replay.ClientListByUserID[player].BattleTag = int.Parse(battleTag[1]);
 
                     if (replay.ReplayBuild >= 52860 || (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978))
-                        bitReader.ReadInt32(); // player's account level
+                        replay.ClientListByUserID[player].AccountLevel = bitReader.ReadInt32(); // player's account level, not available in custom games
 
                     bitReader.ReadBytes(27); // these similar bytes don't occur for last player
                 }
