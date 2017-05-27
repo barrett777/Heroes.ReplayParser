@@ -6,6 +6,7 @@ namespace Heroes.ReplayParser
     public class Message
     {
         public Player MessageSender { get; set; }
+        public int PlayerIndex { get; set; }
         public TimeSpan Timestamp { get; set; }
         public MessageEventType MessageEventType { get; set; }
         public ChatMessage ChatMessage { get; set; }
