@@ -119,6 +119,26 @@ namespace Heroes.ReplayParser
         /// Gets or sets the player's miscellaneous end game score result statistics
         /// </summary>
         public Dictionary<string, int> MiscellaneousScoreResultEventDictionary { get; set; } = new Dictionary<string, int>();
+
+        /// <summary>
+        /// Gets or sets the player's collection
+        /// </summary>
+        public Dictionary<string, bool> PlayerCollectionDictionary { get; set; } = new Dictionary<string, bool>();
+
+        /// <summary>
+        /// Gets or sets the the player's party (same value, same party)
+        /// </summary>
+        public long PartyValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's TId (alternative to battletag)
+        /// </summary>
+        public string BattleNetTId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's account level
+        /// </summary>
+        public int AccountLevel { get; set; }
     }
 
     public class ScoreResult
