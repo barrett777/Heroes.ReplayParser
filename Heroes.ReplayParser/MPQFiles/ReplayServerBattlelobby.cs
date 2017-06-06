@@ -535,8 +535,10 @@
                         break;
                 }
 
-                if (reader.EndOfStream)
-                    break;
+				if(reader.EndOfStream)
+					break;
+				else if(battleTagDigits.Count == 0)
+					continue;
 
                 player.BattleTag = int.Parse(string.Join("", battleTagDigits));
             }
