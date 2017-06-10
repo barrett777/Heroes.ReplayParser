@@ -243,63 +243,30 @@
 
                     // next 18 bytes
                     bitReader.ReadBytes(4); // same for all players
-                    bitReader.ReadBytes(14);
+                    bitReader.ReadBytes(26);
 
-                    if (replay.ReplayBuild >= 53548 || replay.ReplayBuild == 53270)
+                    // repeat of the collection section above
+                    if (replay.ReplayBuild >= 51609)
                     {
-                        bitReader.ReadBytes(232);
-                        bitReader.Read(1);
-                    }
-                    else if (replay.ReplayBuild >= 52860)
-                    {
-                        bitReader.ReadBytes(228);
-                        bitReader.Read(7);
-                    }
-                    else if (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 52561)
-                    {
-                        bitReader.ReadBytes(227);
-                        bitReader.Read(4);
-                    }
-                    else if (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978)
-                    {
-                        bitReader.ReadBytes(224);
-                        bitReader.Read(0);
-                    }
-                    else if (replay.ReplayBuild >= 52124)
-                    {
-                        bitReader.ReadBytes(59);
-                        bitReader.Read(4);
-                    }
-                    else if (replay.ReplayBuild >= 51609)
-                    {
-                        bitReader.ReadBytes(58);
-                        bitReader.Read(7);
+                        int size = (int)bitReader.Read(12); // 3 bytes max 4095
+                        if (size != collectionSize)
+                            throw new Exception("size and collectionSize not equal");
+
+                        int bytesSize = collectionSize / 8;
+                        int bitsSize = (collectionSize % 8) + 2; // two additional unknown bits
+
+                        bitReader.ReadBytes(bytesSize);
+                        bitReader.Read(bitsSize);
                     }
                     else
                     {
-                        bitReader.ReadBytes(12);
-
-                        // each byte has a max value of 0x7F (127)
                         if (replay.ReplayBuild >= 48027)
                             bitReader.ReadInt16();
                         else
                             bitReader.ReadInt32();
 
-
-                        // this data is a repeat of the usable skins section above
-                        // bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (skinArrayLength * 2);
-                        for (int i = 0; i < collectionSize; i++)
-                        {
-                            // each byte has a max value of 0x7F (127)
-                            int value = 0;
-                            int x = (int)bitReader.Read(8);
-                            if (x > 0)
-                            {
-                                value += x + 127;
-                            }
-                            value += (int)bitReader.Read(8);
-                        }
-
+                        // each byte has a max value of 0x7F (127)
+                        bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
                         bitReader.Read(1);
                     }
 
@@ -535,10 +502,10 @@
                         break;
                 }
 
-				if(reader.EndOfStream)
-					break;
-				else if(battleTagDigits.Count == 0)
-					continue;
+                if (reader.EndOfStream)
+                    break;
+                else if (battleTagDigits.Count == 0)
+                    continue;
 
                 player.BattleTag = int.Parse(string.Join("", battleTagDigits));
             }
