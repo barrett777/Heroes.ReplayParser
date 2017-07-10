@@ -136,6 +136,7 @@ namespace Heroes.ReplayParser
                                 break;
 
                             case "GatesAreOpen":
+							case "NecromancerEchoesOfDeathTalentUpgrade":
                             case "MinionsAreSpawning":
                             case "GallTalentNetherCallsUpgrade":
 							case "GallDreadOrbDoubleBackTalentUpgrade":
