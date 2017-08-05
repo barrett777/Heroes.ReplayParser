@@ -426,6 +426,11 @@ namespace Heroes.ReplayParser
                             gameEvent.data = new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 };
                             break;
                         case GameEventType.CGameUserLeaveEvent:
+							// m_leaveReason
+							if(replayBuild >= 55929)
+								bitReader.Read(5);
+							else
+								bitReader.Read(4);
                             break;
                         case GameEventType.CGameUserJoinEvent:
                             gameEvent.data = new TrackerEventStructure { array = new TrackerEventStructure[5] };
