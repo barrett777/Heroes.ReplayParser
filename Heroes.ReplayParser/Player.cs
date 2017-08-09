@@ -121,7 +121,7 @@ namespace Heroes.ReplayParser
         public Dictionary<string, int> MiscellaneousScoreResultEventDictionary { get; set; } = new Dictionary<string, int>();
 
         /// <summary>
-        /// Gets or sets the player's collection
+        /// Gets or sets the player's collection, no longer available since 56175
         /// </summary>
         public Dictionary<string, bool> PlayerCollectionDictionary { get; set; } = new Dictionary<string, bool>();
 
