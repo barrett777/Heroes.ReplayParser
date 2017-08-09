@@ -53,80 +53,79 @@
                     bitReader.ReadBytes(32);
                 }
 
-                // seems to be in all replays
-                bitReader.ReadInt16();
-                bitReader.stream.Position = bitReader.stream.Position + 684;
+                if (replay.ReplayBuild < 55929)
+                {
+                    // seems to be in all replays
+                    bitReader.ReadInt16();
+                    bitReader.stream.Position = bitReader.stream.Position + 684;
 
-                // seems to be in all replays
-                bitReader.ReadInt16();
-                bitReader.stream.Position = bitReader.stream.Position + 1944;
+                    // seems to be in all replays
+                    bitReader.ReadInt16();
+                    bitReader.stream.Position = bitReader.stream.Position + 1944;
 
-                if (bitReader.ReadString(8) != "HumnComp")
-                    throw new Exception("Not HumnComp");
+                    if (bitReader.ReadString(8) != "HumnComp")
+                        throw new Exception("Not HumnComp");
+                }
 
-                // seems to be in all replays
                 bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + 19859;
 
-                // next section is language libraries?
-                // ---------------------------------------
-                bitReader.Read(8);
-                bitReader.Read(8);
+                //// next section is language libraries?
+                //// ---------------------------------------
+                //for (int i = 0; ; i++) // no idea how to determine the count
+                //{
+                //    if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2mv; not sure if its going to be 'mv' all the time
+                //    {
+                //        bitReader.stream.Position = bitReader.stream.Position - 4;
+                //        break;
+                //    }
 
-                for (int i = 0; ; i++) // no idea how to determine the count
-                {
-                    if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2mv; not sure if its going to be 'mv' all the time
-                    {
-                        bitReader.stream.Position = bitReader.stream.Position - 4;
-                        break;
-                    }
+                //    bitReader.ReadBytes(2); // 0x00 0x00
+                //    bitReader.ReadString(2); // Realm
+                //    bitReader.ReadBytes(32);
+                //}
 
-                    bitReader.ReadBytes(2); // 0x00 0x00
-                    bitReader.ReadString(2); // Realm
-                    bitReader.ReadBytes(32);
-                }
+                //bitReader.Read(32);
+                //bitReader.Read(8);
 
-                bitReader.Read(32);
-                bitReader.Read(8);
+                //bitReader.ReadByte();
+                //for (int i = 0; ; i++) // no idea how to determine the count
+                //{
+                //    if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2ml
+                //    {
+                //        bitReader.stream.Position = bitReader.stream.Position - 4;
+                //        break;
+                //    }
 
-                bitReader.ReadByte();
-                for (int i = 0; ; i++) // no idea how to determine the count
-                {
-                    if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2ml
-                    {
-                        bitReader.stream.Position = bitReader.stream.Position - 4;
-                        break;
-                    }
+                //    bitReader.ReadBytes(2); // 0x00 0x00
+                //    bitReader.ReadString(2); // Realm
+                //    bitReader.ReadBytes(32);
+                //}
 
-                    bitReader.ReadBytes(2); // 0x00 0x00
-                    bitReader.ReadString(2); // Realm
-                    bitReader.ReadBytes(32);
-                }
+                //for (int k = 0; k < 11; k++)
+                //{
+                //    // ruRU, zhCN, plPL, esMX, frFR, esES
+                //    // ptBR, itIT, enUs, deDe, koKR
+                //    bitReader.ReadString(4);
 
-                for (int k = 0; k < 11; k++)
-                {
-                    // ruRU, zhCN, plPL, esMX, frFR, esES
-                    // ptBR, itIT, enUs, deDe, koKR
-                    bitReader.ReadString(4);
-
-                    bitReader.ReadByte();
-                    for (int i = 0; ; i++)
-                    {
-                        if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2ml
-                        {
-                            bitReader.stream.Position = bitReader.stream.Position - 4;
-                            break;
-                        }
-                        bitReader.ReadString(4); // s2ml
-                        bitReader.ReadBytes(2); // 0x00 0x00
-                        bitReader.ReadString(2); // Realm
-                        bitReader.ReadBytes(32);
-                    }
-                }
+                //    bitReader.ReadByte();
+                //    for (int i = 0; ; i++)
+                //    {
+                //        if (bitReader.ReadString(4).Substring(0, 2) != "s2") // s2ml
+                //        {
+                //            bitReader.stream.Position = bitReader.stream.Position - 4;
+                //            break;
+                //        }
+                //        bitReader.ReadString(4); // s2ml
+                //        bitReader.ReadBytes(2); // 0x00 0x00
+                //        bitReader.ReadString(2); // Realm
+                //        bitReader.ReadBytes(32);
+                //    }
+                //}
 
                 // new section, can't find a pattern
                 // has blizzmaps#1, Hero, s2mv
                 // --------------------
-                bitReader.ReadBytes(8); // all 0x00
+                //bitReader.ReadBytes(8); // all 0x00
 
                 for (;;)
                 {
@@ -164,7 +163,10 @@
 
                 for (int i = 0; i < collectionSize; i++)
                 {
-                    playerCollection.Add(bitReader.ReadString(bitReader.ReadByte()));
+                    if (replay.ReplayBuild >= 55929)
+                        bitReader.ReadBytes(8);
+                    else
+                        playerCollection.Add(bitReader.ReadString(bitReader.ReadByte()));
                 }
 
                 // use to determine if the collection item is usable by the player (owns/free to play/internet cafe)
@@ -178,18 +180,22 @@
                         bitReader.ReadByte();
 
                         var num = bitReader.Read(8);
-                        if (replay.ClientListByUserID[j] != null)
+
+                        if (replay.ReplayBuild < 55929)
                         {
-                            if (num > 0)
+                            if (replay.ClientListByUserID[j] != null)
                             {
-                                replay.ClientListByUserID[j].PlayerCollectionDictionary.Add(playerCollection[i], true);
+                                if (num > 0)
+                                {
+                                    replay.ClientListByUserID[j].PlayerCollectionDictionary.Add(playerCollection[i], true);
+                                }
+                                else if (num == 0)
+                                {
+                                    replay.ClientListByUserID[j].PlayerCollectionDictionary.Add(playerCollection[i], false);
+                                }
+                                else
+                                    throw new NotImplementedException();
                             }
-                            else if (num == 0)
-                            {
-                                replay.ClientListByUserID[j].PlayerCollectionDictionary.Add(playerCollection[i], false);
-                            }
-                            else
-                                throw new NotImplementedException();
                         }
                     }
                 }
