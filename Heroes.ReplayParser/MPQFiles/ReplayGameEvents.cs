@@ -398,9 +398,14 @@ namespace Heroes.ReplayParser
                             break;
                         case GameEventType.CTriggerMouseMovedEvent:
                             gameEvent.data = new TrackerEventStructure { array = new[] {
+								// m_posUI
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(11) },
                                 new TrackerEventStructure { unsignedInt = bitReader.Read(11) },
+
+								// m_posWorld
                                 new TrackerEventStructure { array = new[] { new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { unsignedInt = bitReader.Read(20) }, new TrackerEventStructure { vInt = bitReader.Read(32) - 2147483648 } } },
+
+								// m_flags
                                 new TrackerEventStructure { vInt = bitReader.Read(8) - 128 } } };
                             break;
                         case GameEventType.CTriggerHotkeyPressedEvent:
