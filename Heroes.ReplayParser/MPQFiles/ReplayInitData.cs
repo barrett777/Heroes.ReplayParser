@@ -246,7 +246,7 @@
                     reader.ReadBlobPrecededWithLength(7); // m_toonHandle
 
                     // m_licenses
-                    if (replay.ReplayBuild < 49582)
+                    if (replay.ReplayBuild < 49582 || replay.ReplayBuild == 49838)
                     {
                         var licensesLength = reader.Read(9);
                         for (var j = 0; j < licensesLength; j++)
