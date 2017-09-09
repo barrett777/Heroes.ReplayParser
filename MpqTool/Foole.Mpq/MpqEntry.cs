@@ -52,7 +52,7 @@ namespace Foole.Mpq
         public uint EncryptionSeed { get; internal set; }
 
         private uint _fileOffset; // Relative to the header offset
-        internal uint FilePos { get; private set; } // Absolute position in the file
+        public uint FilePos { get; private set; } // Absolute position in the file
         private string _filename;
 
         public static readonly uint Size = 16;
