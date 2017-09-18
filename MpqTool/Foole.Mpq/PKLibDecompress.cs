@@ -31,7 +31,7 @@ using System.IO;
 
 namespace Foole.Mpq
 {
-	enum CompressionType
+    enum CompressionType
 	{
 		Binary = 0,
 		Ascii = 1
