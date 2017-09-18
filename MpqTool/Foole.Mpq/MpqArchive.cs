@@ -37,15 +37,15 @@ namespace Foole.Mpq
 	{
 		private MpqHeader _mpqHeader;
 		private long _headerOffset;
-		private MpqHash[] _hashes;
 		private MpqEntry[] _entries;
 		
 		private static uint[] sStormBuffer;
 
         internal Stream BaseStream { get; private set; }
-        internal int BlockSize { get; private set; }
+        public int BlockSize { get; private set; }
+        public MpqHash[] _hashes { get; set; }
 
-		static MpqArchive()
+        static MpqArchive()
 		{
 			sStormBuffer = BuildStormBuffer();
 		}
@@ -423,7 +423,7 @@ namespace Foole.Mpq
         }
     }
 
-    internal struct MpqHash
+    public struct MpqHash
     {
         public uint Name1 { get; private set; }
         public uint Name2 { get; private set; }
