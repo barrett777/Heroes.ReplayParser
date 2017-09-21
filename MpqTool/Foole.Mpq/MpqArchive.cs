@@ -37,13 +37,13 @@ namespace Foole.Mpq
 	{
 		private MpqHeader _mpqHeader;
 		private long _headerOffset;
+		public MpqHash[] _hashes;
 		private MpqEntry[] _entries;
 		
 		private static uint[] sStormBuffer;
 
         internal Stream BaseStream { get; private set; }
         public int BlockSize { get; private set; }
-        public MpqHash[] _hashes { get; set; }
 
         static MpqArchive()
 		{
