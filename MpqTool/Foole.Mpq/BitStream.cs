@@ -31,10 +31,10 @@ using System.IO;
 
 namespace Foole.Mpq
 {
-	/// <summary>
-	/// A utility class for reading groups of bits from a stream
-	/// </summary>
-	internal class BitStream
+    /// <summary>
+    /// A utility class for reading groups of bits from a stream
+    /// </summary>
+    internal class BitStream
 	{
         private Stream _baseStream;
         private int _current;
