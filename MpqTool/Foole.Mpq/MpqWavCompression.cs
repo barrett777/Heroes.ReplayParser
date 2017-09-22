@@ -26,14 +26,15 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+using System;
 using System.IO;
 
 namespace Foole.Mpq
 {
-    /// <summary>
-    /// An IMA ADPCM decompress for Mpq files
-    /// </summary>
-    internal static class MpqWavCompression
+	/// <summary>
+	/// An IMA ADPCM decompress for Mpq files
+	/// </summary>
+	internal static class MpqWavCompression
 	{
 		private static readonly int[] sLookup =
 		{

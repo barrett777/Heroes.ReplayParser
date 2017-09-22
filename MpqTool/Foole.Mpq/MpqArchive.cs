@@ -33,19 +33,19 @@ using System.IO;
 
 namespace Foole.Mpq
 {
-    public class MpqArchive : IDisposable, IEnumerable<MpqEntry>
+	public class MpqArchive : IDisposable, IEnumerable<MpqEntry>
 	{
 		private MpqHeader _mpqHeader;
 		private long _headerOffset;
-		public MpqHash[] _hashes;
+		private MpqHash[] _hashes;
 		private MpqEntry[] _entries;
 		
 		private static uint[] sStormBuffer;
 
         internal Stream BaseStream { get; private set; }
-        public int BlockSize { get; private set; }
+        internal int BlockSize { get; private set; }
 
-        static MpqArchive()
+		static MpqArchive()
 		{
 			sStormBuffer = BuildStormBuffer();
 		}
@@ -53,14 +53,12 @@ namespace Foole.Mpq
 		public MpqArchive(string filename)
 		{
 			BaseStream = File.Open(filename, FileMode.Open, FileAccess.Read);
-			try
-            {
-			    Init();
-			}
-            catch
-            {
-				Dispose(); // close stream if constructor failed
-                throw;
+			try {
+				Init();
+			} catch {
+				// close stream if constructor failed
+				Dispose();
+				throw;
 			}
 		}
 		
@@ -141,9 +139,10 @@ namespace Foole.Mpq
 		
 		public MpqStream OpenFile(string filename)
 		{
-            MpqEntry entry;
+			MpqHash hash;
+			MpqEntry entry;
 
-            if (!TryGetHashEntry(filename, out MpqHash hash))
+			if (!TryGetHashEntry(filename, out hash))
 				throw new FileNotFoundException("File not found: " + filename);
 
             entry = _entries[hash.BlockIndex];
@@ -160,8 +159,10 @@ namespace Foole.Mpq
 
 		public bool FileExists(string filename)
 		{
-            return TryGetHashEntry(filename, out MpqHash hash);
-        }
+			MpqHash hash;
+            
+            return TryGetHashEntry(filename, out hash);
+		}
 
         public bool AddListfileFilenames()
         {
@@ -184,7 +185,8 @@ namespace Foole.Mpq
 
         public bool AddFilename(string filename)
         {
-            if (!TryGetHashEntry(filename, out MpqHash hash)) return false;
+            MpqHash hash;
+            if (!TryGetHashEntry(filename, out hash)) return false;
 
             _entries[hash.BlockIndex].Filename = filename;
             return true;
@@ -199,7 +201,8 @@ namespace Foole.Mpq
         {
             get 
             {
-                if (!TryGetHashEntry(filename, out MpqHash hash)) return null;
+                MpqHash hash;
+                if (!TryGetHashEntry(filename, out hash)) return null;
                 return _entries[hash.BlockIndex];
             }
         }
@@ -420,7 +423,7 @@ namespace Foole.Mpq
         }
     }
 
-    public struct MpqHash
+    internal struct MpqHash
     {
         public uint Name1 { get; private set; }
         public uint Name2 { get; private set; }

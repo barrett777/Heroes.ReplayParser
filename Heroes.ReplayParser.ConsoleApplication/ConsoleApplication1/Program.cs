@@ -1,10 +1,11 @@
-﻿using Foole.Mpq;
-using Heroes.ReplayParser;
+﻿using System.IO;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
+using Heroes.ReplayParser;
+using Foole.Mpq;
 
-namespace ParserConsole
+namespace ConsoleApplication1
 {
     class Program
     {
