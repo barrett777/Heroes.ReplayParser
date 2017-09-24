@@ -369,8 +369,15 @@ namespace Heroes.ReplayParser
                                     gameEvent.data.array[2].DataType = 2;
                                     gameEvent.data.array[2].blob = bitReader.ReadBlobPrecededWithLength(11);
                                     break;
-                                case 5: // MouseButton
-                                    gameEvent.data.array[2].unsignedInt = bitReader.Read(32);
+                                case 5: // MouseButton or MouseEvent
+									if(replayBuild == 57547 || replayBuild > 57589)
+										gameEvent.data.array[2].array = new[]
+										{
+											new TrackerEventStructure { vInt = bitReader.Read(16) }, // m_button
+											new TrackerEventStructure { vInt = bitReader.Read(16) } // m_metaKeyFlags
+										};
+									else
+										gameEvent.data.array[2].unsignedInt = bitReader.Read(32);
                                     break;
                             }
                             break;
