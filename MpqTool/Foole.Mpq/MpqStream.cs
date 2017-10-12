@@ -31,12 +31,6 @@
 //
 using System;
 using System.IO;
-#if WITH_ZLIB
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-#endif
-#if WITH_BZIP
-using ICSharpCode.SharpZipLib.BZip2;
-#endif
 
 namespace Foole.Mpq
 {
@@ -397,38 +391,31 @@ namespace Foole.Mpq
                     throw new MpqParserException("Compression is not yet supported: 0x" + comptype.ToString("X"));
             }
         }
-
-#if WITH_BZIP
+		
         private static byte[] BZip2Decompress(Stream data, int expectedLength)
         {
-            MemoryStream output = new MemoryStream(expectedLength);
-            BZip2.Decompress(data, output, true);
-            return output.ToArray();
+			using(var output = new MemoryStream(expectedLength))
+			using(var stream = new Ionic.BZip2.BZip2InputStream(data))
+			{
+				stream.CopyTo(output);
+				return output.ToArray();
+			}
         }
-#endif
 
         private static byte[] PKDecompress(Stream data, int expectedLength)
         {
             PKLibDecompress pk = new PKLibDecompress(data);
             return pk.Explode(expectedLength);
         }
-
-#if WITH_ZLIB
+		
         private static byte[] ZlibDecompress(Stream data, int expectedLength)
         {
-            // This assumes that Zlib won't be used in combination with another compression type
-            byte[] Output = new byte[expectedLength];
-            Stream s = new InflaterInputStream(data);
-            int Offset = 0;
-            while (expectedLength > 0)
-            {
-                int size = s.Read(Output, Offset, expectedLength);
-                if (size == 0) break;
-                Offset += size;
-                expectedLength -= size;
-            }
-            return Output;
+			using(var output = new MemoryStream(expectedLength))
+			using(var stream = new Ionic.Zlib.ZlibStream(data, Ionic.Zlib.CompressionMode.Decompress))
+			{
+				stream.CopyTo(output);
+				return output.ToArray();
+			}
         }
-#endif
     }
 }
