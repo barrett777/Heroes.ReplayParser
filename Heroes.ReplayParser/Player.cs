@@ -260,6 +260,7 @@ namespace Heroes.ReplayParser
         // Lost Cavern = 1011 - No map award
         MostDamageDoneToZerg = 1012,
         MostNukeDamageDone = 1013,
-		MostTimePushing = 1016
-    }
+		MostTimePushing = 1016,
+		MostTimeOnPoint = 1019
+	}
 }
