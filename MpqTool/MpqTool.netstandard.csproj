@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DefineConstants Condition=" '$(TargetFrameworkVersion)' == 'v4.5' ">NET_FRAMEWORK</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,5 +12,4 @@
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-
 </Project>
