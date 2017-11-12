@@ -160,8 +160,14 @@
                     reader.ReadBitArray(reader.Read(6)); // m_allowedColors
                     reader.ReadBitArray(reader.Read(8)); // m_allowedRaces
                     reader.ReadBitArray(reader.Read(6)); // m_allowedDifficulty
-                    reader.ReadBitArray(reader.Read(8)); // m_allowedControls
-                    reader.ReadBitArray(reader.Read(2)); // m_allowedObserveTypes
+
+					// m_allowedControls
+					if(replay.ReplayBuild < 59279)
+						reader.ReadBitArray(reader.Read(8));
+					else
+						reader.ReadBitArray(reader.Read(4));
+
+					reader.ReadBitArray(reader.Read(2)); // m_allowedObserveTypes
                     reader.ReadBitArray(reader.Read(7)); // m_allowedAIBuilds
                 }
 
