@@ -136,7 +136,12 @@
                 reader.Read(4); // + 1 = Max Teams
                 reader.Read(6); // Max Colors
                 reader.Read(8); // + 1 = Max Races
-                reader.Read(8); // Max Controls
+
+				// Max Controls
+				if(replay.ReplayBuild < 59279)
+					reader.Read(8);
+				else
+					reader.Read(4);
 
                 replay.MapSize = new Point { X = (int)reader.Read(8), Y = (int)reader.Read(8) };
                 if (replay.MapSize.Y == 1)
