@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <DefineConstants Condition=" '$(TargetFrameworkVersion)' == 'v4.5' ">NET_FRAMEWORK</DefineConstants>
+    <DefineConstants>WITH_SHARPCOMPRESS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.0.0-alpha2" />
+    <PackageReference Include="sharpcompress" Version="0.18.2" />
   </ItemGroup>
 
   <ItemGroup>
