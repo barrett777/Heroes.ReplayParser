@@ -135,8 +135,11 @@
 
         BraxisHoldoutZergRushWithLosingZergStrength = 101201,
 
-        WarheadJunctionNukeLaunch = 101301
-    }
+        WarheadJunctionNukeLaunch = 101301,
+
+		EscapeFromBraxisCheckpoint = 102101,
+		EscapeFromBraxisDifficulty = 102102
+	}
 
     public enum TeamObjectiveInfernalShrinesPunisherType
     {

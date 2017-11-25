@@ -128,7 +128,7 @@
                 reader.Read(3);
 
                 var maxUsers = reader.Read(5);
-                if (maxUsers != 10) // Max Players
+                if (maxUsers != 10 && replay.GameMode != GameMode.Brawl) // Max Players
                     replay.GameMode = GameMode.TryMe;
 
                 reader.Read(5); // Max Observers

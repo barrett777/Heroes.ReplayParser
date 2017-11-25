@@ -328,10 +328,13 @@ namespace Heroes.ReplayParser
                             case "TownStructureDeath": break;       // {StatGameEvent: {"TownStructureDeath", , [{{"TownID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], }}
                             case "EndOfGameTimeSpentDead": break;   // {StatGameEvent: {"EndOfGameTimeSpentDead", , [{{"PlayerID"}, 2}], [{{"Time"}, 162}]}}
 
-                            // Map Objectives
+							case "Pickup Spawned": break;           // {StatGameEvent: {"Pickup Spawned", [{{"Pickup Type"}, "PVERejuvenationPulsePickup"}], , }} - This is for the 'Escape From Braxis' PvE Brawl
+							case "Pickup Used": break;              // {StatGameEvent: {"Pickup Used", [{{"Pickup Type"}, "Rejuvenation Pulse"}], [{{"PlayerID"}, 5}], }}
 
-                                // Towers of Doom
-                            case "Altar Captured":                  // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
+							// Map Objectives
+
+							// Towers of Doom
+							case "Altar Captured":                  // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
                                 replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
                                     TimeSpan = trackerEvent.TimeSpan,
                                     TeamObjectiveType = TeamObjectiveType.TowersOfDoomAltarCapturedWithTeamTownsOwned,
@@ -441,8 +444,32 @@ namespace Heroes.ReplayParser
 
                             // Dragon Shire - This is populated using Unit data at the top of this function
                             case "DragonKnightActivated": break;    // {StatGameEvent: {"DragonKnightActivated", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
+								
+							case "Game Results": // {StatGameEvent: {"Game Results", [{{"Map Name"}, "Escape from Braxis"}, {{"Difficulty"}, "Normal"}, {{"Map Complete"}, "True"}], [{{"Stage 1 Time"}, 168}, {{"Stage 2 Time"}, 453}, {{"Victory Time"}, 578}, {{"Victory Time Loop"}, 9252}], }}
+								if (trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "Escape from Braxis" && trackerEvent.Data.dictionary[1].optionalData.array[2].dictionary[1].blobText == "True")
+								{
+									// Escape From Braxis
+									var difficulty = trackerEvent.Data.dictionary[1].optionalData.array[1].dictionary[1].blobText;
 
-                            case "EndOfGameUpVotesCollected": break;// {StatGameEvent: {"EndOfGameUpVotesCollected", , [{{"Player"}, 10}, {{"Voter"}, 10}, {{"UpVotesReceived"}, 1}], }}
+									replay.TeamObjectives[0].Add(new TeamObjective {
+										TimeSpan = TimeSpan.Zero,
+										TeamObjectiveType = TeamObjectiveType.EscapeFromBraxisDifficulty,
+										Value = difficulty == "Normal" ? 0 : 1 });
+
+									var stageTimes = trackerEvent.Data.dictionary[2].optionalData.array.Take(3).Select(i => new TimeSpan(0, 0, (int)i.dictionary[1].vInt.Value)).ToArray();
+									var victoryTime = stageTimes.Last();
+
+									for (var i = 0; i < stageTimes.Length; i++)
+										replay.TeamObjectives[0].Add(new TeamObjective {
+											TimeSpan = stageTimes[i],
+											TeamObjectiveType = TeamObjectiveType.EscapeFromBraxisCheckpoint,
+											Value = i < stageTimes.Length - 1 ? i + 1 : 9 });
+
+									replay.Frames = (int)(victoryTime.TotalSeconds * 16);
+								}
+								break;
+
+							case "EndOfGameUpVotesCollected": break;// {StatGameEvent: {"EndOfGameUpVotesCollected", , [{{"Player"}, 10}, {{"Voter"}, 10}, {{"UpVotesReceived"}, 1}], }}
 
                             default:
                                 // New Stat Game Event - let's log it until we can identify and properly track it
@@ -746,6 +773,7 @@ namespace Heroes.ReplayParser
                                 case "EndOfMatchAwardGivenToNonwinner":
 								case "OnFireTimeOnFire":
 								case "TouchByBlightPlague":
+								case "Difficulty": // First seen in 'Escape From Braxis' PvE Brawl
 
 								// New Stats Added in PTR 12/6/2016
 								// Currently all 0 values - if these are filled in, let's add them to the Player.ScoreResult object
