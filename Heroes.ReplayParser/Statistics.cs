@@ -454,7 +454,7 @@ namespace Heroes.ReplayParser
 									replay.TeamObjectives[0].Add(new TeamObjective {
 										TimeSpan = TimeSpan.Zero,
 										TeamObjectiveType = TeamObjectiveType.EscapeFromBraxisDifficulty,
-										Value = difficulty == "Normal" ? 0 : 1 });
+										Value = difficulty == "Normal" ? 0 : difficulty == "Hard" ? 1 : 2 });
 
 									var stageTimes = trackerEvent.Data.dictionary[2].optionalData.array.Take(3).Select(i => new TimeSpan(0, 0, (int)i.dictionary[1].vInt.Value)).ToArray();
 									var victoryTime = stageTimes.Last();
