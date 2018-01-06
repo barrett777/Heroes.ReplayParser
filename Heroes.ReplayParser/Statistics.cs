@@ -285,6 +285,7 @@ namespace Heroes.ReplayParser
 							case "LootSprayUsed": break;            // {StatGameEvent: {"LootSprayUsed", [{{"MapID"}, "CursedHollow"}, {{"PlayerHandle"}, "98-Hero-1-640036"}, {{"SprayID"}, "SprayStaticFluidDefault"}, {{"HeroID"}, "HeroWizard"}], [{{"PlayerID"}, 9}, {{"IsWheel"}, 0}], [{{"XLoc"}, 193}, {{"YLoc"}, 114}]}}
 							case "LootVoiceLineUsed": break;        // {StatGameEvent: {"LootVoiceLineUsed", [{{"MapID"}, "CursedHollow"}, {{"PlayerHandle"}, "98-Hero-1-95259"}, {{"VoiceLineID"}, "AurielBase_VoiceLine01"}, {{"HeroID"}, "HeroAuriel"}], [{{"PlayerID"}, 1}, {{"IsWheel"}, 0}], [{{"XLoc"}, 55}, {{"YLoc"}, 104}]}}
 							case "LootWheelUsed": break;            // {StatGameEvent: {"LootWheelUsed", [{{"MapID"}, "CursedHollow"}, {{"PlayerHandle"}, "98-Hero-1-16757"}, {{"WheelAction"}, "Taunt"}, {{"HeroID"}, "HeroValeera"}], [{{"PlayerID"}, 5}], [{{"XLoc"}, 143}, {{"YLoc"}, 81}]}}
+							case "PlayerHitBySnowball": break;		// {StatGameEvent: {"PlayerHitBySnowball", , [{{"CasterPlayerID"}, 1}, {{"TargetPlayerID"}, 12}], }}
 
 							case "EndOfGameRegenMasterStacks":      // {StatGameEvent: {"EndOfGameRegenMasterStacks", [{{"Hero"}, "HeroZeratul"}], [{{"PlayerID"}, 7}, {{"Stack Count"}, 23}], }}
                                 playerIDDictionary[(int) trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].UpgradeEvents.Add(new UpgradeEvent {
