@@ -277,7 +277,10 @@
 					if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsSilenced = true;
 
-					if(replay.ReplayVersionMajor >= 2)
+                    if (replay.ReplayBuild >=61872 && reader.ReadBoolean() && userID.HasValue) // m_hasVoiceSilencePenalty
+                        replay.ClientListByUserID[userID.Value].IsVoiceSilence = true;
+
+                    if (replay.ReplayVersionMajor >= 2)
 					{
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
