@@ -277,7 +277,7 @@
 					if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsSilenced = true;
 
-                    if (replay.ReplayBuild >=61872 && reader.ReadBoolean() && userID.HasValue) // m_hasVoiceSilencePenalty
+                    if (replay.ReplayBuild >= 61718 && reader.ReadBoolean() && userID.HasValue) // m_hasVoiceSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsVoiceSilence = true;
 
                     if (replay.ReplayVersionMajor >= 2)
