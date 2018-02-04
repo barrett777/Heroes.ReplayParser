@@ -67,7 +67,7 @@
                         throw new Exception("Not HumnComp");
                 }
 
-                bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + 19859;
+                bitReader.stream.Position = bitReader.stream.Position + 19859;
 
                 //// next section is language libraries?
                 //// ---------------------------------------
@@ -127,7 +127,7 @@
                 // --------------------
                 //bitReader.ReadBytes(8); // all 0x00
 
-                for (;;)
+                for (; ; )
                 {
                     // we're just going to skip all the way down to the s2mh 
                     if (bitReader.ReadString(4) == "s2mh")
@@ -158,7 +158,7 @@
                 else
                     collectionSize = bitReader.ReadInt32();
 
-                if (collectionSize > 5000)
+                if (collectionSize > 8000)
                     throw new Exception("collectionSize is an unusually large number");
 
                 for (int i = 0; i < collectionSize; i++)
@@ -254,12 +254,12 @@
                     // repeat of the collection section above
                     if (replay.ReplayBuild >= 51609)
                     {
-                        int size = (int)bitReader.Read(12); // 3 bytes max 4095
+                        int size = (int)bitReader.Read(12); // 3 bytes
                         if (size != collectionSize)
                             throw new Exception("size and collectionSize not equal");
 
                         int bytesSize = collectionSize / 8;
-                        int bitsSize = (collectionSize % 8) + 2; // two additional unknown bits
+                        int bitsSize = (collectionSize % 8);
 
                         bitReader.ReadBytes(bytesSize);
                         bitReader.Read(bitsSize);
@@ -272,19 +272,25 @@
                             bitReader.ReadInt32();
 
                         // each byte has a max value of 0x7F (127)
-                        bitReader.stream.Position = bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
-                        bitReader.Read(1);
+                        bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
                     }
 
-                    if (bitReader.ReadBoolean())
+                    if (replay.ReplayBuild >= 51609)
+                        bitReader.ReadBoolean();
+
+                    bitReader.ReadBoolean(); // m_hasSilencePenalty
+
+                    if (replay.ReplayBuild >= 61872)
                     {
-                        // use this to determine who is in a party
-                        // those in the same party will have the same exact 8 bytes of data
-                        // the party leader is the first one (in the order of the client list)
-                        replay.ClientListByUserID[player].PartyValue = bitReader.ReadInt32() + bitReader.ReadInt32();
+                        bitReader.ReadBoolean();
+                        bitReader.ReadBoolean(); // m_hasVoiceSilencePenalty
                     }
 
-                    bitReader.Read(1);
+                    if (bitReader.ReadBoolean()) // is player in party
+                        replay.ClientListByUserID[player].PartyValue = bitReader.ReadInt32() + bitReader.ReadInt32(); // players in same party will have the same exact 8 bytes of data
+
+                    bitReader.ReadBoolean();
+
                     var battleTag = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(7)).Split('#'); // battleTag <name>#xxxxx
 
                     if (battleTag.Length != 2 || battleTag[0] != replay.ClientListByUserID[player].Name)
@@ -597,3 +603,4 @@
         }
     }
 }
+
