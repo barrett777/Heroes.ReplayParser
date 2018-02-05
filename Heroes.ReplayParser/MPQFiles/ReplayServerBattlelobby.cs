@@ -193,14 +193,15 @@
                 if (replay.ReplayBuild >= 51609)
                 {
                     int size = (int)bitReader.Read(12); // 3 bytes
-                    if (size != collectionSize)
-                        throw new DetailedParsedException("size and collectionSize not equal");
+                    if (size == collectionSize)
+                    {
+                        int bytesSize = collectionSize / 8;
+                        int bitsSize = (collectionSize % 8);
 
-                    int bytesSize = collectionSize / 8;
-                    int bitsSize = (collectionSize % 8);
-
-                    bitReader.ReadBytes(bytesSize);
-                    bitReader.Read(bitsSize);
+                        bitReader.ReadBytes(bytesSize);
+                        bitReader.Read(bitsSize);
+                    }
+                    // else if not equal, then data isn't available, most likely an observer
                 }
                 else
                 {
