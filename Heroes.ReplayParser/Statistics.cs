@@ -135,6 +135,10 @@ namespace Heroes.ReplayParser
                                 // This shows up on 'Warhead Junction' replays from the 9/19/2016 PTR
                                 break;
 
+                            case "IsOnOrderTeam":
+                            case "IsOnChaosTeam":
+                                break;
+
                             case "GatesAreOpen":
 							case "NecromancerEchoesOfDeathTalentUpgrade":
                             case "MinionsAreSpawning":
