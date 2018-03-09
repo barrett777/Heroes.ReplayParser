@@ -139,8 +139,10 @@ namespace Heroes.ReplayParser
 								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[25] };
 							else if (replayBuild < 59837 || replayBuild == 59988)
 								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[26] };
-							else
+							else if (replayBuild < 62833)
 								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[27] };
+							else
+								gameEvent.data.array[0] = new TrackerEventStructure { array = new TrackerEventStructure[26] };
 
 							for (var i = 0; i < gameEvent.data.array[0].array.Length; i++)
                                 gameEvent.data.array[0].array[i] = new TrackerEventStructure { DataType = 7, unsignedInt = bitReader.Read(1) };
