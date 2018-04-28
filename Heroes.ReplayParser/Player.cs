@@ -169,8 +169,9 @@ namespace Heroes.ReplayParser
         public int SelfHealing { get; set; } = 0;
 
         public int? DamageTaken { get; set; } = null;
+		public int? DamageSoaked { get; set; } = null;
 
-        public int ExperienceContribution { get; set; } = 0;
+		public int ExperienceContribution { get; set; } = 0;
         public int TownKills { get; set; } = 0;
 
         public TimeSpan TimeSpentDead { get; set; } = TimeSpan.Zero;

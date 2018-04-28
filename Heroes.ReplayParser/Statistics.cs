@@ -338,7 +338,7 @@ namespace Heroes.ReplayParser
 
 							// Map Objectives
 
-							// Towers of Doom
+								// Towers of Doom
 							case "Altar Captured":                  // {StatGameEvent: {"Altar Captured", , [{{"Firing Team"}, 2}, {{"Towns Owned"}, 3}], }}
                                 replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
                                     TimeSpan = trackerEvent.TimeSpan,
@@ -438,18 +438,32 @@ namespace Heroes.ReplayParser
                                     Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value });
                                 break;
 
-                            // Haunted Mines
+								// Haunted Mines
                             case "GolemLanes": break;               // {StatGameEvent: {"GolemLanes", , [{{"TopGolemTeam"}, 1}, {{"BottomGolemTeam"}, 2}], }}
-                            case "GraveGolemSpawned":               // {StatGameEvent: {"GraveGolemSpawned", , [{{"Event"}, 1}], [{{"TeamID"}, 2}, {{"SkullCount"}, 34}]}}
+							case "HauntedMinesGolemsSpawned": break;
+							case "GraveGolemSpawned":               // {StatGameEvent: {"GraveGolemSpawned", , [{{"Event"}, 1}], [{{"TeamID"}, 2}, {{"SkullCount"}, 34}]}}
                                 replay.TeamObjectives[trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value - 1].Add(new TeamObjective {
                                     TimeSpan = trackerEvent.TimeSpan,
                                     TeamObjectiveType = TeamObjectiveType.HauntedMinesGraveGolemSpawnedWithSkullCount,
                                     Value = (int) trackerEvent.Data.dictionary[3].optionalData.array[1].dictionary[1].vInt.Value });
                                 break;
 
-                            // Dragon Shire - This is populated using Unit data at the top of this function
+								// Dragon Shire - This is populated using Unit data at the top of this function
                             case "DragonKnightActivated": break;    // {StatGameEvent: {"DragonKnightActivated", , [{{"Event"}, 1}], [{{"TeamID"}, 2}]}}
-								
+
+								// Warhead Junction
+							case "WarheadJunctionNukesSpawned": break;
+							case "WarheadJunctionNukeCollected": break;
+							case "WarheadJunctionNukeFired": break;
+							case "WarheadJunctionNukeDropped": break;
+
+								// Volskaya Foundry
+							case "VolskayaCapturePointComplete": break;
+							case "VolskayaCapturePointSpawned": break;
+
+								// Braxis Holdout
+							case "BraxisHoldoutMapEventComplete": break;
+
 							case "Game Results": // {StatGameEvent: {"Game Results", [{{"Map Name"}, "Escape from Braxis"}, {{"Difficulty"}, "Normal"}, {{"Map Complete"}, "True"}], [{{"Stage 1 Time"}, 168}, {{"Stage 2 Time"}, 453}, {{"Victory Time"}, 578}, {{"Victory Time Loop"}, 9252}], }}
 								if (trackerEvent.Data.dictionary[1].optionalData.array[0].dictionary[1].blobText == "Escape from Braxis" && trackerEvent.Data.dictionary[1].optionalData.array[2].dictionary[1].blobText == "True")
 								{
@@ -568,7 +582,12 @@ namespace Heroes.ReplayParser
                                         if (scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value > 0)
                                             replay.ClientListByWorkingSetSlotID[i].ScoreResult.DamageTaken = scoreResultEventValueArray[i].Value;
                                     break;
-                                case "ExperienceContribution":
+								case "DamageSoaked":
+									for(var i = 0; i < scoreResultEventValueArray.Length; i++)
+										if(scoreResultEventValueArray[i].HasValue && scoreResultEventValueArray[i].Value > 0)
+											replay.ClientListByWorkingSetSlotID[i].ScoreResult.DamageSoaked = scoreResultEventValueArray[i].Value;
+									break;
+								case "ExperienceContribution":
                                     for (var i = 0; i < scoreResultEventValueArray.Length; i++)
                                         if (scoreResultEventValueArray[i].HasValue)
                                             replay.ClientListByWorkingSetSlotID[i].ScoreResult.ExperienceContribution = scoreResultEventValueArray[i].Value;
