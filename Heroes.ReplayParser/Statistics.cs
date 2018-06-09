@@ -139,6 +139,10 @@ namespace Heroes.ReplayParser
                             case "IsOnChaosTeam":
                                 break;
 
+                            case "IsAlliance":
+                            case "IsHorde":
+                                break;
+
                             case "GatesAreOpen":
 							case "NecromancerEchoesOfDeathTalentUpgrade":
                             case "MinionsAreSpawning":

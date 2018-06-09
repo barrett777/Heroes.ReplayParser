@@ -229,9 +229,12 @@
                         mountAndMountTint = null;
 
                     // m_artifacts
-                    var artifactsLength = reader.Read(4);
-                    for (var j = 0; j < artifactsLength; j++)
-                        reader.ReadBlobPrecededWithLength(9);
+                    if (replay.ReplayBuild < 65579 || replay.ReplayBuild == 65617 || replay.ReplayBuild == 65655)
+                    {
+                        var artifactsLength = reader.Read(4);
+                        for (var j = 0; j < artifactsLength; j++)
+                            reader.ReadBlobPrecededWithLength(9);
+                    }
 
                     int? workingSetSlotID = null;
                     if (reader.ReadBoolean())
