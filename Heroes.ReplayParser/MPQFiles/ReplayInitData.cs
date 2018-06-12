@@ -229,7 +229,7 @@
                         mountAndMountTint = null;
 
                     // m_artifacts
-                    if (replay.ReplayBuild < 65579 || replay.ReplayBuild == 65617 || replay.ReplayBuild == 65655)
+                    if (replay.ReplayBuild < 65579 || replay.ReplayBuild == 65617 || replay.ReplayBuild == 65654)
                     {
                         var artifactsLength = reader.Read(4);
                         for (var j = 0; j < artifactsLength; j++)
