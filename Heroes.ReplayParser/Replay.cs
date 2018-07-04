@@ -75,7 +75,7 @@
         public List<TeamObjective>[] TeamObjectives { get; set; } = new List<TeamObjective>[2] { new List<TeamObjective>(), new List<TeamObjective>() };
 
         /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
-        public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[2] { null, null }, new string[2] { null, null } };
+        public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[3] { null, null, null }, new string[3] { null, null, null } };
 
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
         public bool? IsStatisticsParsedSuccessfully { get; set; } = null;

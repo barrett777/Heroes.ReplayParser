@@ -251,8 +251,8 @@ namespace Heroes.ReplayParser
                         break;
 
                     case ReplayAttributeEventType.DraftBanMode:
-                        // Options: No Ban (""), One Ban ("1ban"), Two Ban ("2ban"), Mid Ban ("Mban", Default)
-                        break;
+						// Options: No Ban (""), One Ban ("1ban"), Two Ban ("2ban"), Mid Ban ("Mban"), Three Ban ("3ban")
+						break;
 
                     case ReplayAttributeEventType.DraftTeam1BanChooserSlot:
                     case ReplayAttributeEventType.DraftTeam2BanChooserSlot:
@@ -268,9 +268,11 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.DraftTeam1Ban1:
                     case ReplayAttributeEventType.DraftTeam1Ban2:
-                    case ReplayAttributeEventType.DraftTeam2Ban1:
+					case ReplayAttributeEventType.DraftTeam1Ban3:
+					case ReplayAttributeEventType.DraftTeam2Ban1:
                     case ReplayAttributeEventType.DraftTeam2Ban2:
-                        var draftTeamBanValue = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+					case ReplayAttributeEventType.DraftTeam2Ban3:
+						var draftTeamBanValue = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
                         if (draftTeamBanValue != "")
                             switch (attribute.AttributeType)
                             {
@@ -280,13 +282,19 @@ namespace Heroes.ReplayParser
                                 case ReplayAttributeEventType.DraftTeam1Ban2:
                                     replay.TeamHeroBans[0][1] = draftTeamBanValue;
                                     break;
-                                case ReplayAttributeEventType.DraftTeam2Ban1:
+								case ReplayAttributeEventType.DraftTeam1Ban3:
+									replay.TeamHeroBans[0][2] = draftTeamBanValue;
+									break;
+								case ReplayAttributeEventType.DraftTeam2Ban1:
                                     replay.TeamHeroBans[1][0] = draftTeamBanValue;
                                     break;
                                 case ReplayAttributeEventType.DraftTeam2Ban2:
                                     replay.TeamHeroBans[1][1] = draftTeamBanValue;
                                     break;
-                            }
+								case ReplayAttributeEventType.DraftTeam2Ban3:
+									replay.TeamHeroBans[1][2] = draftTeamBanValue;
+									break;
+							}
                         break;
                 }
 
@@ -371,15 +379,19 @@ namespace Heroes.ReplayParser
             DraftTeam1Ban1LockedIn = 4024,
             DraftTeam1Ban2 = 4025,
             DraftTeam1Ban2LockedIn = 4026,
+			DraftTeam1Ban3 = 4043,
+			DraftTeam1Ban3LockedIn = 4044,
 
-            DraftTeam2BanChooserSlot = 4027,
+			DraftTeam2BanChooserSlot = 4027,
             DraftTeam2Ban1 = 4028,
             DraftTeam2Ban1LockedIn = 4029,
             DraftTeam2Ban2 = 4030,
             DraftTeam2Ban2LockedIn = 4031,
+			DraftTeam2Ban3 = 4045,
+			DraftTeam2Ban3LockedIn = 4046,
 
-            /* 4100 - 4200 are related to Artifacts, no longer in the game */
-        }
+			/* 4100 - 4200 are related to Artifacts, no longer in the game */
+		}
 
         private class ReplayAttribute
         {
