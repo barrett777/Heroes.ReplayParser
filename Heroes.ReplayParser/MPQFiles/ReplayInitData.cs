@@ -283,7 +283,10 @@
                     if (replay.ReplayBuild >= 61718 && reader.ReadBoolean() && userID.HasValue) // m_hasVoiceSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsVoiceSilence = true;
 
-                    if (replay.ReplayVersionMajor >= 2)
+					if(replay.ReplayBuild >= 66977 && reader.ReadBoolean() && userID.HasValue) // m_isBlizzardStaff
+						replay.ClientListByUserID[userID.Value].IsBlizzardStaff = true;
+
+					if (replay.ReplayVersionMajor >= 2)
 					{
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
 						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
