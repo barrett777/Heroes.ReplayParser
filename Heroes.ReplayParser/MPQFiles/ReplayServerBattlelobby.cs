@@ -225,6 +225,9 @@
                     bitReader.ReadBoolean(); // m_hasVoiceSilencePenalty
                 }
 
+                if (replay.ReplayBuild >= 66977)
+                    bitReader.ReadBoolean(); // m_isBlizzardStaff 
+
                 if (bitReader.ReadBoolean()) // is player in party
                     replay.ClientListByUserID[player].PartyValue = bitReader.ReadInt32() + bitReader.ReadInt32(); // players in same party will have the same exact 8 bytes of data
 
