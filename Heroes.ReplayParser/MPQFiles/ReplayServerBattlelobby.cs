@@ -187,23 +187,27 @@
 
                 // next 30 bytes
                 bitReader.ReadBytes(4); // same for all players
-                bitReader.ReadBytes(26);
+                bitReader.ReadBytes(25);
+                bitReader.Read(7);
+                bool noCollection = bitReader.ReadBoolean();
 
                 // repeat of the collection section above
-                if (replay.ReplayBuild >= 51609)
+                if (replay.ReplayBuild >= 51609 && !noCollection)
                 {
                     int size = (int)bitReader.Read(12); // 3 bytes
                     if (size == collectionSize)
                     {
                         int bytesSize = collectionSize / 8;
-                        int bitsSize = (collectionSize % 8);
+                        int bitsSize = collectionSize % 8;
 
                         bitReader.ReadBytes(bytesSize);
                         bitReader.Read(bitsSize);
+
+                        bitReader.ReadBoolean();
                     }
                     // else if not equal, then data isn't available, most likely an observer
                 }
-                else
+                else if (!noCollection)
                 {
                     if (replay.ReplayBuild >= 48027)
                         bitReader.ReadInt16();
@@ -214,9 +218,6 @@
                     bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
                 }
 
-                if (replay.ReplayBuild >= 51609)
-                    bitReader.ReadBoolean();
-
                 bitReader.ReadBoolean(); // m_hasSilencePenalty
 
                 if (replay.ReplayBuild >= 61718)
@@ -226,7 +227,7 @@
                 }
 
                 if (replay.ReplayBuild >= 66977)
-                    bitReader.ReadBoolean(); // m_isBlizzardStaff 
+                    bitReader.ReadBoolean(); // m_isBlizzardStaff
 
                 if (bitReader.ReadBoolean()) // is player in party
                     replay.ClientListByUserID[player].PartyValue = bitReader.ReadInt32() + bitReader.ReadInt32(); // players in same party will have the same exact 8 bytes of data
