@@ -299,6 +299,16 @@ namespace Heroes.ReplayParser
                         case GameEventType.CTriggerChatMessageEvent:
                             gameEvent.data = new TrackerEventStructure { DataType = 2, blob = bitReader.ReadBlobPrecededWithLength(10) };
                             break;
+                        case GameEventType.CDynamicButtonSwapEvent:
+                            gameEvent.data = new TrackerEventStructure
+                            {
+                                array = new[] {
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(32) }, // m_unitTag
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_buttonSlotA
+                                    new TrackerEventStructure { unsignedInt = bitReader.Read(8) }, // m_buttonSlotB
+                                }
+                            };
+                            break;
                         case GameEventType.CSetAbsoluteGameSpeedEvent:
                             bitReader.Read(3); // m_speed
                             break;
@@ -545,6 +555,7 @@ namespace Heroes.ReplayParser
         CSelectionSyncCheckEvent = 30,
         CResourceTradeEvent = 31,
         CTriggerChatMessageEvent = 32,
+        CDynamicButtonSwapEvent = 33,
         CSetAbsoluteGameSpeedEvent = 34,
         CTriggerPingEvent = 36,
         CUnitClickEvent = 39,
