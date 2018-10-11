@@ -108,7 +108,7 @@
     {
         public int SelectedPlayerSlotId { get; set; }
 
-        /// <summary> Gets or sets the shortname of the selected hero. </summary>
+        /// <summary> Gets or sets the name of the selected hero (internal name - CHeroId). </summary>
         public string HeroSelected { get; set; }
 
         public DraftPickType PickType { get; set; }
