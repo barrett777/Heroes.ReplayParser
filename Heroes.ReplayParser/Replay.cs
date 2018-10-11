@@ -17,6 +17,9 @@
         /// <summary> Gets the map the game was played on. </summary>
         public string Map { get; set; }
 
+        /// <summary> Gets the alternative name of the map </summary>
+        public string MapAlternativeName { get; set; }
+
         /// <summary> Gets the size of the map the game was played on. </summary>
         public Point MapSize { get; set; }
 
