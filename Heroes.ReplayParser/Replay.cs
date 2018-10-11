@@ -77,6 +77,7 @@
         /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
         public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[3] { null, null, null }, new string[3] { null, null, null } };
 
+        /// <summary> Gets the draft order. Picks, bans, and swaps. </summary>
         public List<DraftPick> DraftOrder { get; set; } = new List<DraftPick>();
 
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
