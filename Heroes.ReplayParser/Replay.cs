@@ -77,6 +77,8 @@
         /// <summary> Team Hero Bans ([Team][HeroBanned]) </summary>
         public string[][] TeamHeroBans { get; set; } = new string[2][] { new string[3] { null, null, null }, new string[3] { null, null, null } };
 
+        public List<DraftPick> DraftOrder { get; set; } = new List<DraftPick>();
+
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
         public bool? IsStatisticsParsedSuccessfully { get; set; } = null;
     }
@@ -99,6 +101,16 @@
         public Player Player { get; set; } = null;
         public TeamObjectiveType TeamObjectiveType { get; set; }
         public int Value { get; set; }
+    }
+
+    public class DraftPick
+    {
+        public int SelectedPlayerSlotId { get; set; }
+
+        /// <summary> Gets or sets the shortname of the selected hero. </summary>
+        public string HeroSelected { get; set; }
+
+        public DraftPickType PickType { get; set; }
     }
 
     public enum TeamObjectiveType
@@ -171,5 +183,12 @@
         Normal,
         Fast,
         Faster
+    }
+
+    public enum DraftPickType
+    {
+        Banned = 0,
+        Picked = 1,
+        Swapped = 2
     }
 }
