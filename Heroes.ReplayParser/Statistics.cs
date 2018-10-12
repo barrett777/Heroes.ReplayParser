@@ -687,6 +687,22 @@ namespace Heroes.ReplayParser
                                             replay.ClientListByWorkingSetSlotID[i].ScoreResult.TeamfightHeroDamage = scoreResultEventValueArray[i].Value;
                                     break;
 
+                                case "Multikill":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.Multikill = scoreResultEventValueArray[i].Value;
+                                    break;
+                                case "PhysicalDamage":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.PhysicalDamage = scoreResultEventValueArray[i].Value;
+                                    break;
+                                case "SpellDamage":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.SpellDamage = scoreResultEventValueArray[i].Value;
+                                    break;
+
                                 case "EndOfMatchAwardMVPBoolean":
                                 case "EndOfMatchAwardHighestKillStreakBoolean":
                                 case "EndOfMatchAwardMostXPContributionBoolean":

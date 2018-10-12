@@ -199,6 +199,10 @@ namespace Heroes.ReplayParser
         public int TeamfightDamageTaken { get; set; } = 0;
         public int TeamfightHeroDamage { get; set; } = 0;
 
+        public int Multikill { get; set; } = 0;
+        public int? PhysicalDamage { get; set; } = null;
+        public int? SpellDamage { get; set; } = null;
+
         public List<MatchAwardType> MatchAwards { get; set; } = new List<MatchAwardType>();
     }
 
