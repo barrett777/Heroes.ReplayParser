@@ -159,7 +159,6 @@ namespace Heroes.ReplayParser
         public int SoloKills { get; set; } = 0;
         public int Assists { get; set; } = 0;
         public int Deaths { get; set; } = 0;
-        public int HighestKillStreak { get; set; } = 0;
 
         public int HeroDamage { get; set; } = 0;
         public int SiegeDamage { get; set; } = 0;
@@ -185,6 +184,24 @@ namespace Heroes.ReplayParser
         public int WatchTowerCaptures { get; set; } = 0;
 
         public int MetaExperience { get; set; } = 0; // Exp added to the player's Account and Hero level after the match
+
+        public int HighestKillStreak { get; set; } = 0;
+        public int ProtectionGivenToAllies { get; set; } = 0;
+        public int TimeSilencingEnemyHeroes { get; set; } = 0;
+        public int TimeRootingEnemyHeroes { get; set; } = 0;
+        public int TimeStunningEnemyHeroes { get; set; } = 0;
+        public int ClutchHealsPerformed { get; set; } = 0;
+        public int EscapesPerformed { get; set; } = 0;
+        public int VengeancesPerformed { get; set; } = 0;
+        public int OutnumberedDeaths { get; set; } = 0;
+        public int TeamfightEscapesPerformed { get; set; } = 0;
+        public int TeamfightHealingDone { get; set; } = 0;
+        public int TeamfightDamageTaken { get; set; } = 0;
+        public int TeamfightHeroDamage { get; set; } = 0;
+
+        public int Multikill { get; set; } = 0;
+        public int? PhysicalDamage { get; set; } = null;
+        public int? SpellDamage { get; set; } = null;
 
         public List<MatchAwardType> MatchAwards { get; set; } = new List<MatchAwardType>();
     }
