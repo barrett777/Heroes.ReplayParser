@@ -758,8 +758,9 @@ namespace Heroes.ReplayParser
 								case "EndOfMatchAwardMostTimePushingBoolean":
 								case "EndOfMatchAwardMostTimeOnPointBoolean":
 								case "EndOfMatchAwardMostInterruptedCageUnlocksBoolean":
+                                case "EndOfMatchAwardMostSeedsCollectedBoolean":
 
-								case "EndOfMatchAwardMostKillsBoolean":
+                                case "EndOfMatchAwardMostKillsBoolean":
                                 case "EndOfMatchAwardHatTrickBoolean":
                                 case "EndOfMatchAwardClutchHealerBoolean":
                                 case "EndOfMatchAwardMostProtectionBoolean":
@@ -854,8 +855,11 @@ namespace Heroes.ReplayParser
 												case "EndOfMatchAwardMostInterruptedCageUnlocksBoolean":
 													replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostInterruptedCageUnlocks);
 													break;
+                                                case "EndOfMatchAwardMostSeedsCollectedBoolean":
+                                                    replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostSeedsCollected);
+                                                    break;
 
-												case "EndOfMatchAwardMostKillsBoolean":
+                                                case "EndOfMatchAwardMostKillsBoolean":
                                                     replay.ClientListByWorkingSetSlotID[i].ScoreResult.MatchAwards.Add(MatchAwardType.MostKills);
                                                     break;
                                                 case "EndOfMatchAwardHatTrickBoolean":
@@ -931,9 +935,10 @@ namespace Heroes.ReplayParser
 								case "TimeOnPayload":
 								case "TimeOnPoint":
 								case "CageUnlocksInterrupted":
+                                case "GardenSeedsCollectedByPlayer":
 
-								// Special Events
-								case "LunarNewYearEventCompleted":           // Early 2016
+                                // Special Events
+                                case "LunarNewYearEventCompleted":           // Early 2016
                                 case "LunarNewYearSuccesfulArtifactTurnIns": // Early 2017
                                 case "LunarNewYearRoosterEventCompleted":    // Early 2017
                                 case "KilledTreasureGoblin":
