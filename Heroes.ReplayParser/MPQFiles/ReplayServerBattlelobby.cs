@@ -189,33 +189,34 @@
                 bitReader.ReadBytes(4); // same for all players
                 bitReader.ReadBytes(25);
                 bitReader.Read(7);
-                bool noCollection = bitReader.ReadBoolean();
-
-                // repeat of the collection section above
-                if (replay.ReplayBuild >= 51609 && !noCollection)
+                if (!bitReader.ReadBoolean())
                 {
-                    int size = (int)bitReader.Read(12); // 3 bytes
-                    if (size == collectionSize)
+                    // repeat of the collection section above
+                    if (replay.ReplayBuild >= 51609)
                     {
-                        int bytesSize = collectionSize / 8;
-                        int bitsSize = collectionSize % 8;
+                        int size = (int)bitReader.Read(12); // 3 bytes
+                        if (size == collectionSize)
+                        {
+                            int bytesSize = collectionSize / 8;
+                            int bitsSize = collectionSize % 8;
 
-                        bitReader.ReadBytes(bytesSize);
-                        bitReader.Read(bitsSize);
+                            bitReader.ReadBytes(bytesSize);
+                            bitReader.Read(bitsSize);
 
-                        bitReader.ReadBoolean();
+                            bitReader.ReadBoolean();
+                        }
+                        // else if not equal, then data isn't available, most likely an observer
                     }
-                    // else if not equal, then data isn't available, most likely an observer
-                }
-                else if (!noCollection)
-                {
-                    if (replay.ReplayBuild >= 48027)
-                        bitReader.ReadInt16();
                     else
-                        bitReader.ReadInt32();
+                    {
+                        if (replay.ReplayBuild >= 48027)
+                            bitReader.ReadInt16();
+                        else
+                            bitReader.ReadInt32();
 
-                    // each byte has a max value of 0x7F (127)
-                    bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
+                        // each byte has a max value of 0x7F (127)
+                        bitReader.stream.Position = bitReader.stream.Position + (collectionSize * 2);
+                    }
                 }
 
                 bitReader.ReadBoolean(); // m_hasSilencePenalty
@@ -244,7 +245,17 @@
                 if (replay.ReplayBuild >= 52860 || (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978))
                     replay.ClientListByUserID[player].AccountLevel = bitReader.ReadInt32(); // player's account level, not available in custom games
 
-                bitReader.ReadBytes(27); // these similar bytes don't occur for last player
+                if (replay.ReplayBuild >= 69947)
+                {
+                    bitReader.ReadBoolean(); // m_hasActiveBoost
+                    bitReader.Read(7);
+                }
+                else
+                {
+                    bitReader.ReadByte(); // 0x00
+                }
+
+                bitReader.ReadBytes(26); // these similar bytes don't occur for last player
             }
 
             // some more data after this
