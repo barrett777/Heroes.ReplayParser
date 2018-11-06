@@ -100,10 +100,15 @@ namespace Heroes.ReplayParser
 		/// </summary>
 		public bool IsBlizzardStaff { get; set; } = false;
 
-		/// <summary>
-		/// Gets or sets the player's selected Hero talents
-		/// </summary>
-		public Talent[] Talents { get; set; } = new Talent[0];
+        /// <summary>
+        /// Gets or sets if the player has an active boost
+        /// </summary>
+        public bool HasActiveBoost { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the player's selected Hero talents
+        /// </summary>
+        public Talent[] Talents { get; set; } = new Talent[0];
 
         /// <summary>
         /// Gets or sets the player's in game Hero units.
