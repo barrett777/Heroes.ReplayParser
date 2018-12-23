@@ -302,7 +302,7 @@
 							var heroMasteryTiersLength = reader.Read(10);
 							for (var j = 0; j < heroMasteryTiersLength; j++)
 							{
-								reader.Read(32); // m_hero
+								var heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
 								reader.Read(8); // m_tier
 							}
 						}
