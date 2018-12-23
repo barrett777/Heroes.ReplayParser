@@ -1,10 +1,10 @@
 ﻿namespace Heroes.ReplayParser
 {
-    using System.IO;
-    using System.Text;
     using Heroes.ReplayParser.Streams;
     using System;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     /// <summary> Parses the replay.Initdata file in the replay file. </summary>
     public class ReplayInitData
     {
@@ -18,7 +18,7 @@
             using (var stream = new MemoryStream(buffer))
             {
                 var reader = new BitReader(stream);
-                
+
                 var playerListLength = reader.Read(5);
                 for (var i = 0; i < playerListLength; i++)
                 {
@@ -60,12 +60,12 @@
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_skin - Currently Empty String
                     Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_mount - Currently Empty String
-					if (replay.ReplayVersionMajor >= 2)
-					{
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner - Currently Empty String
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray - Currently Empty String
-					}
-					Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7)); // m_toonHandle - Currently Empty String
+                    if (replay.ReplayVersionMajor >= 2)
+                    {
+                        Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner - Currently Empty String
+                        Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray - Currently Empty String
+                    }
+                    Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(7)); // m_toonHandle - Currently Empty String
                 }
 
                 // Marked as 'Random Value', so I will use as seed
@@ -137,11 +137,11 @@
                 reader.Read(6); // Max Colors
                 reader.Read(8); // + 1 = Max Races
 
-				// Max Controls
-				if(replay.ReplayBuild < 59279)
-					reader.Read(8);
-				else
-					reader.Read(4);
+                // Max Controls
+                if (replay.ReplayBuild < 59279)
+                    reader.Read(8);
+                else
+                    reader.Read(4);
 
                 replay.MapSize = new Point { X = (int)reader.Read(8), Y = (int)reader.Read(8) };
                 if (replay.MapSize.Y == 1)
@@ -166,13 +166,13 @@
                     reader.ReadBitArray(reader.Read(8)); // m_allowedRaces
                     reader.ReadBitArray(reader.Read(6)); // m_allowedDifficulty
 
-					// m_allowedControls
-					if(replay.ReplayBuild < 59279)
-						reader.ReadBitArray(reader.Read(8));
-					else
-						reader.ReadBitArray(reader.Read(4));
+                    // m_allowedControls
+                    if (replay.ReplayBuild < 59279)
+                        reader.ReadBitArray(reader.Read(8));
+                    else
+                        reader.ReadBitArray(reader.Read(4));
 
-					reader.ReadBitArray(reader.Read(2)); // m_allowedObserveTypes
+                    reader.ReadBitArray(reader.Read(2)); // m_allowedObserveTypes
                     reader.ReadBitArray(reader.Read(7)); // m_allowedAIBuilds
                 }
 
@@ -203,7 +203,7 @@
 
                     reader.Read(8); // m_control
                     if (reader.ReadBoolean())
-                        userID = (int) reader.Read(4); // m_userId
+                        userID = (int)reader.Read(4); // m_userId
                     reader.Read(4); // m_teamId
                     if (reader.ReadBoolean())
                         reader.Read(5); // m_colorPref
@@ -238,7 +238,7 @@
 
                     int? workingSetSlotID = null;
                     if (reader.ReadBoolean())
-                        workingSetSlotID = (int) reader.Read(8); // m_workingSetSlotId
+                        workingSetSlotID = (int)reader.Read(8); // m_workingSetSlotId
 
                     if (userID.HasValue && workingSetSlotID.HasValue)
                     {
@@ -277,37 +277,54 @@
                         reader.Read(32); // m_commanderLevel - So far, always 0
                     }
 
-					if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
+                    if (reader.ReadBoolean() && userID.HasValue) // m_hasSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsSilenced = true;
 
                     if (replay.ReplayBuild >= 61718 && reader.ReadBoolean() && userID.HasValue) // m_hasVoiceSilencePenalty
                         replay.ClientListByUserID[userID.Value].IsVoiceSilence = true;
 
-					if(replay.ReplayBuild >= 66977 && reader.ReadBoolean() && userID.HasValue) // m_isBlizzardStaff
-						replay.ClientListByUserID[userID.Value].IsBlizzardStaff = true;
+                    if (replay.ReplayBuild >= 66977 && reader.ReadBoolean() && userID.HasValue) // m_isBlizzardStaff
+                        replay.ClientListByUserID[userID.Value].IsBlizzardStaff = true;
 
                     if (replay.ReplayBuild >= 69947 && reader.ReadBoolean() && userID.HasValue) // m_hasActiveBoost
                         replay.ClientListByUserID[userID.Value].HasActiveBoost = true;
 
                     if (replay.ReplayVersionMajor >= 2)
-					{
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
-						Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
+                    {
+                        string banner = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
+                        if (!string.IsNullOrEmpty(banner))
+                            replay.ClientListByUserID[userID.Value].Banner = banner;
 
-						// m_heroMasteryTiers
-						if(replay.ReplayBuild >= 52561)
-						{
-							var heroMasteryTiersLength = reader.Read(10);
-							for (var j = 0; j < heroMasteryTiersLength; j++)
-							{
-								var heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
-								reader.Read(8); // m_tier
-							}
-						}
-					}
-				}
+                        string spray = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
+                        if (!string.IsNullOrEmpty(spray))
+                            replay.ClientListByUserID[userID.Value].Spray = spray;
+
+                        string announcer = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
+                        if (!string.IsNullOrEmpty(announcer))
+                            replay.ClientListByUserID[userID.Value].AnnouncerPack = announcer;
+
+                        string voiceLine = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
+                        if (!string.IsNullOrEmpty(voiceLine))
+                            replay.ClientListByUserID[userID.Value].VoiceLine = voiceLine;
+
+                        // m_heroMasteryTiers
+                        if (replay.ReplayBuild >= 52561)
+                        {
+                            var heroMasteryTiersLength = reader.Read(10);
+                            for (var j = 0; j < heroMasteryTiersLength; j++)
+                            {
+                                string heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
+                                int tier = (int)reader.Read(8); // m_tier
+
+                                replay.ClientListByUserID[userID.Value].HeroMasteryTiers.Add(new HeroMasteryTier()
+                                {
+                                    HeroAttributeId = heroAttributeName,
+                                    TierLevel = tier
+                                });
+                            }
+                        }
+                    }
+                }
 
                 if (reader.Read(32) != replay.RandomValue) // m_randomSeed
                     throw new Exception("Replay Random Seed Values in Replay Init Data did not match");
