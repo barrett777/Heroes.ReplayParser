@@ -292,19 +292,19 @@
                     if (replay.ReplayVersionMajor >= 2)
                     {
                         string banner = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
-                        if (!string.IsNullOrEmpty(banner))
+                        if (!string.IsNullOrEmpty(banner) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].Banner = banner;
 
                         string spray = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
-                        if (!string.IsNullOrEmpty(spray))
+                        if (!string.IsNullOrEmpty(spray) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].Spray = spray;
 
                         string announcer = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
-                        if (!string.IsNullOrEmpty(announcer))
+                        if (!string.IsNullOrEmpty(announcer) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].AnnouncerPack = announcer;
 
                         string voiceLine = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
-                        if (!string.IsNullOrEmpty(voiceLine))
+                        if (!string.IsNullOrEmpty(voiceLine) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].VoiceLine = voiceLine;
 
                         // m_heroMasteryTiers
@@ -316,11 +316,14 @@
                                 string heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
                                 int tier = (int)reader.Read(8); // m_tier
 
-                                replay.ClientListByUserID[userID.Value].HeroMasteryTiers.Add(new HeroMasteryTier()
+                                if (userID.HasValue)
                                 {
-                                    HeroAttributeId = heroAttributeName,
-                                    TierLevel = tier
-                                });
+                                    replay.ClientListByUserID[userID.Value].HeroMasteryTiers.Add(new HeroMasteryTier()
+                                    {
+                                        HeroAttributeId = heroAttributeName,
+                                        TierLevel = tier
+                                    });
+                                }
                             }
                         }
                     }
