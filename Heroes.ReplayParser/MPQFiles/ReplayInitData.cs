@@ -117,6 +117,10 @@
                             replay.GameMode = GameMode.TeamLeague;
                             break;
 
+                        case -1234567: // TODO: Find out what Storm league actually is
+                            replay.GameMode = GameMode.StormLeague;
+                            break;
+
                         default:
                             replay.GameMode = GameMode.Unknown;
                             break;
