@@ -509,7 +509,7 @@ namespace Heroes.ReplayParser
 
                             // Add derived hero positions from associated unit born/acquired/died info
                             // These are accurate positions: Picking up regen globes, spawning Locusts, etc
-                            if (newUnit.PlayerControlledBy != null)
+                            if (newUnit.PlayerControlledBy != null && activeHeroUnits.ContainsKey(newUnit.PlayerControlledBy))
                             {
                                 if (UnitBornProvidesLocationForOwner.ContainsKey(newUnit.Name) || newUnit.Group == UnitGroup.HeroTalentSelection)
                                     activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
