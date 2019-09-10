@@ -71,9 +71,25 @@ namespace Heroes.ReplayParser
         public string Character { get; set; }
 
         /// <summary>
+        /// Gets or sets the player's hero's attribute id.
+        /// </summary>
+        public string HeroAttributeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the player's hero's heroId.
+        /// </summary>
+        public string HeroId { get; set; }
+
+        /// <summary>
         /// Gets or sets the player's skin / skin tint.
         /// </summary>
         public string SkinAndSkinTint { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the player's skin / skin tint attribute id.
+        /// </summary>
+
+        public string SkinAndSkinTintAttributeId { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the player's mount / mount tint.
@@ -81,9 +97,19 @@ namespace Heroes.ReplayParser
         public string MountAndMountTint { get; set; } = null;
 
         /// <summary>
+        /// Gets or sets the player's mount / mount tint attribute id.
+        /// </summary>
+        public string MountAndMountTintAttributeId { get; set; } = null;
+
+        /// <summary>
         /// Gets or sets the player's banner
         /// </summary>
         public string Banner { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the player's banner attribute id.
+        /// </summary>
+        public string BannerAttributeId { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the player's Spray
@@ -91,14 +117,29 @@ namespace Heroes.ReplayParser
         public string Spray { get; set; } = null;
 
         /// <summary>
+        /// Gets or sets the player's Spray attribute id.
+        /// </summary>
+        public string SprayAttributeId { get; set; } = null;
+
+        /// <summary>
         /// Gets or sets the player's announcer pack
         /// </summary>
         public string AnnouncerPack { get; set; } = null;
 
         /// <summary>
+        /// Gets or sets the player's announcer pack attribute id.
+        /// </summary>
+        public string AnnouncerPackAttributeId { get; set; } = null;
+
+        /// <summary>
         /// Gets or sets the player's voice line
         /// </summary>
         public string VoiceLine { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the player's voice line attrbute id.
+        /// </summary>
+        public string VoiceLineAttributeId { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the player's character level.

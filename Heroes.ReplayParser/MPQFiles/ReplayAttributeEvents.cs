@@ -193,16 +193,57 @@ namespace Heroes.ReplayParser
                             break;
                         }
 
-                    case ReplayAttributeEventType.Hero:
+                    case ReplayAttributeEventType.HeroAttributeId:
                         {
                             if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                            {
                                 replay.PlayersWithOpenSlots[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
+                                replay.PlayersWithOpenSlots[attribute.PlayerId - 1].HeroAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                            }
                             break;
                         }
 
-                    case ReplayAttributeEventType.SkinAndSkinTint:
-                        if (encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand")
-                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].IsAutoSelect = true;
+                    case ReplayAttributeEventType.SkinAndSkinTintAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].SkinAndSkinTintAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.MountAndMountTintAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].MountAndMountTintAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.BannerAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].BannerAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.SprayAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].SprayAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.VoiceLineAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].VoiceLineAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.AnnouncerAttributeId:
+                        if (replay.PlayersWithOpenSlots[attribute.PlayerId - 1] != null)
+                        {
+                            replay.PlayersWithOpenSlots[attribute.PlayerId - 1].AnnouncerPackAttributeId = encoding.GetString(attribute.Value.Reverse().ToArray());
+                        }
                         break;
 
                     case ReplayAttributeEventType.CharacterLevel:
@@ -352,9 +393,9 @@ namespace Heroes.ReplayParser
 
             PrivacyOption = 4000,
             UsingCustomObserverUI = 4001,
-            Hero = 4002,
-            SkinAndSkinTint = 4003,
-            MountAndMountTint = 4004,
+            HeroAttributeId = 4002,
+            SkinAndSkinTintAttributeId = 4003,
+            MountAndMountTintAttributeId = 4004,
             Ready = 4005,
             HeroRange = 4006,
             HeroRole = 4007,
@@ -379,19 +420,27 @@ namespace Heroes.ReplayParser
             DraftTeam1Ban1LockedIn = 4024,
             DraftTeam1Ban2 = 4025,
             DraftTeam1Ban2LockedIn = 4026,
-			DraftTeam1Ban3 = 4043,
-			DraftTeam1Ban3LockedIn = 4044,
 
-			DraftTeam2BanChooserSlot = 4027,
+            BannerAttributeId = 4032,
+            SprayAttributeId = 4033,
+            VoiceLineAttributeId = 4034,
+            AnnouncerAttributeId = 4035,
+
+            /* 4036 - 4042 ??? */
+
+            DraftTeam1Ban3 = 4043,
+            DraftTeam1Ban3LockedIn = 4044,
+
+            DraftTeam2BanChooserSlot = 4027,
             DraftTeam2Ban1 = 4028,
             DraftTeam2Ban1LockedIn = 4029,
             DraftTeam2Ban2 = 4030,
             DraftTeam2Ban2LockedIn = 4031,
-			DraftTeam2Ban3 = 4045,
-			DraftTeam2Ban3LockedIn = 4046,
+            DraftTeam2Ban3 = 4045,
+            DraftTeam2Ban3LockedIn = 4046,
 
-			/* 4100 - 4200 are related to Artifacts, no longer in the game */
-		}
+            /* 4100 - 4200 are related to Artifacts, no longer in the game */
+        }
 
         private class ReplayAttribute
         {
