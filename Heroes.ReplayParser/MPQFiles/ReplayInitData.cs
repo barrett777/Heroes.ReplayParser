@@ -222,7 +222,7 @@
 
                     reader.Read(32); // m_logoIndex
 
-                    reader.ReadBlobPrecededWithLength(9); // m_hero
+                    string heroId = Encoding.ASCII.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero
 
                     var skinAndSkinTint = Encoding.ASCII.GetString(reader.ReadBlobPrecededWithLength(9)); // m_skin
                     if (skinAndSkinTint == "")
@@ -252,6 +252,7 @@
                         if (observerStatus == 2)
                             replay.ClientListByUserID[userID.Value].PlayerType = PlayerType.Spectator;
 
+                        replay.ClientListByUserID[userID.Value].HeroId = heroId;
                         replay.ClientListByUserID[userID.Value].SkinAndSkinTint = skinAndSkinTint;
                         replay.ClientListByUserID[userID.Value].MountAndMountTint = mountAndMountTint;
                     }
