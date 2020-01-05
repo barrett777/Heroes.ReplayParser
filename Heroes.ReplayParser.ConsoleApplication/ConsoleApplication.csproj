@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Heroes.ReplayParser\Heroes.ReplayParser.netstandard.csproj" />
+    <ProjectReference Include="..\Heroes.ReplayParser\Heroes.ReplayParser.csproj" />
   </ItemGroup>
 
 </Project>

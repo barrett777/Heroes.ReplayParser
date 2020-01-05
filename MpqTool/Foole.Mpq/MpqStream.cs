@@ -408,7 +408,7 @@ namespace Foole.Mpq
                     stream.CopyTo(output);
                 }
 #elif WITH_SHARPCOMPRESS
-                using (var stream = new SharpCompress.Compressors.BZip2.BZip2Stream(data, SharpCompress.Compressors.CompressionMode.Decompress))
+                using (var stream = new SharpCompress.Compressors.BZip2.BZip2Stream(data, SharpCompress.Compressors.CompressionMode.Decompress, false))
                 {
                     stream.CopyTo(output);
                 }

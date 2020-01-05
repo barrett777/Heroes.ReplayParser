@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplication1.netcore", "ConsoleApplication1.netcore.csproj", "{861DB181-6C12-48CB-AA2A-19B374ECA319}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplication", "ConsoleApplication.csproj", "{861DB181-6C12-48CB-AA2A-19B374ECA319}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heroes.ReplayParser.netstandard", "..\..\Heroes.ReplayParser\Heroes.ReplayParser.netstandard.csproj", "{AAF78D53-A1DA-424A-B1AA-09895EAB3B2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heroes.ReplayParser", "..\Heroes.ReplayParser\Heroes.ReplayParser.csproj", "{AAF78D53-A1DA-424A-B1AA-09895EAB3B2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MpqTool.netstandard", "..\..\MpqTool\MpqTool.netstandard.csproj", "{FA50E172-836B-47BB-8745-60595E4FB12A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MpqTool", "..\MpqTool\MpqTool.csproj", "{FA50E172-836B-47BB-8745-60595E4FB12A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
