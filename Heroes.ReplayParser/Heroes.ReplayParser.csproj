@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<DefineConstants>WITH_SHARPCOMPRESS</DefineConstants>
 		<PackageId>Heroes.ReplayParser</PackageId>
 		<Authors>Ben Barrett</Authors>
 		<Company>barrett777</Company>
@@ -14,10 +15,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\MpqTool\MpqTool.csproj" />
+		<PackageReference Include="sharpcompress" Version="0.24.0" />
 	</ItemGroup>
 
 </Project>
