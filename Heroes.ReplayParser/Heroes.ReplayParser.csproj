@@ -8,6 +8,7 @@
 		<Company>barrett777</Company>
 		<Description>A library for parsing Heroes of the Storm replay files (.StormReplay)</Description>
 		<RepositoryUrl>https://github.com/barrett777/Heroes.ReplayParser</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>
