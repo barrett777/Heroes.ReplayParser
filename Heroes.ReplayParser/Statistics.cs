@@ -913,8 +913,12 @@ namespace Heroes.ReplayParser
                                 case "TeamTakedowns":
                                 case "Role":
                                 case "EndOfMatchAwardGivenToNonwinner":
-								case "OnFireTimeOnFire":
-								case "TouchByBlightPlague":
+                                case "OnFireTimeOnFire":
+                                    for (var i = 0; i < scoreResultEventValueArray.Length; i++)
+                                        if (scoreResultEventValueArray[i].HasValue)
+                                            replay.ClientListByWorkingSetSlotID[i].ScoreResult.OnFireTimeonFire = TimeSpan.FromSeconds(scoreResultEventValueArray[i].Value);
+                                    break;
+                                case "TouchByBlightPlague":
 								case "Difficulty": // First seen in 'Escape From Braxis' PvE Brawl
 
                                 // Map Objectives

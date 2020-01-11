@@ -274,6 +274,10 @@ namespace Heroes.ReplayParser
         public int? PhysicalDamage { get; set; } = null;
         public int? SpellDamage { get; set; } = null;
 
+        /// <summary>
+        /// Gets or sets the amount of time the player was on fire.
+        /// </summary>
+        public TimeSpan? OnFireTimeonFire { get; set; } = null;
         public List<MatchAwardType> MatchAwards { get; set; } = new List<MatchAwardType>();
     }
 
