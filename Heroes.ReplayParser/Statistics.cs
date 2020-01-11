@@ -316,7 +316,9 @@ namespace Heroes.ReplayParser
                             case "PlayerSpawned": break;            // {StatGameEvent: {"PlayerSpawned", [{{"Hero"}, "HeroLeoric"}], [{{"PlayerID"}, 1}], }}
                             case "GatesOpen": break;                // {StatGameEvent: {"GatesOpen", , , }}
                             case "PlayerDeath": break;              // {StatGameEvent: {"PlayerDeath", , [{{"PlayerID"}, 8}, {{"KillingPlayer"}, 1}, {{"KillingPlayer"}, 2}, {{"KillingPlayer"}, 3}, {{"KillingPlayer"}, 4}, {{"KillingPlayer"}, 5}], [{{"PositionX"}, 130}, {{"PositionY"}, 80}]}}
-                            case "RegenGlobePickedUp": break;       // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
+                            case "RegenGlobePickedUp":              // {StatGameEvent: {"RegenGlobePickedUp", , [{{"PlayerID"}, 1}], }}
+                                playerIDDictionary[(int)trackerEvent.Data.dictionary[2].optionalData.array[0].dictionary[1].vInt.Value].ScoreResult.RegenGlobes++;
+                                break;
                             case "ChoGall Cho Spawn Error": break;  // {StatGameEvent: {"ChoGall Cho Spawn Error", , [{{"PlayerID"}, 6}], }}
                             case "ChoGall Gall Spawn Error": break; // {StatGameEvent: {"ChoGall Gall Spawn Error", , [{{"PlayerID"}, 6}], }}
 							case "LootSprayUsed": break;            // {StatGameEvent: {"LootSprayUsed", [{{"MapID"}, "CursedHollow"}, {{"PlayerHandle"}, "98-Hero-1-640036"}, {{"SprayID"}, "SprayStaticFluidDefault"}, {{"HeroID"}, "HeroWizard"}], [{{"PlayerID"}, 9}, {{"IsWheel"}, 0}], [{{"XLoc"}, 193}, {{"YLoc"}, 114}]}}

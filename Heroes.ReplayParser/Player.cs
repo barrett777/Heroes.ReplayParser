@@ -242,7 +242,7 @@ namespace Heroes.ReplayParser
 
         public int? Healing { get; set; } = null;
         public int SelfHealing { get; set; } = 0;
-
+        public int RegenGlobes { get; set; } = 0;
         public int? DamageTaken { get; set; } = null;
         public int? DamageSoaked { get; set; } = null;
 
