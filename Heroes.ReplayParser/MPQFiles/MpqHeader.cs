@@ -13,7 +13,7 @@
         /// <param name="filename">Filename of the file to open.</param>
         public static void ParseHeader(Replay replay, string filename)
         {
-            using (var fileStream = new FileStream(filename, FileMode.Open))
+            using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
                 using (var reader = new BinaryReader(fileStream))
                     ParseHeader(replay, reader);
         }
