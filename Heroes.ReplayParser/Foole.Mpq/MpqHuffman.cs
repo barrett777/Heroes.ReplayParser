@@ -26,11 +26,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+
 using System;
 using System.IO;
-using System.Collections;
 
-namespace Foole.Mpq
+namespace Heroes.ReplayParser.Foole.Mpq
 {
 	// A node which is both hierachcical (parent/child) and doubly linked (next/prev)
 	internal class LinkedNode

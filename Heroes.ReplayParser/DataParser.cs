@@ -1,8 +1,10 @@
-﻿using Foole.Mpq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Heroes.ReplayParser.Foole.Mpq;
+using Heroes.ReplayParser.MPQFiles;
+using MpqHeader = Heroes.ReplayParser.MPQFiles.MpqHeader;
 
 namespace Heroes.ReplayParser
 {

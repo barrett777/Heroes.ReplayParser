@@ -1,9 +1,9 @@
-﻿namespace Heroes.ReplayParser.Streams
-{
-    using System;
-    using System.IO;
-    using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 
+namespace Heroes.ReplayParser
+{
     /// <summary>
     /// A basic little-endian bitstream reader.
     /// </summary>

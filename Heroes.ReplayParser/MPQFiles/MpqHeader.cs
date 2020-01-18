@@ -1,8 +1,8 @@
-﻿namespace Heroes.ReplayParser
-{
-    using System;
-    using System.IO;
+﻿using System;
+using System.IO;
 
+namespace Heroes.ReplayParser.MPQFiles
+{
     /// <summary> Parses the header at the beginning of the MPQ file structure. </summary>
     public static class MpqHeader
     {

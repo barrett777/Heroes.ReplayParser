@@ -1,5 +1,5 @@
 ﻿using System;
-using static Heroes.ReplayParser.ReplayMessageEvents;
+using static Heroes.ReplayParser.MPQFiles.ReplayMessageEvents;
 
 namespace Heroes.ReplayParser
 {
