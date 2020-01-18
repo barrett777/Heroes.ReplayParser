@@ -1,12 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
-namespace Heroes.ReplayParser
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-
     public class ReplayGameEvents
     {
         public const string FileName = "replay.game.events";
@@ -20,7 +18,7 @@ namespace Heroes.ReplayParser
             var ticksElapsed = 0;
             using (var stream = new MemoryStream(buffer))
             {
-                var bitReader = new Streams.BitReader(stream);
+                var bitReader = new BitReader(stream);
                 while (!bitReader.EndOfStream)
                 {
                     var gameEvent = new GameEvent();
@@ -527,12 +525,12 @@ namespace Heroes.ReplayParser
         public Player player = null;
         public bool isGlobal = false;
         public int ticksElapsed;
-        public TimeSpan TimeSpan { get { return new TimeSpan(0, 0, (int)(ticksElapsed / 16.0)); } }
+        public TimeSpan TimeSpan => new TimeSpan(0, 0, (int)(ticksElapsed / 16.0));
         public TrackerEventStructure data = null;
 
         public override string ToString()
         {
-            return data != null ? data.ToString() : null;
+            return data?.ToString();
         }
     }
 

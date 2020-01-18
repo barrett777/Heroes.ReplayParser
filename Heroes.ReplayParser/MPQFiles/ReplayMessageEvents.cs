@@ -1,9 +1,9 @@
-﻿namespace Heroes.ReplayParser
-{
-    using System;
-    using System.IO;
-    using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 
+namespace Heroes.ReplayParser.MPQFiles
+{
     public class ReplayMessageEvents
     {
         public const string FileName = "replay.message.events";
@@ -20,7 +20,7 @@
             var ticksElapsed = 0;
             using (var stream = new MemoryStream(buffer))
             {
-                var bitReader = new Streams.BitReader(stream);
+                var bitReader = new BitReader(stream);
 
                 while (!bitReader.EndOfStream)
                 {
@@ -41,10 +41,13 @@
                     {
                         case MessageEventType.SChatMessage:
                             {
-                                ChatMessage chatMessage = new ChatMessage();
+                                var chatMessage = new ChatMessage
+                                {
+                                        MessageTarget = (MessageTarget) bitReader.Read(3), Message = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(11))
+                                };
 
-                                chatMessage.MessageTarget = (MessageTarget)bitReader.Read(3); // m_recipient (the target)
-                                chatMessage.Message = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(11)); // m_string
+                                // m_recipient (the target)
+                                // m_string
 
                                 message.ChatMessage = chatMessage;
                                 replay.Messages.Add(message);
@@ -52,12 +55,17 @@
                             }
                         case MessageEventType.SPingMessage:
                             {
-                                PingMessage pingMessage = new PingMessage();
+                                var pingMessage = new PingMessage
+                                {
+                                        MessageTarget = (MessageTarget) bitReader.Read(3),
+                                        XCoordinate = bitReader.ReadInt32() - (-2147483648),
+                                        YCoordinate = bitReader.ReadInt32() - (-2147483648)
+                                };
 
-                                pingMessage.MessageTarget = (MessageTarget)bitReader.Read(3); // m_recipient (the target) 
+                                // m_recipient (the target) 
 
-                                pingMessage.XCoordinate = bitReader.ReadInt32() - (-2147483648); // m_point x
-                                pingMessage.YCoordinate = bitReader.ReadInt32() - (-2147483648); // m_point y
+                                // m_point x
+                                // m_point y
 
                                 message.PingMessage = pingMessage;
                                 replay.Messages.Add(message);
@@ -81,7 +89,7 @@
                             }
                         case MessageEventType.SPlayerAnnounceMessage:
                             {
-                                PlayerAnnounceMessage announceMessage = new PlayerAnnounceMessage();
+                                var announceMessage = new PlayerAnnounceMessage();
 
                                 announceMessage.AnnouncementType = (AnnouncementType)bitReader.Read(2);
 
@@ -93,10 +101,10 @@
                                         }
                                     case AnnouncementType.Ability:
                                         {
-                                            AbilityAnnouncment ability = new AbilityAnnouncment();
-                                            ability.AbilityLink = bitReader.ReadInt16(); // m_abilLink      
-                                            ability.AbilityIndex = (int)bitReader.Read(5); // m_abilCmdIndex
-                                            ability.ButtonLink = bitReader.ReadInt16(); // m_buttonLink
+                                            var ability = new AbilityAnnouncment {AbilityLink = bitReader.ReadInt16(), AbilityIndex = (int) bitReader.Read(5), ButtonLink = bitReader.ReadInt16()};
+                                            // m_abilLink      
+                                            // m_abilCmdIndex
+                                            // m_buttonLink
 
                                             announceMessage.AbilityAnnouncement = ability;
                                             break;
@@ -110,8 +118,7 @@
                                         }
                                     case AnnouncementType.Vitals:
                                         {
-                                            VitalAnnouncment vital = new VitalAnnouncment();
-                                            vital.VitalType = (VitalType)(bitReader.ReadInt16() - (-32768));
+                                            var vital = new VitalAnnouncment {VitalType = (VitalType) (bitReader.ReadInt16() - (-32768))};
 
                                             announceMessage.VitalAnnouncement = vital;
                                             break;

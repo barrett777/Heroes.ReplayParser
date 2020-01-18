@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heroes.ReplayParser.MPQFiles;
 
 namespace Heroes.ReplayParser
 {
@@ -515,11 +516,18 @@ namespace Heroes.ReplayParser
                                     activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
                                 else if (isCheckingForAbathurLocusts)
                                 {
-                                    // For Abathur locusts, we need to make sure they aren't spawning from a locust nest (Level 20 talent)
-                                    if (newUnit.Name == "AbathurLocustNest")
-                                        isCheckingForAbathurLocusts = false;
-                                    else if (newUnit.Name == "AbathurLocustNormal" || newUnit.Name == "AbathurLocustAssaultStrain" || newUnit.Name == "AbathurLocustBombardStrain")
-                                        activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
+                                    switch (newUnit.Name)
+                                    {
+                                        // For Abathur locusts, we need to make sure they aren't spawning from a locust nest (Level 20 talent)
+                                        case "AbathurLocustNest":
+                                            isCheckingForAbathurLocusts = false;
+                                            break;
+                                        case "AbathurLocustNormal":
+                                        case "AbathurLocustAssaultStrain":
+                                        case "AbathurLocustBombardStrain":
+                                            activeHeroUnits[newUnit.PlayerControlledBy].Positions.Add(new Position { TimeSpan = newUnit.TimeSpanBorn, Point = newUnit.PointBorn });
+                                            break;
+                                    }
                                 }
                             }
                             break;
@@ -701,14 +709,14 @@ namespace Heroes.ReplayParser
 
                     // Group minion units by lane
                     var currentIndex = 0;
-                    var minionUnitsPerWave = 7;
+                    const int minionUnitsPerWave = 7;
                     while (currentIndex < minionUnits.Length)
-                        for (var i = 0; i < unitsPerLaneTemp.Length; i++)
+                        foreach (var unitPerLaneTemp in unitsPerLaneTemp)
                             for (var j = 0; j < minionUnitsPerWave; j++)
                             {
                                 if (currentIndex == minionUnits.Length)
                                     break;
-                                unitsPerLaneTemp[i].Add(minionUnits[currentIndex++]);
+                                unitPerLaneTemp.Add(minionUnits[currentIndex++]);
 
                                 // CatapultMinions don't seem to spawn exactly with their minion wave, which is strange
                                 // For now I will leave them out of this, which means they may appear to travel through walls
@@ -726,10 +734,7 @@ namespace Heroes.ReplayParser
                         // For each lane, take the forts in that lane, and see if the minions in that lane walked beyond this
                         var currentLaneUnitsToAdjust = unitsPerLane[i].Where(j => j.Positions.Any() || j.TimeSpanDied.HasValue);
                         var currentLaneWaypoints = minionWayPoints.Skip(numberOfStructureTiers * i).Take(numberOfStructureTiers);
-                        if (team == 0)
-                            currentLaneWaypoints = currentLaneWaypoints.OrderBy(j => j.X);
-                        else
-                            currentLaneWaypoints = currentLaneWaypoints.OrderByDescending(j => j.X);
+                        currentLaneWaypoints = team == 0 ? currentLaneWaypoints.OrderBy(j => j.X) : currentLaneWaypoints.OrderByDescending(j => j.X);
 
                         foreach (var laneUnit in currentLaneUnitsToAdjust)
                         {
