@@ -1,8 +1,8 @@
-﻿namespace Heroes.ReplayParser
-{
-    using System;
-    using System.IO;
+﻿using System;
+using System.IO;
 
+namespace Heroes.ReplayParser.MPQFiles
+{
     /// <summary> Parses the header at the beginning of the MPQ file structure. </summary>
     public static class MpqHeader
     {
@@ -37,7 +37,8 @@
 
             // [0] = Blob, "Heroes of the Storm replay 11" - Strange backward arrow before 11 as well.  I don't think the '11' will change, as I believe it was also always '11' in Starcraft 2 replays.
 
-            replay.ReplayVersion = string.Format("{0}.{1}.{2}.{3}", headerStructure.dictionary[1].dictionary[1].vInt.Value, headerStructure.dictionary[1].dictionary[2].vInt.Value, headerStructure.dictionary[1].dictionary[3].vInt.Value, headerStructure.dictionary[1].dictionary[4].vInt.Value);
+            replay.ReplayVersion =
+                    $"{headerStructure.dictionary[1].dictionary[1].vInt.Value}.{headerStructure.dictionary[1].dictionary[2].vInt.Value}.{headerStructure.dictionary[1].dictionary[3].vInt.Value}.{headerStructure.dictionary[1].dictionary[4].vInt.Value}";
 
             replay.ReplayBuild = (int)headerStructure.dictionary[1].dictionary[4].vInt.Value;
 

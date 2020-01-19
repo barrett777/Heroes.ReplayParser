@@ -1,9 +1,9 @@
-﻿namespace Heroes.ReplayParser.Streams
-{
-    using System;
-    using System.IO;
-    using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 
+namespace Heroes.ReplayParser
+{
     /// <summary>
     /// A basic little-endian bitstream reader.
     /// </summary>
@@ -31,13 +31,7 @@
         /// <summary>
         /// Gets a value indicating whether the end of stream has been reached.
         /// </summary>
-        public bool EndOfStream
-        {
-            get
-            {
-                return (this.Cursor >> 3) == this.stream.Length;
-            }
-        }
+        public bool EndOfStream => (this.Cursor >> 3) == this.stream.Length;
 
         /// <summary>
         /// Reads up to 32 bits from the stream, returning them as a uint.
