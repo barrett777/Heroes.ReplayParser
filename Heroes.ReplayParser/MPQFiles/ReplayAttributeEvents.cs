@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Heroes.ReplayParser
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using System.Collections.Generic;
-
     public static class ReplayAttributeEvents
     {
         public const string FileName = "replay.attributes.events";
@@ -16,7 +15,7 @@ namespace Heroes.ReplayParser
 
             var attributes = new ReplayAttribute[BitConverter.ToInt32(buffer, headerSize)];
 
-            var initialOffset = 4 + headerSize;
+            const int initialOffset = 4 + headerSize;
 
             for (var i = 0; i < attributes.Length; i++)
             {
@@ -68,15 +67,21 @@ namespace Heroes.ReplayParser
                             if (type == "comp" || type == "humn")
                                 replay.PlayersWithOpenSlots[attribute.PlayerId - 1] = replay.Players[attribute.PlayerId - replayPlayersWithOpenSlotsIndex];
 
-                            if (type == "comp")
-                                replay.PlayersWithOpenSlots[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
-                            else if (type == "humn")
-                                replay.PlayersWithOpenSlots[attribute.PlayerId - 1].PlayerType = PlayerType.Human;
-                            else if (type == "open")
+                            switch (type)
+                            {
+                                case "comp":
+                                    replay.PlayersWithOpenSlots[attribute.PlayerId - 1].PlayerType = PlayerType.Computer;
+                                    break;
+                                case "humn":
+                                    replay.PlayersWithOpenSlots[attribute.PlayerId - 1].PlayerType = PlayerType.Human;
+                                    break;
                                 // Less than 10 players in a Custom game
-                                replayPlayersWithOpenSlotsIndex++;
-                            else
-                                throw new Exception("Unexpected value for PlayerType");
+                                case "open":
+                                    replayPlayersWithOpenSlotsIndex++;
+                                    break;
+                                default:
+                                    throw new Exception("Unexpected value for PlayerType");
+                            }
 
                             break;
                         }

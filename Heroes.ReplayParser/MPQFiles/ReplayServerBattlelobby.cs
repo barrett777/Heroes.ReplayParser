@@ -1,13 +1,12 @@
-﻿namespace Heroes.ReplayParser
-{
-    using System.IO;
-    using Streams;
-    using System;
-    using System.Text;
-    using System.Collections.Generic;
-    using System.Text.RegularExpressions;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
+namespace Heroes.ReplayParser.MPQFiles
+{
     /// <summary> Parses the replay.server.battlelobby file in the replay file. </summary>
     public class ReplayServerBattlelobby
     {
@@ -65,7 +64,7 @@
             }        
         }
 
-        internal static void DetailedParse(BitReader bitReader, Replay replay, int s2mArrayLength)
+        private static void DetailedParse(BitReader bitReader, Replay replay, int s2mArrayLength)
         {
             bitReader.AlignToByte();
             for (; ; )
@@ -91,19 +90,16 @@
             // Player collections - starting with HOTS 2.0 (live build 52860)
             // strings gone starting with build (ptr) 55929
             // --------------------------------------------------------------
-            List<string> playerCollection = new List<string>();
+            var playerCollection = new List<string>();
 
-            int collectionSize = 0;
+            var collectionSize = 0;
 
-            if (replay.ReplayBuild >= 48027)
-                collectionSize = bitReader.ReadInt16();
-            else
-                collectionSize = bitReader.ReadInt32();
+            collectionSize = replay.ReplayBuild >= 48027 ? bitReader.ReadInt16() : bitReader.ReadInt32();
 
             if (collectionSize > 8000)
                 throw new DetailedParsedException("collectionSize is an unusually large number");
 
-            for (int i = 0; i < collectionSize; i++)
+            for (var i = 0; i < collectionSize; i++)
             {
                 if (replay.ReplayBuild >= 55929)
                     bitReader.ReadBytes(8); // most likey an identifier for the item; first six bytes are 0x00
@@ -115,9 +111,9 @@
             if (bitReader.ReadInt32() != collectionSize)
                 throw new DetailedParsedException("skinArrayLength not equal");
 
-            for (int i = 0; i < collectionSize; i++)
+            for (var i = 0; i < collectionSize; i++)
             {
-                for (int j = 0; j < 16; j++) // 16 is total player slots
+                for (var j = 0; j < 16; j++) // 16 is total player slots
                 {
                     bitReader.ReadByte();
 
@@ -163,7 +159,7 @@
                 return;
             }
 
-            for (int player = 0; player < replay.ClientListByUserID.Length; player++)
+            for (var player = 0; player < replay.ClientListByUserID.Length; player++)
             {
                 if (replay.ClientListByUserID[player] == null)
                     break;
@@ -194,11 +190,11 @@
                     // repeat of the collection section above
                     if (replay.ReplayBuild >= 51609)
                     {
-                        int size = (int)bitReader.Read(12); // 3 bytes
+                        var size = (int)bitReader.Read(12); // 3 bytes
                         if (size == collectionSize)
                         {
-                            int bytesSize = collectionSize / 8;
-                            int bitsSize = collectionSize % 8;
+                            var bytesSize = collectionSize / 8;
+                            var bitsSize = collectionSize % 8;
 
                             bitReader.ReadBytes(bytesSize);
                             bitReader.Read(bitsSize);
@@ -265,12 +261,9 @@
         // used for builds <= 47479 and 47903
         private static void ExtendedBattleTagParsingOld(Replay replay, BitReader bitReader)
         {
-            bool changed47479 = false;
+            bool changed47479 = replay.ReplayBuild == 47479 && DetectBattleTagChangeBuild47479(replay, bitReader);
 
-            if (replay.ReplayBuild == 47479 && DetectBattleTagChangeBuild47479(replay, bitReader))
-                changed47479 = true;
-
-            for (int i = 0; i < replay.ClientListByUserID.Length; i++)
+            for (var i = 0; i < replay.ClientListByUserID.Length; i++)
             {
                 if (replay.ClientListByUserID[i] == null)
                     break;
@@ -391,7 +384,7 @@
             if (replay.ReplayBuild != 47479)
                 return false;
 
-            bool changed = false;
+            var changed = false;
 
             var offset = bitReader.ReadByte();
             bitReader.ReadString(2); // T:
@@ -399,7 +392,7 @@
 
             bitReader.ReadBytes(6);
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 if (bitReader.Read(8) != 0)
                     changed = true;
@@ -477,7 +470,7 @@
             }
         }
 
-        public static byte[] ReadSpecialBlob(BitReader bitReader, int numBitsForLength)
+        private static byte[] ReadSpecialBlob(BitReader bitReader, int numBitsForLength)
         {
             var stringLength = bitReader.Read(numBitsForLength);
             bitReader.AlignToByte();

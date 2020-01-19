@@ -1,11 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Text;
 
-namespace Heroes.ReplayParser
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using System;
-    using System.IO;
-    using System.Text;
-
     public static class ReplayResumableEvents
     {
         public const string FileName = "replay.resumable.events";
