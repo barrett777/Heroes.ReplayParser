@@ -26,11 +26,10 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-
 using System;
 using System.IO;
 
-namespace Heroes.ReplayParser.Foole.Mpq
+namespace Foole.Mpq
 {
 	/// <summary>
 	/// A utility class for reading groups of bits from a stream
