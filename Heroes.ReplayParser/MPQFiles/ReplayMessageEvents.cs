@@ -43,12 +43,10 @@ namespace Heroes.ReplayParser.MPQFiles
                             {
                                 var chatMessage = new ChatMessage
                                 {
-                                        MessageTarget = (MessageTarget) bitReader.Read(3), Message = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(11))
+                                        MessageTarget = (MessageTarget) bitReader.Read(3), // m_recipient (the target)
+                                        Message = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(11))  // m_string
                                 };
-
-                                // m_recipient (the target)
-                                // m_string
-
+                                
                                 message.ChatMessage = chatMessage;
                                 replay.Messages.Add(message);
                                 break;
@@ -57,15 +55,10 @@ namespace Heroes.ReplayParser.MPQFiles
                             {
                                 var pingMessage = new PingMessage
                                 {
-                                        MessageTarget = (MessageTarget) bitReader.Read(3),
-                                        XCoordinate = bitReader.ReadInt32() - (-2147483648),
-                                        YCoordinate = bitReader.ReadInt32() - (-2147483648)
+                                        MessageTarget = (MessageTarget) bitReader.Read(3),  // m_recipient (the target) 
+                                        XCoordinate = bitReader.ReadInt32() - (-2147483648),  // m_point x
+                                        YCoordinate = bitReader.ReadInt32() - (-2147483648) // m_point y
                                 };
-
-                                // m_recipient (the target) 
-
-                                // m_point x
-                                // m_point y
 
                                 message.PingMessage = pingMessage;
                                 replay.Messages.Add(message);
@@ -89,9 +82,7 @@ namespace Heroes.ReplayParser.MPQFiles
                             }
                         case MessageEventType.SPlayerAnnounceMessage:
                             {
-                                var announceMessage = new PlayerAnnounceMessage();
-
-                                announceMessage.AnnouncementType = (AnnouncementType)bitReader.Read(2);
+                                var announceMessage = new PlayerAnnounceMessage {AnnouncementType = (AnnouncementType) bitReader.Read(2)};
 
                                 switch (announceMessage.AnnouncementType)
                                 {
@@ -101,10 +92,11 @@ namespace Heroes.ReplayParser.MPQFiles
                                         }
                                     case AnnouncementType.Ability:
                                         {
-                                            var ability = new AbilityAnnouncment {AbilityLink = bitReader.ReadInt16(), AbilityIndex = (int) bitReader.Read(5), ButtonLink = bitReader.ReadInt16()};
-                                            // m_abilLink      
-                                            // m_abilCmdIndex
-                                            // m_buttonLink
+                                            var ability = new AbilityAnnouncment {
+                                                    AbilityLink = bitReader.ReadInt16(), // m_abilLink  
+                                                    AbilityIndex = (int) bitReader.Read(5), // m_abilCmdIndex
+                                                    ButtonLink = bitReader.ReadInt16() // m_buttonLink
+                                            };
 
                                             announceMessage.AbilityAnnouncement = ability;
                                             break;
