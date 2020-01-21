@@ -38,8 +38,6 @@ namespace Heroes.ReplayParser
             { "Towers of Doom", new Tuple<double, double, double, double>(4.0, 42.0, 1.03, 0.925) },
             { "Battlefield of Eternity", new Tuple<double, double, double, double>(-5.0, 33.0, 1.09, 0.96) }
         };
-
-        //public static Tuple<ReplayParseResult, Replay> ParseReplay(byte[] bytes, bool ignoreErrors = false, bool allowPTRRegion = false)
         public static Tuple<ReplayParseResult, Replay> ParseReplay(byte[] bytes, ParseOptions parseOptions)
         {
             try
@@ -143,7 +141,7 @@ namespace Heroes.ReplayParser
 
             if (parseOptions.ShouldParseEvents)
             {
-                //replay.TrackerEvents = ReplayTrackerEvents.Parse(GetMpqFile(archive, ReplayTrackerEvents.FileName));
+                replay.TrackerEvents = ReplayTrackerEvents.Parse(GetMpqFile(archive, ReplayTrackerEvents.FileName));
                 try
                 {
                     replay.GameEvents = ReplayGameEvents.Parse(GetMpqFile(archive, ReplayGameEvents.FileName), replay.ClientListByUserID, replay.ReplayBuild, replay.ReplayVersionMajor, parseOptions.ShouldParseMouseEvents);
