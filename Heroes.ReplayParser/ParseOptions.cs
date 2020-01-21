@@ -20,9 +20,9 @@ namespace Heroes.ReplayParser
         public bool IgnoreErrors { get; set; } = false;
         public bool AllowPTR { get; set; } = false;
         public bool ShouldParseEvents { get; set; } = true;
-        public bool ShouldParseUnits { get; set; } = false;
-        public bool ShouldParseMouseEvents { get; set; } = false;
-        public bool ShouldParseDetailedBattleLobby { get; set; } = true;
+        public bool ShouldParseUnits { get; set; } = true;
+        public bool ShouldParseMouseEvents { get; set; } = true;
+        public bool ShouldParseDetailedBattleLobby { get; set; } = false;
         public bool ShouldParseMessageEvents { get; set; } = false;
         public bool ShouldParseStatistics { get; set; } = true;
 
@@ -34,8 +34,17 @@ namespace Heroes.ReplayParser
             AllowPTR = true,
             ShouldParseDetailedBattleLobby = true,
             ShouldParseMouseEvents = true,
-            ShouldParseUnits = true,
             ShouldParseMessageEvents = true,
+        };
+
+        /// <summary>
+        /// Parse as excluding Units, Mouse Events, and Enabling the DetailedBattleLobby
+        /// </summary>
+        public static ParseOptions MediumParsing => new ParseOptions()
+        {
+            ShouldParseUnits = false,
+            ShouldParseMouseEvents = false,
+            ShouldParseDetailedBattleLobby = true,
         };
 
         /// <summary>
@@ -44,13 +53,17 @@ namespace Heroes.ReplayParser
         public static ParseOptions MinimalParsing => new ParseOptions()
         {
             ShouldParseEvents = false,
+            ShouldParseUnits = false,
+            ShouldParseMouseEvents = false,
             ShouldParseDetailedBattleLobby = false
         };
+
+
 
         /// <summary>
         /// Parsing for typical needs, excludes events, units and mouseevents.
         /// </summary>
-        public static ParseOptions TypicalParsing => new ParseOptions();
+        public static ParseOptions DefaultParsing => new ParseOptions();
 
     }
 }
