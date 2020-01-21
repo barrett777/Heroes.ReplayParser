@@ -62,8 +62,6 @@ namespace Heroes.ReplayParser
                 return new Tuple<ReplayParseResult, Replay>(ReplayParseResult.Exception, null);
             }
         }
-
-        //public static Tuple<ReplayParseResult, Replay> ParseReplay(string fileName, bool ignoreErrors, bool deleteFile, bool allowPTRRegion = false, bool detailedBattleLobbyParsing = false)
         public static Tuple<ReplayParseResult, Replay> ParseReplay(string fileName, bool deleteFile, ParseOptions parseOptions)
         {
             try
