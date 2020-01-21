@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heroes.ReplayParser.MPQFiles;
 
 namespace Heroes.ReplayParser
 {
@@ -31,9 +32,9 @@ namespace Heroes.ReplayParser
 
                 replay.TeamObjectives[(ownerChangeEvent != null ? ownerChangeEvent.PlayerNewOwner : vehicleUnit.PlayerControlledBy).Team].Add(new TeamObjective {
                     Player = ownerChangeEvent != null ? ownerChangeEvent.PlayerNewOwner : vehicleUnit.PlayerControlledBy,
-                    TimeSpan = ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value,
+                    TimeSpan = ownerChangeEvent?.TimeSpanOwnerChanged ?? vehicleUnit.TimeSpanAcquired.Value,
                     TeamObjectiveType = vehicleUnit.Name == "VehiclePlantHorror" ? TeamObjectiveType.GardenOfTerrorGardenTerrorActivatedWithGardenTerrorDurationSeconds : TeamObjectiveType.DragonShireDragonKnightActivatedWithDragonDurationSeconds,
-                    Value = (int) ((vehicleUnit.TimeSpanDied ?? replay.ReplayLength) - (ownerChangeEvent != null ? ownerChangeEvent.TimeSpanOwnerChanged : vehicleUnit.TimeSpanAcquired.Value)).TotalSeconds });
+                    Value = (int) ((vehicleUnit.TimeSpanDied ?? replay.ReplayLength) - (ownerChangeEvent?.TimeSpanOwnerChanged ?? vehicleUnit.TimeSpanAcquired.Value)).TotalSeconds });
             }
 
             // Braxis Holdout Zerg Strength
@@ -69,7 +70,7 @@ namespace Heroes.ReplayParser
                                 teamZergUnitCount[zergUnits[i].Team.Value]++;
 
                                 // Check to see if the objective was not completed before the game ended
-                                if (!teamZergUnitCount.Any(j => j == zergSpawnNumberToStrength.Count - 1))
+                                if (teamZergUnitCount.All(j => j != zergSpawnNumberToStrength.Count - 1))
                                     break;
                             }
 
@@ -399,7 +400,7 @@ namespace Heroes.ReplayParser
                                 if (trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value == 0) // Not sure why, but sometimes 'TeamID' = 0.  I've seen it 3 times in about ~60 Sky Temple games
                                     break;
 
-                                var recentSkyTempleShotsFiredTeamObjective = replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value - 1].Where(i => i.TeamObjectiveType == TeamObjectiveType.SkyTempleShotsFiredWithSkyTempleShotsDamage && i.TimeSpan > trackerEvent.TimeSpan.Add(TimeSpan.FromSeconds(-130))).SingleOrDefault();
+                                var recentSkyTempleShotsFiredTeamObjective = replay.TeamObjectives[trackerEvent.Data.dictionary[2].optionalData.array[2].dictionary[1].vInt.Value - 1].SingleOrDefault(i => i.TeamObjectiveType == TeamObjectiveType.SkyTempleShotsFiredWithSkyTempleShotsDamage && i.TimeSpan > trackerEvent.TimeSpan.Add(TimeSpan.FromSeconds(-130)));
 
                                 if (recentSkyTempleShotsFiredTeamObjective != null)
                                     recentSkyTempleShotsFiredTeamObjective.Value += (int) trackerEvent.Data.dictionary[3].optionalData.array[0].dictionary[1].vInt.Value;

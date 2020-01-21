@@ -1,10 +1,10 @@
-﻿namespace Heroes.ReplayParser
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using Heroes.ReplayParser.Streams;
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
     /// <summary> Parses the replay.Initdata file in the replay file. </summary>
     public class ReplayInitData
     {
@@ -142,10 +142,7 @@
                 reader.Read(8); // + 1 = Max Races
 
                 // Max Controls
-                if (replay.ReplayBuild < 59279)
-                    reader.Read(8);
-                else
-                    reader.Read(4);
+                reader.Read(replay.ReplayBuild < 59279 ? 8 : 4);
 
                 replay.MapSize = new Point { X = (int)reader.Read(8), Y = (int)reader.Read(8) };
                 if (replay.MapSize.Y == 1)
@@ -171,10 +168,7 @@
                     reader.ReadBitArray(reader.Read(6)); // m_allowedDifficulty
 
                     // m_allowedControls
-                    if (replay.ReplayBuild < 59279)
-                        reader.ReadBitArray(reader.Read(8));
-                    else
-                        reader.ReadBitArray(reader.Read(4));
+                    reader.ReadBitArray(replay.ReplayBuild < 59279 ? reader.Read(8) : reader.Read(4));
 
                     reader.ReadBitArray(reader.Read(2)); // m_allowedObserveTypes
                     reader.ReadBitArray(reader.Read(7)); // m_allowedAIBuilds
@@ -222,7 +216,7 @@
 
                     reader.Read(32); // m_logoIndex
 
-                    string heroId = Encoding.ASCII.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero
+                    var heroId = Encoding.ASCII.GetString(reader.ReadBlobPrecededWithLength(9)); // m_hero
 
                     var skinAndSkinTint = Encoding.ASCII.GetString(reader.ReadBlobPrecededWithLength(9)); // m_skin
                     if (skinAndSkinTint == "")
@@ -296,19 +290,19 @@
 
                     if (replay.ReplayVersionMajor >= 2)
                     {
-                        string banner = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
+                        var banner = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_banner
                         if (!string.IsNullOrEmpty(banner) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].Banner = banner;
 
-                        string spray = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
+                        var spray = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_spray
                         if (!string.IsNullOrEmpty(spray) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].Spray = spray;
 
-                        string announcer = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
+                        var announcer = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_announcerPack
                         if (!string.IsNullOrEmpty(announcer) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].AnnouncerPack = announcer;
 
-                        string voiceLine = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
+                        var voiceLine = Encoding.UTF8.GetString(reader.ReadBlobPrecededWithLength(9)); // m_voiceLine
                         if (!string.IsNullOrEmpty(voiceLine) && userID.HasValue)
                             replay.ClientListByUserID[userID.Value].VoiceLine = voiceLine;
 
@@ -318,8 +312,8 @@
                             var heroMasteryTiersLength = reader.Read(10);
                             for (var j = 0; j < heroMasteryTiersLength; j++)
                             {
-                                string heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
-                                int tier = (int)reader.Read(8); // m_tier
+                                var heroAttributeName = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray()); // m_hero
+                                var tier = (int)reader.Read(8); // m_tier
 
                                 if (userID.HasValue)
                                 {

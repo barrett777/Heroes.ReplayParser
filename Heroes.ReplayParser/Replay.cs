@@ -1,4 +1,6 @@
-﻿namespace Heroes.ReplayParser
+﻿using Heroes.ReplayParser.MPQFiles;
+
+namespace Heroes.ReplayParser
 {
     using System;
     using System.Collections.Generic;
@@ -96,7 +98,7 @@
         public int StructureXP { get; set; }
         public int HeroXP { get; set; }
         public int TrickleXP { get; set; }
-        public int TotalXP { get { return this.MinionXP + this.CreepXP + this.StructureXP + this.HeroXP + this.TrickleXP; } }
+        public int TotalXP => this.MinionXP + this.CreepXP + this.StructureXP + this.HeroXP + this.TrickleXP;
     }
 
     public class TeamObjective

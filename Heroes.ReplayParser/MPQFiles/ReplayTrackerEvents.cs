@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
-namespace Heroes.ReplayParser
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using System;
-    using System.IO;
-    using System.Text;
-
     /// <summary>
     /// Parses the replay.tracker.events file in the MPQ Archive
     /// </summary>
@@ -122,7 +121,7 @@ namespace Heroes.ReplayParser
         public TrackerEventStructure[] array = null;
         public Dictionary<int, TrackerEventStructure> dictionary = null;
         public byte[] blob = null;
-        public string blobText { get { return blob != null ? Encoding.UTF8.GetString(blob) : null; } }
+        public string blobText => blob != null ? Encoding.UTF8.GetString(blob) : null;
         public int? choiceFlag = null;
         public TrackerEventStructure choiceData = null;
         public TrackerEventStructure optionalData = null;
@@ -195,7 +194,7 @@ namespace Heroes.ReplayParser
             {
                 case 0x00: // array
                     return array != null
-                        ? '[' + string.Join(", ", array.Select(i => i != null ? i.ToString() : null)) + ']'
+                        ? '[' + string.Join(", ", array.Select(i => i?.ToString())) + ']'
                         : null;
                 case 0x01: // bitarray, weird alignment requirements, hasn't been used yet
                     throw new NotImplementedException();
@@ -204,11 +203,9 @@ namespace Heroes.ReplayParser
                 case 0x03: // choice
                     return "Choice: Flag: " + choiceFlag + ", Data: " + choiceData;
                 case 0x04: // optional
-                    return optionalData != null
-                        ? optionalData.ToString()
-                        : null;
+                    return optionalData?.ToString();
                 case 0x05: // struct
-                    return '{' + string.Join(", ", dictionary.Values.Select(i => i != null ? i.ToString() : null)) + '}';
+                    return '{' + string.Join(", ", dictionary.Values.Select(i => i?.ToString())) + '}';
                 case 0x06: // u8
                 case 0x07: // u32
                 case 0x08: // u64

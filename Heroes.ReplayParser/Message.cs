@@ -1,5 +1,5 @@
 ﻿using System;
-using static Heroes.ReplayParser.ReplayMessageEvents;
+using Heroes.ReplayParser.MPQFiles;
 
 namespace Heroes.ReplayParser
 {
@@ -8,10 +8,10 @@ namespace Heroes.ReplayParser
         public Player MessageSender { get; set; }
         public int PlayerIndex { get; set; }
         public TimeSpan Timestamp { get; set; }
-        public MessageEventType MessageEventType { get; set; }
-        public ChatMessage ChatMessage { get; set; }
-        public PingMessage PingMessage { get; set; }
-        public PlayerAnnounceMessage PlayerAnnounceMessage { get; set; }
+        public ReplayMessageEvents.MessageEventType MessageEventType { get; set; }
+        public ReplayMessageEvents.ChatMessage ChatMessage { get; set; }
+        public ReplayMessageEvents.PingMessage PingMessage { get; set; }
+        public ReplayMessageEvents.PlayerAnnounceMessage PlayerAnnounceMessage { get; set; }
 
         public override string ToString()
         {

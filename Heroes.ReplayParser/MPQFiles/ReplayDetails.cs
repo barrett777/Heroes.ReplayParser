@@ -1,10 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 
-namespace Heroes.ReplayParser
+namespace Heroes.ReplayParser.MPQFiles
 {
-    using System;
-    using System.IO;
-
     public static class ReplayDetails
     {
         public const string FileName = "replay.details";
@@ -51,13 +50,18 @@ namespace Heroes.ReplayParser
                     
                     replay.Timestamp = DateTime.FromFileTimeUtc(replayDetailsStructure.dictionary[5].vInt.Value); // m_timeUTC
 
-                    // There was a bug during the below builds where timestamps were buggy for the Mac build of Heroes of the Storm
-                    // The replay, as well as viewing these replays in the game client, showed years such as 1970, 1999, etc
-                    // I couldn't find a way to get the correct timestamp, so I am just estimating based on when these builds were live
-                    if (replay.ReplayBuild == 34053 && replay.Timestamp < new DateTime(2015, 2, 8))
-                        replay.Timestamp = new DateTime(2015, 2, 13);
-                    else if (replay.ReplayBuild == 34190 && replay.Timestamp < new DateTime(2015, 2, 15))
-                        replay.Timestamp = new DateTime(2015, 2, 20);
+                    switch (replay.ReplayBuild)
+                    {
+                        // There was a bug during the below builds where timestamps were buggy for the Mac build of Heroes of the Storm
+                        // The replay, as well as viewing these replays in the game client, showed years such as 1970, 1999, etc
+                        // I couldn't find a way to get the correct timestamp, so I am just estimating based on when these builds were live
+                        case 34053 when replay.Timestamp < new DateTime(2015, 2, 8):
+                            replay.Timestamp = new DateTime(2015, 2, 13);
+                            break;
+                        case 34190 when replay.Timestamp < new DateTime(2015, 2, 15):
+                            replay.Timestamp = new DateTime(2015, 2, 20);
+                            break;
+                    }
 
                     // [6] - m_timeLocalOffset - For Windows replays, this is Utc offset.  For Mac replays, this is actually the entire Local Timestamp
                     // [7] - m_description - Empty String
