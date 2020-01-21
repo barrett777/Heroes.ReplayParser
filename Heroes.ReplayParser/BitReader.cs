@@ -28,16 +28,13 @@
         /// </summary>
         public int Cursor { get; private set; }
 
+
         /// <summary>
         /// Gets a value indicating whether the end of stream has been reached.
         /// </summary>
-        public bool EndOfStream
-        {
-            get
-            {
-                return (Cursor >> 3) == stream.Length;
-            }
-        }
+        public bool EndOfStream => (Cursor >> 3) == stream.Length;
+
+
 
         /// <summary>
         /// Reads up to 32 bits from the stream, returning them as a uint.
