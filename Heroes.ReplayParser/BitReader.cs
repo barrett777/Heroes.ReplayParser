@@ -34,8 +34,6 @@
         /// </summary>
         public bool EndOfStream => (Cursor >> 3) == stream.Length;
 
-
-
         /// <summary>
         /// Reads up to 32 bits from the stream, returning them as a uint.
         /// </summary>
