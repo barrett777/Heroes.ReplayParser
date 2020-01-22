@@ -48,7 +48,7 @@ namespace Heroes.ReplayParser
         /// <summary>
         /// Gets or sets the BattleTag (Numbers only)
         /// </summary>
-        public int? BattleTag { get; set; } = null;
+        public int BattleTag { get; set; }
 
         /// <summary>
         /// Gets or sets the type of player, whether he is human or computer.
