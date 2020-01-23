@@ -1,6 +1,9 @@
 language: csharp
 mono: none
 dotnet: 2.2.108
+branches:
+  only:
+  - master
 install:
  - git fetch --unshallow
 script:
