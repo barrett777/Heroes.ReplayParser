@@ -233,10 +233,11 @@ namespace Heroes.ReplayParser.MPQFiles
 
                 var battleTag = Encoding.UTF8.GetString(bitReader.ReadBlobPrecededWithLength(7)).Split('#'); // battleTag <name>#xxxxx
 
-                if (battleTag.Length != 2 || battleTag[0] != replay.ClientListByUserID[i].Name)
+                if (battleTag[0] != replay.ClientListByUserID[i].Name)
                     throw new DetailedParsedException("Couldn't find BattleTag");
 
-                replay.ClientListByUserID[i].BattleTag = int.Parse(battleTag[1]);
+                if (battleTag.Length == 2)
+                    replay.ClientListByUserID[i].BattleTag = int.Parse(battleTag[1]);
 
                 if (replay.ReplayBuild >= 52860 || (replay.ReplayVersionMajor == 2 && replay.ReplayBuild >= 51978))
                     replay.ClientListByUserID[i].AccountLevel = (int)bitReader.Read(32);  // in custom games, this is a 0
