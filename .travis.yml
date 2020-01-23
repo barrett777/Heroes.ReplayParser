@@ -1,5 +1,7 @@
 language: csharp
 mono: none
 dotnet: 2.2.108
+install:
+ - git fetch --unshallow
 script:
  - dotnet build
