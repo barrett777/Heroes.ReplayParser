@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29521.150
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplication", "ConsoleApplication.csproj", "{861DB181-6C12-48CB-AA2A-19B374ECA319}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplication", "Heroes.ReplayParser.ConsoleApplication\ConsoleApplication.csproj", "{861DB181-6C12-48CB-AA2A-19B374ECA319}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heroes.ReplayParser", "..\Heroes.ReplayParser\Heroes.ReplayParser.csproj", "{AAF78D53-A1DA-424A-B1AA-09895EAB3B2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heroes.ReplayParser", "Heroes.ReplayParser\Heroes.ReplayParser.csproj", "{AAF78D53-A1DA-424A-B1AA-09895EAB3B2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
