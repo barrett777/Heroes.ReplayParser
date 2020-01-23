@@ -4,4 +4,12 @@ dotnet: 2.2.108
 install:
  - git fetch --unshallow
 script:
- - dotnet build
+ - dotnet build -c Release
+deploy:
+  skip_cleanup: true
+  provider: script
+  script:
+ - dotnet pack -c Release
+ - dotnet nuget push **/Heroes.ReplayParser.*.nupkg --api-key $NuGetApiKey --source https://api.nuget.org/v3/index.json
+  on:
+    branch: master
