@@ -1,4 +1,4 @@
-# Heroes.ReplayParser [![NuGet Version](https://img.shields.io/nuget/v/Heroes.ReplayParser.svg)](https://www.nuget.org/packages/Heroes.ReplayParser/) [![NuGet Downloads](https://img.shields.io/nuget/dt/Heroes.ReplayParser.svg)](https://www.nuget.org/packages/Heroes.ReplayParser/) [![GitHub Action Build Status](https://github.com/barrett777/Heroes.ReplayParser/workflows/Build/badge.svg)]
+# Heroes.ReplayParser [![NuGet Version](https://img.shields.io/nuget/v/Heroes.ReplayParser.svg)](https://www.nuget.org/packages/Heroes.ReplayParser/) [![NuGet Downloads](https://img.shields.io/nuget/dt/Heroes.ReplayParser.svg)](https://www.nuget.org/packages/Heroes.ReplayParser/) [![Build Status](https://github.com/barrett777/Heroes.ReplayParser/workflows/Build/badge.svg)]()
 A C# library for parsing Heroes of the Storm replay files (.StormReplay)
 
 Explanation
