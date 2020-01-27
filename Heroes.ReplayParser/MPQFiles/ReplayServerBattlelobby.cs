@@ -423,7 +423,7 @@ namespace Heroes.ReplayParser.MPQFiles
             for (var playerNum = 0; playerNum < replay.Players.Length; playerNum++)
             {
                 var player = replay.Players[playerNum];
-                if (player == null)
+                if (player == null || string.IsNullOrEmpty(player.Name))
                     continue;
 
                 // Find each player's name, and then their associated BattleTag
