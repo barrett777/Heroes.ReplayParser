@@ -51,7 +51,7 @@ namespace Heroes.ReplayParser
         {
             if (numBits > 32)
             {
-                throw new ArgumentOutOfRangeException("numBits", "Number of bits must be less than 32.");
+                throw new ArgumentOutOfRangeException("numBits", "Number of bits must be less than 33.");
             }
 
             uint value = 0;
@@ -75,6 +75,46 @@ namespace Heroes.ReplayParser
             return value;
         }
 
+        /// <summary>
+        /// Reads up to 64 bits from the stream, returning them as a long.
+        /// </summary>
+        /// <param name="numBits">
+        /// The number of bits to read.
+        /// </param>
+        /// <returns>
+        /// The <see cref="uint"/>.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown if numBits is greater than 64.
+        /// </exception>
+        public long ReadLong(int numBits)
+        {
+            if (numBits > 64)
+            {
+                throw new ArgumentOutOfRangeException("numBits", "Number of bits must be less than 65.");
+            }
+
+            long value = 0;
+
+            while (numBits > 0)
+            {
+                var bytePos = Cursor & 7;
+                int bitsLeftInByte = 8 - bytePos;
+                if (bytePos == 0)
+                {
+                    currentByte = stream.ReadByte();
+                }
+
+                var bitsToRead = (bitsLeftInByte > numBits) ? numBits : bitsLeftInByte;
+
+                value = (value << bitsToRead) | ((uint)currentByte >> bytePos) & ((1u << bitsToRead) - 1u);
+                Cursor += bitsToRead;
+                numBits -= bitsToRead;
+            }
+
+            return value;
+
+        }
         /// <summary>
         /// Skip specified number of bits in stream.
         /// </summary>
@@ -197,6 +237,20 @@ namespace Heroes.ReplayParser
             var stringLength = Read(numBitsForLength);
             AlignToByte();
             return ReadBytes((int)stringLength);
+        }
+
+        public string ReadStringFromBits(int numberOfBits, bool reverseEndianType = false)
+        {
+            byte[] bytes = BitConverter.GetBytes(Read(numberOfBits));
+            if (reverseEndianType)
+            {
+                Array.Reverse(bytes);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            else
+            {
+                return Encoding.UTF8.GetString(bytes);
+            }
         }
     }
 }

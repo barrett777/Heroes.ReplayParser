@@ -153,38 +153,53 @@ namespace Heroes.ReplayParser.MPQFiles
 
             for (uint i = 0; i < playerListLength; i++)
             {
-                bitReader.Read(3);
-                bitReader.ReadBytes(24);
-                bitReader.Read(24);
-                bitReader.Read(16);
-                bitReader.Read(10);
+                bitReader.Read(32);
+
+                bitReader.Read(5); // player index
+
+                // toon
+                bitReader.Read(8); // m_region
+                if (bitReader.ReadStringFromBits(32, true) != "Hero") // m_programId
+                    throw new DetailedParsedException("Not Hero");
+                bitReader.Read(32); // m_realm
+                bitReader.ReadLong(64); // m_id
+
+                // internal toon
+                bitReader.Read(8); // m_region
+                if (bitReader.ReadStringFromBits(32, true) != "Hero") // m_programId
+                    throw new DetailedParsedException("Not Hero");
+                bitReader.Read(32); // m_realm
 
                 int idLength = (int)bitReader.Read(7);
 
                 bitReader.AlignToByte();
                 if (bitReader.ReadString(2) != "T:")
-                    throw new Exception("Not T:");
+                    throw new DetailedParsedException("Not T:");
 
                 replay.ClientListByUserID[i].BattleNetTId = bitReader.ReadString(idLength);
 
-                bitReader.ReadBytes(4);
+                bitReader.Read(6);
 
                 if (replay.ReplayBuild <= 47479)
                 {
-                    bitReader.ReadBytes(5);
-                    bitReader.Read(5);
+                    // internal toon repeat
+                    bitReader.Read(8); // m_region
+                    if (bitReader.ReadStringFromBits(32, true) != "Hero") // m_programId
+                        throw new DetailedParsedException("Not Hero");
+                    bitReader.Read(32); // m_realm
 
                     idLength = (int)bitReader.Read(7);
+                    bitReader.AlignToByte();
                     if (bitReader.ReadString(2) != "T:")
-                        throw new Exception(" Not T: (duplicate)");
+                        throw new DetailedParsedException("Not T: (duplicate)");
 
                     if (replay.ClientListByUserID[i].BattleNetTId != bitReader.ReadString(idLength))
-                        throw new Exception($"Duplicate TID does not match");
+                        throw new DetailedParsedException("Duplicate TID does not match");
                 }
-                else
-                {
-                    bitReader.ReadBytes(25);
-                }
+
+                bitReader.Read(2);
+                bitReader.ReadBytes(25);
+                bitReader.Read(24);
 
                 // bitReader.ReadBytes(8); ai games have 8 more bytes somewhere around here
 
@@ -245,11 +260,6 @@ namespace Heroes.ReplayParser.MPQFiles
                 if (replay.ReplayBuild >= 69947)
                 {
                     bitReader.ReadBoolean(); // m_hasActiveBoost
-                    bitReader.Read(2);
-                }
-                else
-                {
-                    bitReader.Read(3);
                 }
             }
 
@@ -423,7 +433,7 @@ namespace Heroes.ReplayParser.MPQFiles
             for (var playerNum = 0; playerNum < replay.Players.Length; playerNum++)
             {
                 var player = replay.Players[playerNum];
-                if (player == null)
+                if (player == null || string.IsNullOrEmpty(player.Name))
                     continue;
 
                 // Find each player's name, and then their associated BattleTag
