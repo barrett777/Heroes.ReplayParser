@@ -22,8 +22,8 @@ namespace Heroes.ReplayParser.MPQFiles
                 var bitReader = new BitReader(stream);
 
                 // 52124 and 52381 are non-tested ptr builds
-                if (replay.ReplayBuild < 38793 ||
-                    replay.ReplayBuild == 52124 || replay.ReplayBuild == 52381 ||
+                if (replay.ReplayBuild < 47479 ||
+                    replay.ReplayBuild < 47903 || replay.ReplayBuild == 52124 || replay.ReplayBuild == 52381 ||
                     replay.GameMode == GameMode.Unknown)
                 {
                     GetBattleTags(replay, bitReader);
@@ -127,13 +127,6 @@ namespace Heroes.ReplayParser.MPQFiles
 
             // Player info 
             // ------------------------
-            if (replay.ReplayBuild <= 43905 || replay.ReplayBuild == 47801)
-            {
-                // Builds that are not yet supported for detailed parsing
-                // build 47801 is a ptr build that had new data in the battletag section, the data was changed in 47944 (patch for 47801)
-                GetBattleTags(replay, bitReader);
-                return;
-            }
 
             // m_randomSeed, set it if it hasn't been set
             if (replay.RandomValue == 0)
@@ -142,12 +135,6 @@ namespace Heroes.ReplayParser.MPQFiles
                 bitReader.ReadInt32();
 
             bitReader.ReadBytes(4);
-
-            if (replay.ReplayBuild <= 47479 || replay.ReplayBuild == 47903)
-            {
-                ExtendedBattleTagParsingOld(replay, bitReader);
-                return;
-            }
 
             uint playerListLength = bitReader.Read(5);
 
