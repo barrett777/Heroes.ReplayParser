@@ -127,7 +127,7 @@ namespace Heroes.ReplayParser.MPQFiles
 
             // Player info 
             // ------------------------
-            if (replay.ReplayBuild <= 43259 || replay.ReplayBuild == 47801)
+            if (replay.ReplayBuild <= 43905 || replay.ReplayBuild == 47801)
             {
                 // Builds that are not yet supported for detailed parsing
                 // build 47801 is a ptr build that had new data in the battletag section, the data was changed in 47944 (patch for 47801)
