@@ -157,12 +157,8 @@ namespace Heroes.ReplayParser.MPQFiles
                     throw new DetailedParsedException("Not Hero");
                 bitReader.Read(32); // m_realm
 
-                int idLength = (int)bitReader.Read(7);
-
+                int idLength = (int)bitReader.Read(7) + 2;
                 bitReader.AlignToByte();
-                if (bitReader.ReadString(2) != "T:")
-                    throw new DetailedParsedException("Not T:");
-
                 replay.ClientListByUserID[i].BattleNetTId = bitReader.ReadString(idLength);
 
                 bitReader.Read(6);
@@ -175,13 +171,10 @@ namespace Heroes.ReplayParser.MPQFiles
                         throw new DetailedParsedException("Not Hero");
                     bitReader.Read(32); // m_realm
 
-                    idLength = (int)bitReader.Read(7);
+                    idLength = (int)bitReader.Read(7) + 2;
                     bitReader.AlignToByte();
-                    if (bitReader.ReadString(2) != "T:")
-                        throw new DetailedParsedException("Not T: (duplicate)");
-
                     if (replay.ClientListByUserID[i].BattleNetTId != bitReader.ReadString(idLength))
-                        throw new DetailedParsedException("Duplicate TID does not match");
+                        throw new DetailedParsedException("Duplicate internal id does not match");
                 }
 
                 bitReader.Read(2);
