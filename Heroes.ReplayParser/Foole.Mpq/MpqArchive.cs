@@ -248,7 +248,7 @@ namespace Foole.Mpq
 			
 			foreach(char c in input)
 			{
-				int val = (int)char.ToUpper(c);
+				int val = (int)char.ToUpperInvariant(c);
 				seed1 = sStormBuffer[offset + val] ^ (seed1 + seed2);
 				seed2 = (uint)val + seed1 + seed2 + (seed2 << 5) + 3;
 			}
