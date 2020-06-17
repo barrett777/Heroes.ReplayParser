@@ -166,7 +166,7 @@ namespace Heroes.ReplayParser
                         player.Talents = talentGameEventsDictionary[player];
                 }
                 // Replay Server Battlelobby
-                if (!parseOptions.IgnoreErrors && archive.Any(i => i.Filename == ReplayServerBattlelobby.FileName))
+                if (archive.Any(i => i.Filename == ReplayServerBattlelobby.FileName))
                 {
                     if (parseOptions.ShouldParseDetailedBattleLobby)
                         ReplayServerBattlelobby.Parse(replay, GetMpqFile(archive, ReplayServerBattlelobby.FileName));

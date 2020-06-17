@@ -181,7 +181,8 @@ namespace Heroes.ReplayParser.MPQFiles
                 bitReader.ReadBytes(25);
                 bitReader.Read(24);
 
-                // bitReader.ReadBytes(8); ai games have 8 more bytes somewhere around here
+                if (replay.GameMode == GameMode.Cooperative)
+                    bitReader.ReadBytes(8); // ai games have 8 more bytes somewhere around here
 
                 bitReader.Read(7);
 
@@ -190,24 +191,19 @@ namespace Heroes.ReplayParser.MPQFiles
                     // repeat of the collection section above
                     if (replay.ReplayBuild >= 51609 || replay.ReplayBuild == 47903 || replay.ReplayBuild == 47479)
                     {
-                        uint size = bitReader.Read(12);
-
-                        int bytesSize = (int)(size / 8);
-                        int bitsSize = (int)(size % 8);
-
-                        bitReader.ReadBytes(bytesSize);
-                        bitReader.Read(bitsSize);
-
-                        bitReader.ReadBoolean();
+                        bitReader.ReadBitArray(bitReader.Read(12));
+                    }
+                    else if (replay.ReplayBuild > 47219)
+                    {
+                        // each byte has a max value of 0x7F (127)
+                        bitReader.ReadBytes((int)bitReader.Read(15) * 2);
                     }
                     else
                     {
-                        bitReader.Read(1);
-                        uint size = bitReader.Read(15);
-
-                        // each byte has a max value of 0x7F (127)
-                        bitReader.ReadBytes((int)size * 2);
+                        bitReader.ReadBitArray(bitReader.Read(9));
                     }
+
+                    bitReader.ReadBoolean();
                 }
 
                 bitReader.ReadBoolean(); // m_hasSilencePenalty
