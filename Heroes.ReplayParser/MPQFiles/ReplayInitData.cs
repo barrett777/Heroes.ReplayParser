@@ -93,16 +93,20 @@ namespace Heroes.ReplayParser.MPQFiles
                 if (replay.ReplayBuild >= 43905 && reader.ReadBoolean())
                     switch (reader.ReadInt32())
                     {
-                        case 50021: // Versus AI (Cooperative)
-                        case 50041: // Practice
-                            break;
-
                         case 50001:
                             replay.GameMode = GameMode.QuickMatch;
                             break;
 
+                        case 50021:
+                            replay.GameMode = GameMode.Cooperative;
+                            break;
+
                         case 50031:
                             replay.GameMode = GameMode.Brawl;
+                            break;
+
+                        case 50041:
+                            replay.GameMode = GameMode.TryMe;
                             break;
 
                         case 50051:
