@@ -91,21 +91,44 @@ namespace Heroes.ReplayParser.MPQFiles
 
                 // m_ammId
                 if (replay.ReplayBuild >= 43905 && reader.ReadBoolean())
-                {
-                    replay.GameMode = (reader.ReadInt32()) switch
+                    switch (reader.ReadInt32())
                     {
-                        50001 => GameMode.QuickMatch,
-                        50021 => GameMode.Cooperative,
-                        50031 => GameMode.Brawl,
-                        50041 => GameMode.Practice,
-                        50051 => GameMode.UnrankedDraft,
-                        50061 => GameMode.HeroLeague,
-                        50071 => GameMode.TeamLeague,
-                        50091 => GameMode.StormLeague,
+                        case 50001:
+                            replay.GameMode = GameMode.QuickMatch;
+                            break;
 
-                        _ => GameMode.Unknown,
-                    };
-                }
+                        case 50021:
+                            replay.GameMode = GameMode.Cooperative;
+                            break;
+
+                        case 50031:
+                            replay.GameMode = GameMode.Brawl;
+                            break;
+
+                        case 50041:
+                            replay.GameMode = GameMode.TryMe;
+                            break;
+
+                        case 50051:
+                            replay.GameMode = GameMode.UnrankedDraft;
+                            break;
+
+                        case 50061:
+                            replay.GameMode = GameMode.HeroLeague;
+                            break;
+
+                        case 50071:
+                            replay.GameMode = GameMode.TeamLeague;
+                            break;
+
+                        case 50091:
+                            replay.GameMode = GameMode.StormLeague;
+                            break;
+
+                        default:
+                            replay.GameMode = GameMode.Unknown;
+                            break;
+                    }
 
                 reader.Read(3); // Game Speed
 
