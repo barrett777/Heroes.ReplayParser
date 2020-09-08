@@ -125,6 +125,10 @@ namespace Heroes.ReplayParser.MPQFiles
                             replay.GameMode = GameMode.StormLeague;
                             break;
 
+                        case 50101:
+                            replay.GameMode = GameMode.ARAM;
+                            break;
+
                         default:
                             replay.GameMode = GameMode.Unknown;
                             break;
