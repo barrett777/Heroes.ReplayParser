@@ -125,6 +125,9 @@ namespace Heroes.ReplayParser.MPQFiles
                 }
             }
 
+            if (replay.ReplayBuild >= 85027)
+                bitReader.ReadByte(); // could contain m_disabledHeroList
+
             // Player info 
             // ------------------------
 
