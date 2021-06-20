@@ -202,11 +202,9 @@ namespace Heroes.ReplayParser.MPQFiles
                     // m_disabledHeroList
                     var disabledHeroListLength = reader.Read(10);
 
-                    // TODO: This has been '0' in all my games, so nothing to see here
-                    // I'm not sure what it is for.  Maybe it is just for ranked games, or something yet to be implemented in the game client
                     for (var i = 0; i < disabledHeroListLength; i++)
                     {
-                        var disabledHero = new string(BitConverter.GetBytes(reader.Read(32)).Select(k => (char)k).Reverse().ToArray());
+                        replay.DisabledHeroes.Add(reader.ReadStringFromBits(32, true));
                     }
                 }
 
