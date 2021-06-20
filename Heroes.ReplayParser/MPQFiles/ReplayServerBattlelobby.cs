@@ -126,7 +126,18 @@ namespace Heroes.ReplayParser.MPQFiles
             }
 
             if (replay.ReplayBuild >= 85027)
-                bitReader.ReadByte(); // could contain m_disabledHeroList
+            {
+                // m_disabledHeroList
+                uint disabledHeroListLength = bitReader.Read(8);
+
+                for (int i = 0; i < disabledHeroListLength; i++)
+                {
+                    string disabledHeroAttributeId = bitReader.ReadStringFromBits(32, true);
+
+                    if (replay.DisabledHeroes.Count == 0)
+                        replay.DisabledHeroes.Add(disabledHeroAttributeId);
+                }
+            }
 
             // Player info 
             // ------------------------

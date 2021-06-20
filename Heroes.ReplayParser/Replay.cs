@@ -85,6 +85,9 @@ namespace Heroes.ReplayParser
         /// <summary> Gets the draft order. Picks, bans, and swaps. </summary>
         public List<DraftPick> DraftOrder { get; set; } = new List<DraftPick>();
 
+        /// <summary> Gets the disabled heroes as attributeIds. </summary>
+        public List<string> DisabledHeroes { get; set; } = new List<string>();
+
         public bool IsGameEventsParsedSuccessfully { get; set; } = false;
         public bool? IsStatisticsParsedSuccessfully { get; set; } = null;
     }
