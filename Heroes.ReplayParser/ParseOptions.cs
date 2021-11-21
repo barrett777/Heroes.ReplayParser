@@ -61,7 +61,7 @@ namespace Heroes.ReplayParser
 
 
         /// <summary>
-        /// Parsing for typical needs, excludes events, units and mouseevents.
+        /// Parsing for typical needs, excludes message events
         /// </summary>
         public static ParseOptions DefaultParsing => new ParseOptions();
 
